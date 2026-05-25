@@ -21,7 +21,7 @@ namespace Admissions_Reserve.View
             InitializeComponent();
             LoadReferenceData();
 
-            if (SessionManager.CurrentApplicant != null)
+            if (SessionManager.CurrentApplicant != null && SessionManager.CurrentApplicant.Id != 0)
             {
                 currentApplicant = SessionManager.CurrentApplicant;
                 isNewApplicant = false;
@@ -30,15 +30,12 @@ namespace Admissions_Reserve.View
             }
             else
             {
+                // Абитуриент будет создан только при сохранении данных (нажатии кнопки "Далее")
                 currentApplicant = new Applicants
                 {
                     CreatedAt = DateTime.Now,
                     UpdatedAt = DateTime.Now
                 };
-
-                // Сразу создаем запись в БД
-                currentApplicant.Id = DataService.CreateApplicant(currentApplicant);
-                SessionManager.CurrentApplicant = currentApplicant;
                 isNewApplicant = true;
             }
             isInitialized = true;
@@ -257,6 +254,13 @@ namespace Admissions_Reserve.View
             {
                 if (!ValidateData())
                     return false;
+
+                // Если абитуриент еще не создан (нет ID), создаем его в БД
+                if (currentApplicant.Id == 0)
+                {
+                    currentApplicant.Id = DataService.CreateApplicant(currentApplicant);
+                    SessionManager.CurrentApplicant = currentApplicant;
+                }
 
                 // Обновляем данные из формы
                 currentApplicant.LastName = LastNameTextBox.Text.Trim();

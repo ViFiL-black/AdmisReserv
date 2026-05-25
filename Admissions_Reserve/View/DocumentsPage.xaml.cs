@@ -145,6 +145,16 @@ namespace Admissions_Reserve.View
         {
             InitializeComponent();
             Loaded += DocumentsPage_Loaded;
+            
+            // Получаем ID текущего абитуриента из SessionManager
+            if (SessionManager.CurrentApplicant != null && SessionManager.CurrentApplicant.Id != 0)
+            {
+                // ID уже установлен в SessionManager
+            }
+            else if (SessionManager.CurrentApplicantId.HasValue)
+            {
+                // ID уже установлен
+            }
         }
 
         private void DocumentsPage_Loaded(object sender, RoutedEventArgs e)

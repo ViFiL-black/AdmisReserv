@@ -26,6 +26,16 @@ namespace Admissions_Reserve.View
         {
             InitializeComponent();
             Loaded += AdditionalInfoPage_Loaded;
+            
+            // Получаем ID текущего абитуриента из SessionManager
+            if (SessionManager.CurrentApplicant != null && SessionManager.CurrentApplicant.Id != 0)
+            {
+                _currentApplicantId = SessionManager.CurrentApplicant.Id;
+            }
+            else if (SessionManager.CurrentApplicantId.HasValue)
+            {
+                _currentApplicantId = SessionManager.CurrentApplicantId.Value;
+            }
         }
 
         public AdditionalInfoPage(int applicantId) : this()
@@ -802,7 +812,8 @@ namespace Admissions_Reserve.View
             {
                 MessageBox.Show("Данные сохранены успешно!", "Информация",
                     MessageBoxButton.OK, MessageBoxImage.Information);
-                // NavigationService.Navigate(new ProgramsPage(_currentApplicantId.Value));
+                // Переход на следующую страницу - ApplicationCompetitionsPage
+                NavigationService?.Navigate(new ApplicationCompetitionsPage());
             }
         }
 
