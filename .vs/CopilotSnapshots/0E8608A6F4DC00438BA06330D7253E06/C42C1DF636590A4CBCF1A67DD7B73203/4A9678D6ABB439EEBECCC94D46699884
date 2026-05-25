@@ -1,0 +1,846 @@
+﻿using Admissions_Reserve.Model;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
+
+namespace Admissions_Reserve.View
+{
+    public partial class AdditionalInfoPage : Page
+    {
+        private Core core = new Core();
+        private int? _currentApplicantId;
+        private bool isInitialized = false;
+
+        // Коллекции для привязки
+        private List<LanguageViewModel> _languagesList = new List<LanguageViewModel>();
+        private List<SportAchievementViewModel> _sportsList = new List<SportAchievementViewModel>();
+
+        // Словарь для хранения ошибок валидации
+        private Dictionary<string, string> _validationErrors = new Dictionary<string, string>();
+
+        public AdditionalInfoPage()
+        {
+            InitializeComponent();
+            Loaded += AdditionalInfoPage_Loaded;
+        }
+
+        public AdditionalInfoPage(int applicantId) : this()
+        {
+            _currentApplicantId = applicantId;
+        }
+
+        private void AdditionalInfoPage_Loaded(object sender, RoutedEventArgs e)
+        {
+            // Привязка данных к DataGrid
+            LanguagesGrid.ItemsSource = _languagesList;
+            SportsGrid.ItemsSource = _sportsList;
+
+            // Загрузка справочных данных
+            LoadReferenceData();
+
+            // Загрузка данных абитуриента
+            LoadApplicantAdditionalData();
+            isInitialized = true;
+        }
+
+        /// <summary>
+        /// Загрузка справочных данных из БД
+        /// </summary>
+        private void LoadReferenceData()
+        {
+            try
+            {
+                // Очистка ItemsSource перед заполнением
+                BirthCountryCombo.Items.Clear();
+                var countries = core.context.Countries.Where(c => c.IsActive == true).ToList();
+                foreach (var country in countries)
+                {
+                    BirthCountryCombo.Items.Add(new ComboBoxItem { Content = country.Name, Tag = country.Id });
+                }
+                if (BirthCountryCombo.Items.Count > 0)
+                    BirthCountryCombo.SelectedIndex = 0;
+
+                // Загрузка языков
+                LanguageCombo.Items.Clear();
+                var languages = core.context.Languages.ToList();
+                foreach (var lang in languages)
+                {
+                    LanguageCombo.Items.Add(new ComboBoxItem { Content = lang.Name, Tag = lang.Id });
+                }
+                if (LanguageCombo.Items.Count > 0)
+                    LanguageCombo.SelectedIndex = 0;
+
+                // Загрузка уровней языков
+                LanguageLevelCombo.Items.Clear();
+                var languageLevels = core.context.LanguageLevels.OrderBy(l => l.SortOrder).ToList();
+                foreach (var level in languageLevels)
+                {
+                    LanguageLevelCombo.Items.Add(new ComboBoxItem { Content = level.Name, Tag = level.Id });
+                }
+                if (LanguageLevelCombo.Items.Count > 0)
+                    LanguageLevelCombo.SelectedIndex = 0;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка загрузки справочных данных: {ex.Message}", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        /// <summary>
+        /// Загрузка данных абитуриента из БД
+        /// </summary>
+        private void LoadApplicantAdditionalData()
+        {
+            if (_currentApplicantId == null) return;
+
+            try
+            {
+                var applicant = core.context.Applicants.FirstOrDefault(a => a.Id == _currentApplicantId);
+                if (applicant == null) return;
+
+                // СНИЛС
+                if (!string.IsNullOrEmpty(applicant.Snils))
+                {
+                    SnilsTextBox.Text = applicant.Snils;
+                    NoSnilsCheckBox.IsChecked = false;
+                }
+
+                // ИНН
+                if (!string.IsNullOrEmpty(applicant.Inn))
+                {
+                    InnTextBox.Text = applicant.Inn;
+                }
+
+                // Общежитие
+                NeedsDormitoryCheckBox.IsChecked = applicant.NeedsDormitory ?? false;
+                HasDormitoryBenefitsCheckBox.IsChecked = applicant.HasDormitoryBenefits ?? false;
+
+                // Подготовительные курсы
+                CompletedPreparatoryCoursesCheckBox.IsChecked = applicant.CompletedPreparatoryCourses ?? false;
+                CompletedPreparatoryDepartmentCheckBox.IsChecked = applicant.CompletedPreparatoryDepartment ?? false;
+
+                // Медицинское образование
+                CompletedMedicalEducationCheckBox.IsChecked = applicant.CompletedMedicalEducation ?? false;
+
+                // Место работы
+                if (!string.IsNullOrEmpty(applicant.CurrentWorkPlace))
+                {
+                    CurrentWorkPlaceTextBox.Text = applicant.CurrentWorkPlace;
+                }
+
+                // Служба в армии
+                ServedInArmyCheckBox.IsChecked = applicant.ServedInArmy ?? false;
+                if (applicant.ServiceStartDate.HasValue)
+                    ServiceStartDatePicker.SelectedDate = applicant.ServiceStartDate;
+                if (applicant.ServiceEndDate.HasValue)
+                    ServiceEndDatePicker.SelectedDate = applicant.ServiceEndDate;
+                if (applicant.ReserveYear.HasValue)
+                    ReserveYearTextBox.Text = applicant.ReserveYear.ToString();
+
+                // Загрузка языков абитуриента
+                LoadLanguages(applicant.Id);
+
+                // Загрузка спортивных достижений
+                LoadSportAchievements(applicant.Id);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка загрузки данных: {ex.Message}", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void LoadLanguages(int applicantId)
+        {
+            var languages = from al in core.context.ApplicantLanguages
+                            join l in core.context.Languages on al.LanguageId equals l.Id
+                            join ll in core.context.LanguageLevels on al.LanguageLevelId equals ll.Id
+                            where al.ApplicantId == applicantId
+                            select new LanguageViewModel
+                            {
+                                Id = al.Id,
+                                LanguageId = al.LanguageId ?? 0,
+                                Language = l.Name,
+                                LevelId = al.LanguageLevelId ?? 0,
+                                Level = ll.Name,
+                                IsPrimary = al.IsPrimary ?? false
+                            };
+
+            _languagesList.Clear();
+            foreach (var lang in languages)
+            {
+                _languagesList.Add(lang);
+            }
+            LanguagesGrid.Items.Refresh();
+        }
+
+        private void LoadSportAchievements(int applicantId)
+        {
+            var sports = core.context.SportAchievements
+                .Where(s => s.ApplicantId == applicantId)
+                .Select(s => new SportAchievementViewModel
+                {
+                    Id = s.Id,
+                    SportType = s.SportType,
+                    Rank = s.Rank,
+                    Year = s.Year
+                }).ToList();
+
+            _sportsList.Clear();
+            foreach (var sport in sports)
+            {
+                _sportsList.Add(sport);
+            }
+            SportsGrid.Items.Refresh();
+        }
+
+        /// <summary>
+        /// Валидация всех полей формы
+        /// </summary>
+        private bool ValidateAllFields()
+        {
+            _validationErrors.Clear();
+            ClearAllErrors();
+
+            // Валидация СНИЛС
+            if (NoSnilsCheckBox.IsChecked != true && !string.IsNullOrWhiteSpace(SnilsTextBox.Text))
+            {
+                if (!ValidateSnils(SnilsTextBox.Text))
+                {
+                    AddError("Snils", "СНИЛС должен содержать 11 цифр в формате XXX-XXX-XXX XX или XXX XXX XXX XX");
+                    SetErrorStyle(SnilsTextBox);
+                }
+            }
+
+            // Валидация ИНН
+            if (!string.IsNullOrWhiteSpace(InnTextBox.Text))
+            {
+                if (!ValidateInn(InnTextBox.Text))
+                {
+                    AddError("Inn", "ИНН должен содержать 10 или 12 цифр");
+                    SetErrorStyle(InnTextBox);
+                }
+            }
+
+            // Валидация года увольнения в запас
+            if (ServedInArmyCheckBox.IsChecked == true && !string.IsNullOrWhiteSpace(ReserveYearTextBox.Text))
+            {
+                if (!ValidateYear(ReserveYearTextBox.Text, 1900, DateTime.Now.Year))
+                {
+                    AddError("ReserveYear", "Год увольнения в запас должен быть в диапазоне от 1900 до текущего года");
+                    SetErrorStyle(ReserveYearTextBox);
+                }
+            }
+
+            // Валидация дат службы в армии
+            if (ServedInArmyCheckBox.IsChecked == true)
+            {
+                if (ServiceStartDatePicker.SelectedDate.HasValue && ServiceEndDatePicker.SelectedDate.HasValue)
+                {
+                    if (ServiceStartDatePicker.SelectedDate.Value > ServiceEndDatePicker.SelectedDate.Value)
+                    {
+                        AddError("ServiceDates", "Дата начала службы не может быть позже даты окончания");
+                        SetErrorStyle(ServiceStartDatePicker);
+                        SetErrorStyle(ServiceEndDatePicker);
+                    }
+                }
+            }
+
+            // Валидация наличия хотя бы одного языка (если не добавлено ни одного)
+            if (_languagesList.Count == 0)
+            {
+                // Не критическая ошибка, только предупреждение
+                MessageBox.Show("Рекомендуется указать хотя бы один иностранный язык", "Предупреждение",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+
+            // Показ всех ошибок
+            if (_validationErrors.Count > 0)
+            {
+                ShowValidationErrors();
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Валидация СНИЛС
+        /// </summary>
+        private bool ValidateSnils(string snils)
+        {
+            string digits = new string(snils.Where(char.IsDigit).ToArray());
+            if (digits.Length != 11) return false;
+
+            // Проверка контрольной суммы
+            int sum = 0;
+            for (int i = 0; i < 9; i++)
+            {
+                sum += int.Parse(digits[i].ToString()) * (9 - i);
+            }
+
+            int checkDigit = sum % 101 % 100;
+            int actualDigit = int.Parse(digits.Substring(9, 2));
+
+            return checkDigit == actualDigit;
+        }
+
+        /// <summary>
+        /// Валидация ИНН
+        /// </summary>
+        private bool ValidateInn(string inn)
+        {
+            string digits = new string(inn.Where(char.IsDigit).ToArray());
+            if (digits.Length != 10 && digits.Length != 12) return false;
+            return true;
+        }
+
+        /// <summary>
+        /// Валидация года
+        /// </summary>
+        private bool ValidateYear(string year, int minYear, int maxYear)
+        {
+            if (int.TryParse(year, out int yearValue))
+            {
+                return yearValue >= minYear && yearValue <= maxYear;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Добавление ошибки валидации
+        /// </summary>
+        private void AddError(string field, string message)
+        {
+            if (!_validationErrors.ContainsKey(field))
+            {
+                _validationErrors.Add(field, message);
+            }
+        }
+
+        /// <summary>
+        /// Очистка всех стилей ошибок
+        /// </summary>
+        private void ClearAllErrors()
+        {
+            ClearErrorStyle(SnilsTextBox);
+            ClearErrorStyle(InnTextBox);
+            ClearErrorStyle(ReserveYearTextBox);
+            ClearErrorStyle(ServiceStartDatePicker);
+            ClearErrorStyle(ServiceEndDatePicker);
+        }
+
+        /// <summary>
+        /// Установка стиля ошибки для элемента
+        /// </summary>
+        private void SetErrorStyle(FrameworkElement element)
+        {
+
+            // Добавление Tooltip с ошибкой
+            if (element is TextBox textBox)
+            {
+                textBox.ToolTip = GetErrorMessageForField(textBox.Name);
+            }
+            else if (element is DatePicker datePicker)
+            {
+                datePicker.ToolTip = GetErrorMessageForField(datePicker.Name);
+            }
+        }
+
+        /// <summary>
+        /// Очистка стиля ошибки
+        /// </summary>
+        private void ClearErrorStyle(FrameworkElement element)
+        {
+ 
+            element.ToolTip = null;
+        }
+
+        /// <summary>
+        /// Получение сообщения об ошибке для поля
+        /// </summary>
+        private string GetErrorMessageForField(string fieldName)
+        {
+            switch (fieldName)
+            {
+                case nameof(SnilsTextBox):
+                    return _validationErrors.ContainsKey("Snils") ? _validationErrors["Snils"] : null;
+                case nameof(InnTextBox):
+                    return _validationErrors.ContainsKey("Inn") ? _validationErrors["Inn"] : null;
+                case nameof(ReserveYearTextBox):
+                    return _validationErrors.ContainsKey("ReserveYear") ? _validationErrors["ReserveYear"] : null;
+                default:
+                    return null;
+            }
+        }
+
+        /// <summary>
+        /// Показ всех ошибок валидации
+        /// </summary>
+        private void ShowValidationErrors()
+        {
+            string errorMessage = "Пожалуйста, исправьте следующие ошибки:\n\n";
+            foreach (var error in _validationErrors)
+            {
+                errorMessage += $"• {error.Value}\n";
+            }
+            MessageBox.Show(errorMessage, "Ошибки валидации", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+
+        private bool SaveAllData()
+        {
+            // Валидация перед сохранением
+            if (!ValidateAllFields())
+            {
+                return false;
+            }
+
+            try
+            {
+                if (_currentApplicantId == null)
+                {
+                    var newApplicant = new Applicants();
+                    FillApplicantData(newApplicant);
+                    core.context.Applicants.Add(newApplicant);
+                    core.context.SaveChanges();
+                    _currentApplicantId = newApplicant.Id;
+                }
+                else
+                {
+                    var applicant = core.context.Applicants.FirstOrDefault(a => a.Id == _currentApplicantId);
+                    if (applicant != null)
+                    {
+                        FillApplicantData(applicant);
+                        applicant.UpdatedAt = DateTime.Now;
+                    }
+                    core.context.SaveChanges();
+                }
+
+                SaveLanguages(_currentApplicantId.Value);
+                SaveSportAchievements(_currentApplicantId.Value);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка сохранения данных: {ex.Message}", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
+            }
+        }
+
+        private void FillApplicantData(Applicants applicant)
+        {
+            // СНИЛС
+            if (NoSnilsCheckBox.IsChecked == true)
+            {
+                applicant.Snils = null;
+            }
+            else
+            {
+                string snils = SnilsTextBox.Text?.Trim();
+                if (!string.IsNullOrEmpty(snils))
+                {
+                    string digits = new string(snils.Where(char.IsDigit).ToArray());
+                    if (digits.Length == 11)
+                    {
+                        if (SnilsSpaceRadio.IsChecked == true)
+                        {
+                            snils = FormatSnilsWithSpace(snils);
+                        }
+                        else if (SnilsHyphenRadio.IsChecked == true)
+                        {
+                            snils = FormatSnilsWithHyphen(snils);
+                        }
+                        else
+                        {
+                            snils = digits;
+                        }
+                    }
+                    applicant.Snils = snils;
+                }
+            }
+
+            // ИНН
+            string inn = InnTextBox.Text?.Trim();
+            if (!string.IsNullOrEmpty(inn))
+            {
+                string digits = new string(inn.Where(char.IsDigit).ToArray());
+                if (digits.Length == 10 || digits.Length == 12)
+                {
+                    applicant.Inn = digits;
+                }
+            }
+
+            // Выбранная страна
+            if (BirthCountryCombo.SelectedItem is ComboBoxItem selectedCountry)
+            {
+                applicant.BirthPlace = selectedCountry.Content.ToString();
+            }
+
+            // Общежитие
+            applicant.NeedsDormitory = NeedsDormitoryCheckBox.IsChecked;
+            applicant.HasDormitoryBenefits = HasDormitoryBenefitsCheckBox.IsChecked;
+
+            // Подготовительные курсы
+            applicant.CompletedPreparatoryCourses = CompletedPreparatoryCoursesCheckBox.IsChecked;
+            applicant.CompletedPreparatoryDepartment = CompletedPreparatoryDepartmentCheckBox.IsChecked;
+
+            // Медицинское образование
+            applicant.CompletedMedicalEducation = CompletedMedicalEducationCheckBox.IsChecked;
+
+            // Место работы
+            applicant.CurrentWorkPlace = string.IsNullOrWhiteSpace(CurrentWorkPlaceTextBox.Text)
+                ? null : CurrentWorkPlaceTextBox.Text;
+
+            // Служба в армии
+            applicant.ServedInArmy = ServedInArmyCheckBox.IsChecked;
+            applicant.ServiceStartDate = ServiceStartDatePicker.SelectedDate;
+            applicant.ServiceEndDate = ServiceEndDatePicker.SelectedDate;
+
+            if (!string.IsNullOrWhiteSpace(ReserveYearTextBox.Text) && int.TryParse(ReserveYearTextBox.Text, out int year))
+            {
+                applicant.ReserveYear = year;
+            }
+        }
+
+        private void SaveLanguages(int applicantId)
+        {
+            var existingLanguages = core.context.ApplicantLanguages
+                .Where(al => al.ApplicantId == applicantId).ToList();
+
+            var keptIds = _languagesList.Where(l => l.Id > 0).Select(l => l.Id).ToList();
+
+            var toDelete = existingLanguages.Where(el => !keptIds.Contains(el.Id)).ToList();
+            core.context.ApplicantLanguages.RemoveRange(toDelete);
+
+            foreach (var langVM in _languagesList)
+            {
+                if (langVM.Id > 0)
+                {
+                    var existing = existingLanguages.FirstOrDefault(el => el.Id == langVM.Id);
+                    if (existing != null)
+                    {
+                        existing.LanguageId = langVM.LanguageId;
+                        existing.LanguageLevelId = langVM.LevelId;
+                        existing.IsPrimary = langVM.IsPrimary;
+                    }
+                }
+                else
+                {
+                    var newLang = new ApplicantLanguages
+                    {
+                        ApplicantId = applicantId,
+                        LanguageId = langVM.LanguageId,
+                        LanguageLevelId = langVM.LevelId,
+                        IsPrimary = langVM.IsPrimary
+                    };
+                    core.context.ApplicantLanguages.Add(newLang);
+                }
+            }
+
+            core.context.SaveChanges();
+        }
+
+        private void SaveSportAchievements(int applicantId)
+        {
+            var existingSports = core.context.SportAchievements
+                .Where(s => s.ApplicantId == applicantId).ToList();
+
+            var keptIds = _sportsList.Where(s => s.Id > 0).Select(s => s.Id).ToList();
+
+            var toDelete = existingSports.Where(es => !keptIds.Contains(es.Id)).ToList();
+            core.context.SportAchievements.RemoveRange(toDelete);
+
+            foreach (var sportVM in _sportsList)
+            {
+                if (sportVM.Id > 0)
+                {
+                    var existing = existingSports.FirstOrDefault(es => es.Id == sportVM.Id);
+                    if (existing != null)
+                    {
+                        existing.SportType = sportVM.SportType;
+                        existing.Rank = sportVM.Rank;
+                        existing.Year = sportVM.Year;
+                    }
+                }
+                else
+                {
+                    var newSport = new SportAchievements
+                    {
+                        ApplicantId = applicantId,
+                        SportType = sportVM.SportType,
+                        Rank = sportVM.Rank,
+                        Year = sportVM.Year
+                    };
+                    core.context.SportAchievements.Add(newSport);
+                }
+            }
+
+            core.context.SaveChanges();
+        }
+
+        private string FormatSnilsWithSpace(string snils)
+        {
+            string digits = new string(snils.Where(char.IsDigit).ToArray());
+            if (digits.Length >= 11)
+            {
+                return $"{digits.Substring(0, 3)} {digits.Substring(3, 3)} {digits.Substring(6, 3)} {digits.Substring(9, 2)}";
+            }
+            return snils;
+        }
+
+        private string FormatSnilsWithHyphen(string snils)
+        {
+            string digits = new string(snils.Where(char.IsDigit).ToArray());
+            if (digits.Length >= 11)
+            {
+                return $"{digits.Substring(0, 3)}-{digits.Substring(3, 3)}-{digits.Substring(6, 3)} {digits.Substring(9, 2)}";
+            }
+            return snils;
+        }
+
+        #region Обработчики событий
+
+        private void NoSnilsCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            SnilsTextBox.IsEnabled = false;
+            SnilsTextBox.Text = string.Empty;
+            ClearErrorStyle(SnilsTextBox);
+        }
+
+        private void NoSnilsCheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            SnilsTextBox.IsEnabled = true;
+        }
+
+        // Валидация при потере фокуса
+        private void SnilsTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (NoSnilsCheckBox.IsChecked != true && !string.IsNullOrWhiteSpace(SnilsTextBox.Text))
+            {
+                if (!ValidateSnils(SnilsTextBox.Text))
+                {
+                    SetErrorStyle(SnilsTextBox);
+                    MessageBox.Show("СНИЛС должен содержать 11 цифр в формате XXX-XXX-XXX XX или XXX XXX XXX XX",
+                        "Ошибка валидации", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+                else
+                {
+                    ClearErrorStyle(SnilsTextBox);
+                }
+            }
+        }
+
+        private void InnTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (!string.IsNullOrWhiteSpace(InnTextBox.Text))
+            {
+                if (!ValidateInn(InnTextBox.Text))
+                {
+                    SetErrorStyle(InnTextBox);
+                    MessageBox.Show("ИНН должен содержать 10 или 12 цифр",
+                        "Ошибка валидации", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+                else
+                {
+                    ClearErrorStyle(InnTextBox);
+                }
+            }
+        }
+
+        private void ReserveYearTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (ServedInArmyCheckBox.IsChecked == true && !string.IsNullOrWhiteSpace(ReserveYearTextBox.Text))
+            {
+                if (!ValidateYear(ReserveYearTextBox.Text, 1900, DateTime.Now.Year))
+                {
+                    SetErrorStyle(ReserveYearTextBox);
+                    MessageBox.Show($"Год увольнения в запас должен быть в диапазоне от 1900 до {DateTime.Now.Year}",
+                        "Ошибка валидации", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+                else
+                {
+                    ClearErrorStyle(ReserveYearTextBox);
+                }
+            }
+        }
+
+        // Ограничение ввода только цифр для числовых полей
+        private void NumericTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            e.Handled = !Regex.IsMatch(e.Text, @"^\d+$");
+        }
+
+        private void InnTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            e.Handled = !Regex.IsMatch(e.Text, @"^\d+$");
+        }
+
+        private void ReserveYearTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            e.Handled = !Regex.IsMatch(e.Text, @"^\d+$");
+        }
+
+        private void AddLanguageButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (LanguageCombo.SelectedItem == null || LanguageLevelCombo.SelectedItem == null)
+            {
+                MessageBox.Show("Выберите язык и уровень владения", "Предупреждение",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var selectedLanguage = LanguageCombo.SelectedItem as ComboBoxItem;
+            var selectedLevel = LanguageLevelCombo.SelectedItem as ComboBoxItem;
+
+            if (selectedLanguage == null || selectedLevel == null) return;
+
+            if (IsPrimaryLanguageCheckBox.IsChecked == true)
+            {
+                foreach (var lang in _languagesList)
+                {
+                    lang.IsPrimary = false;
+                }
+            }
+
+            var newLanguage = new LanguageViewModel
+            {
+                Id = 0,
+                LanguageId = (int)selectedLanguage.Tag,
+                Language = selectedLanguage.Content.ToString(),
+                LevelId = (int)selectedLevel.Tag,
+                Level = selectedLevel.Content.ToString(),
+                IsPrimary = IsPrimaryLanguageCheckBox.IsChecked ?? false
+            };
+
+            _languagesList.Add(newLanguage);
+            LanguagesGrid.Items.Refresh();
+
+            LanguageCombo.SelectedIndex = 0;
+            LanguageLevelCombo.SelectedIndex = 0;
+            IsPrimaryLanguageCheckBox.IsChecked = false;
+        }
+
+        private void DeleteLanguage_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            var language = button?.Tag as LanguageViewModel;
+            if (language != null)
+            {
+                _languagesList.Remove(language);
+                LanguagesGrid.Items.Refresh();
+            }
+        }
+
+        private void AddSportButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(SportTypeTextBox.Text))
+            {
+                MessageBox.Show("Введите вид спорта", "Предупреждение",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            int? year = null;
+            if (!string.IsNullOrWhiteSpace(SportYearTextBox.Text))
+            {
+                if (!int.TryParse(SportYearTextBox.Text, out int parsedYear) || parsedYear < 1900 || parsedYear > DateTime.Now.Year + 1)
+                {
+                    MessageBox.Show($"Введите корректный год (от 1900 до {DateTime.Now.Year + 1})", "Предупреждение",
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+                year = parsedYear;
+            }
+
+            var newSport = new SportAchievementViewModel
+            {
+                Id = 0,
+                SportType = SportTypeTextBox.Text.Trim(),
+                Rank = SportRankTextBox.Text?.Trim(),
+                Year = year
+            };
+
+            _sportsList.Add(newSport);
+            SportsGrid.Items.Refresh();
+
+            SportTypeTextBox.Clear();
+            SportRankTextBox.Clear();
+            SportYearTextBox.Clear();
+        }
+
+        private void DeleteSport_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            var sport = button?.Tag as SportAchievementViewModel;
+            if (sport != null)
+            {
+                _sportsList.Remove(sport);
+                SportsGrid.Items.Refresh();
+            }
+        }
+
+        private void PrevButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (SaveAllData())
+            {
+                if (NavigationService != null && NavigationService.CanGoBack)
+                {
+                    NavigationService.GoBack();
+                }
+            }
+        }
+
+        private void NextButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (SaveAllData())
+            {
+                MessageBox.Show("Данные сохранены успешно!", "Информация",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+                // NavigationService.Navigate(new ProgramsPage(_currentApplicantId.Value));
+            }
+        }
+
+        private void CancelButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (MessageBox.Show("Вы уверены, что хотите отменить изменения? Все несохраненные данные будут потеряны.",
+                "Подтверждение", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+            {
+                if (NavigationService != null && NavigationService.CanGoBack)
+                {
+                    NavigationService.GoBack();
+                }
+            }
+        }
+
+        #endregion
+
+        #region Вспомогательные классы ViewModel
+
+        public class LanguageViewModel
+        {
+            public int Id { get; set; }
+            public int LanguageId { get; set; }
+            public string Language { get; set; }
+            public int LevelId { get; set; }
+            public string Level { get; set; }
+            public bool IsPrimary { get; set; }
+        }
+
+        public class SportAchievementViewModel
+        {
+            public int Id { get; set; }
+            public string SportType { get; set; }
+            public string Rank { get; set; }
+            public int? Year { get; set; }
+        }
+
+        #endregion
+    }
+}

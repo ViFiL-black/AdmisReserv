@@ -1,0 +1,241 @@
+﻿// DatabaseHelper.cs
+using System;
+using System.Data.SQLite;
+using System.IO;
+
+namespace Admissions_Reserve.Model
+{
+    public static class DatabaseHelper
+    {
+        private static string connectionString;
+        private static bool isInitialized = false;
+        private static readonly object lockObject = new object();
+
+        static DatabaseHelper()
+        {
+            InitializeDatabase();
+        }
+
+        private static void InitializeDatabase()
+        {
+            lock (lockObject)
+            {
+                if (isInitialized) return;
+
+                // Получаем базовую директорию приложения
+                string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+                string dbDirectory = Path.Combine(baseDirectory, "App_Data");
+
+                // Создаем директорию если её нет
+                if (!Directory.Exists(dbDirectory))
+                {
+                    Directory.CreateDirectory(dbDirectory);
+                }
+
+                string dbPath = Path.Combine(dbDirectory, "AdmissionsReserve.db");
+
+                // Логируем путь к БД (для отладки)
+                System.Diagnostics.Debug.WriteLine($"Database path: {dbPath}");
+                System.Diagnostics.Debug.WriteLine($"Database directory: {dbDirectory}");
+                System.Diagnostics.Debug.WriteLine($"Directory exists: {Directory.Exists(dbDirectory)}");
+
+                // Создаем файл БД если его нет
+                if (!File.Exists(dbPath))
+                {
+                    SQLiteConnection.CreateFile(dbPath);
+                    System.Diagnostics.Debug.WriteLine($"Database file created: {dbPath}");
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"Database file already exists: {dbPath}");
+                }
+
+                connectionString = $"Data Source={dbPath};Version=3;Foreign Keys=True;";
+
+                // Проверяем, что таблицы созданы
+                EnsureTablesExist();
+
+                isInitialized = true;
+            }
+        }
+
+        private static void EnsureTablesExist()
+        {
+            using (var connection = new SQLiteConnection(connectionString))
+            {
+                connection.Open();
+
+                // Включаем поддержку внешних ключей
+                using (var cmd = new SQLiteCommand("PRAGMA foreign_keys = ON;", connection))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+
+                // Проверяем существование таблицы Applicants
+                var checkTableQuery = "SELECT name FROM sqlite_master WHERE type='table' AND name='Applicants';";
+                using (var cmd = new SQLiteCommand(checkTableQuery, connection))
+                {
+                    var result = cmd.ExecuteScalar();
+
+                    // Если таблиц нет, создаем их
+                    if (result == null)
+                    {
+                        CreateAllTables(connection);
+                        SeedReferenceData(connection);
+                    }
+                }
+            }
+        }
+
+        private static void CreateAllTables(SQLiteConnection connection)
+        {
+            var createTableCommands = new[]
+            {
+                @"CREATE TABLE Countries (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    Name TEXT NOT NULL,
+                    IsActive INTEGER DEFAULT 1
+                )",
+
+                @"CREATE TABLE Genders (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    Name TEXT NOT NULL
+                )",
+
+                @"CREATE TABLE Citizenships (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    Name TEXT NOT NULL
+                )",
+
+                @"CREATE TABLE IdentityDocumentTypes (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    Name TEXT NOT NULL
+                )",
+
+                @"CREATE TABLE Applicants (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    LastName TEXT,
+                    FirstName TEXT,
+                    Patronymic TEXT,
+                    BirthDate TEXT,
+                    BirthPlace TEXT,
+                    GenderId INTEGER REFERENCES Genders(Id),
+                    CitizenshipId INTEGER REFERENCES Citizenships(Id),
+                    Snils TEXT,
+                    RegistrationCountryId INTEGER REFERENCES Countries(Id),
+                    RegistrationPostalCode TEXT,
+                    RegistrationRegion TEXT,
+                    RegistrationDistrict TEXT,
+                    RegistrationCity TEXT,
+                    RegistrationStreet TEXT,
+                    RegistrationHouse TEXT,
+                    RegistrationBuilding TEXT,
+                    RegistrationApartment TEXT,
+                    ActualAddressSame INTEGER,
+                    ActualCountryId INTEGER REFERENCES Countries(Id),
+                    ActualPostalCode TEXT,
+                    ActualRegion TEXT,
+                    ActualDistrict TEXT,
+                    ActualCity TEXT,
+                    ActualStreet TEXT,
+                    ActualHouse TEXT,
+                    ActualBuilding TEXT,
+                    ActualApartment TEXT,
+                    Phone TEXT,
+                    MobilePhone TEXT,
+                    Fax TEXT,
+                    WorkPhone TEXT,
+                    Email TEXT,
+                    AdditionalEmail TEXT,
+                    Website TEXT,
+                    Telegram TEXT,
+                    WhatsApp TEXT,
+                    Viber TEXT,
+                    PreferredContactMethod TEXT,
+                    ContactComment TEXT,
+                    CreatedAt TEXT NOT NULL,
+                    UpdatedAt TEXT NOT NULL
+                )",
+
+                @"CREATE TABLE IdentityDocuments (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    ApplicantId INTEGER NOT NULL REFERENCES Applicants(Id) ON DELETE CASCADE,
+                    DocumentTypeId INTEGER REFERENCES IdentityDocumentTypes(Id),
+                    Series TEXT,
+                    Number TEXT,
+                    IssuedBy TEXT,
+                    IssueDate TEXT,
+                    DepartmentCode TEXT,
+                    IsPrimary INTEGER,
+                    AddedDate TEXT NOT NULL
+                )",
+
+                @"CREATE TABLE ChangeHistory (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    TableName TEXT,
+                    RecordId INTEGER,
+                    Action TEXT,
+                    ChangedAt TEXT NOT NULL
+                )"
+            };
+
+            foreach (var commandText in createTableCommands)
+            {
+                using (var cmd = new SQLiteCommand(commandText, connection))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        private static void SeedReferenceData(SQLiteConnection connection)
+        {
+            var seedCommands = new[]
+            {
+                "INSERT INTO Genders (Name) VALUES ('Мужской')",
+                "INSERT INTO Genders (Name) VALUES ('Женский')",
+                "INSERT INTO Citizenships (Name) VALUES ('Российская Федерация')",
+                "INSERT INTO Citizenships (Name) VALUES ('Республика Беларусь')",
+                "INSERT INTO Citizenships (Name) VALUES ('Республика Казахстан')",
+                "INSERT INTO Citizenships (Name) VALUES ('Другое')",
+                "INSERT INTO Countries (Name, IsActive) VALUES ('Россия', 1)",
+                "INSERT INTO Countries (Name, IsActive) VALUES ('Беларусь', 1)",
+                "INSERT INTO Countries (Name, IsActive) VALUES ('Казахстан', 1)",
+                "INSERT INTO Countries (Name, IsActive) VALUES ('Украина', 1)",
+                "INSERT INTO Countries (Name, IsActive) VALUES ('Другая страна', 1)",
+                "INSERT INTO IdentityDocumentTypes (Name) VALUES ('Паспорт гражданина РФ')",
+                "INSERT INTO IdentityDocumentTypes (Name) VALUES ('Загранпаспорт')",
+                "INSERT INTO IdentityDocumentTypes (Name) VALUES ('Свидетельство о рождении')",
+                "INSERT INTO IdentityDocumentTypes (Name) VALUES ('Водительское удостоверение')",
+                "INSERT INTO IdentityDocumentTypes (Name) VALUES ('Военный билет')"
+            };
+
+            foreach (var commandText in seedCommands)
+            {
+                using (var cmd = new SQLiteCommand(commandText, connection))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public static string GetDatabasePath()
+        {
+            return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "App_Data", "AdmissionsReserve.db");
+        }
+
+        public static SQLiteConnection GetConnection()
+        {
+            var connection = new SQLiteConnection(connectionString);
+            connection.Open();
+
+            // Включаем поддержку внешних ключей
+            using (var cmd = new SQLiteCommand("PRAGMA foreign_keys = ON;", connection))
+            {
+                cmd.ExecuteNonQuery();
+            }
+
+            return connection;
+        }
+    }
+}

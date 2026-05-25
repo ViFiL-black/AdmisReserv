@@ -1,0 +1,38 @@
+﻿<Page x:Class="Admissions_Reserve.View.ApplicantWizardPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:local="clr-namespace:Admissions_Reserve.View"
+      Title="Мастер добавления абитуриента">
+    <Page.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Styles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Page.Resources>
+    <DockPanel>
+        <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Background="#F5F7FA" Margin="0,0,0,5">
+            <TextBlock Text="Шаги: " FontWeight="Bold" Margin="8,0,4,0" VerticalAlignment="Center"/>
+            <Button Content="Удостоверение личности" Click="Step_Click" Tag="IdentityPage" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"/>
+            <TextBlock Text="→" Margin="4,0" VerticalAlignment="Center"/>
+            <Button Content="Контакты" Click="Step_Click" Tag="ContactsPage" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"/>
+            <TextBlock Text="→" Margin="4,0" VerticalAlignment="Center"/>
+            <Button Content="Вид заявления и образование" Click="Step_Click" Tag="ApplicationTypeAndEducationPage" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"/>
+            <TextBlock Text="→" Margin="4,0" VerticalAlignment="Center"/>
+            <Button Content="Документы" Click="Step_Click" Tag="DocumentsPage" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"/>
+            <TextBlock Text="→" Margin="4,0" VerticalAlignment="Center"/>
+            <Button Content="Родственники" Click="Step_Click" Tag="RelativesPage" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"/>
+            <TextBlock Text="→" Margin="4,0" VerticalAlignment="Center"/>
+            <Button Content="Доп. сведения" Click="Step_Click" Tag="AdditionalInfoPage" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"/>
+            <TextBlock Text="→" Margin="4,0" VerticalAlignment="Center"/>
+            <Button Content="Заявление, выбор конкурсов" Click="Step_Click" Tag="ApplicationCompetitionsPage" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"/>
+            <TextBlock Text="→" Margin="4,0" VerticalAlignment="Center"/>
+            <Button Content="Инд. достижения" Click="Step_Click" Tag="IndividualAchievementsPage" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"/>
+            <TextBlock Text="→" Margin="4,0" VerticalAlignment="Center"/>
+            <Button Content="Приоритеты" Click="Step_Click" Tag="PrioritiesPage" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"/>
+			<TextBlock Text="→" Margin="4,0" VerticalAlignment="Center"/>
+			<Button Content="Приложенные документы" Click="Step_Click" Tag="AttachedDocumentsPage" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"/>
+        </StackPanel>
+        <Frame x:Name="StepFrame" NavigationUIVisibility="Hidden" />
+    </DockPanel>
+</Page>

@@ -1,0 +1,15 @@
+﻿// Models.cs
+using System;
+using System.Collections.Generic;
+
+namespace Admissions_Reserve.Model
+{
+    // All model classes are defined in separate auto-generated files:
+    // - Applicants.cs
+    // - IdentityDocuments.cs
+    // - IdentityDocumentTypes.cs
+    // - Citizenships.cs
+    // - Countries.cs
+    // - Genders.cs
+    // - ChangeHistory.cs
+}

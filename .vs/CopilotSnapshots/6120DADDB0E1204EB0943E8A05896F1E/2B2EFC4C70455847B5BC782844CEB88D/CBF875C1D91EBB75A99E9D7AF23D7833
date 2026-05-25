@@ -1,0 +1,275 @@
+﻿using System;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Linq;
+using System.Windows;
+using System.Windows.Controls;
+using Microsoft.Win32;
+
+namespace Admissions_Reserve.View
+{
+    public partial class AttachedDocumentsPage : Page
+    {
+        // Модель документа
+        public class AttachedDocument : INotifyPropertyChanged
+        {
+            private int _number;
+            private string _documentType;
+            private string _seriesNumber;
+            private string _category;
+            private string _additionalData;
+            private DateTime? _issueDate;
+            private string _documentInfo;
+            private DateTime _addedDate;
+            private string _attachmentPath;
+            private string _attachmentName;
+
+            public int Number
+            {
+                get => _number;
+                set { _number = value; OnPropertyChanged(nameof(Number)); }
+            }
+            public string DocumentType
+            {
+                get => _documentType;
+                set { _documentType = value; OnPropertyChanged(nameof(DocumentType)); }
+            }
+            public string SeriesNumber
+            {
+                get => _seriesNumber;
+                set { _seriesNumber = value; OnPropertyChanged(nameof(SeriesNumber)); }
+            }
+            public string Category
+            {
+                get => _category;
+                set { _category = value; OnPropertyChanged(nameof(Category)); }
+            }
+            public string AdditionalData
+            {
+                get => _additionalData;
+                set { _additionalData = value; OnPropertyChanged(nameof(AdditionalData)); }
+            }
+            public DateTime? IssueDate
+            {
+                get => _issueDate;
+                set { _issueDate = value; OnPropertyChanged(nameof(IssueDate)); }
+            }
+            public string DocumentInfo
+            {
+                get => _documentInfo;
+                set { _documentInfo = value; OnPropertyChanged(nameof(DocumentInfo)); }
+            }
+            public DateTime AddedDate
+            {
+                get => _addedDate;
+                set { _addedDate = value; OnPropertyChanged(nameof(AddedDate)); }
+            }
+            public string AttachmentPath
+            {
+                get => _attachmentPath;
+                set { _attachmentPath = value; OnPropertyChanged(nameof(AttachmentPath)); }
+            }
+            public string AttachmentName
+            {
+                get => _attachmentName;
+                set { _attachmentName = value; OnPropertyChanged(nameof(AttachmentName)); }
+            }
+
+            public event PropertyChangedEventHandler PropertyChanged;
+            protected void OnPropertyChanged(string name) =>
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+
+        private ObservableCollection<AttachedDocument> _documents;
+        private int _nextNumber = 1;
+        private string _selectedAttachmentPath;
+        private string _selectedAttachmentName;
+
+        public AttachedDocumentsPage()
+        {
+            InitializeComponent();
+            InitializeData();
+        }
+
+        private void InitializeData()
+        {
+            _documents = new ObservableCollection<AttachedDocument>();
+
+            // Добавляем пример данных
+            LoadSampleDocuments();
+
+            DocumentsGrid.ItemsSource = _documents;
+        }
+
+        private void LoadSampleDocuments()
+        {
+            _documents.Add(new AttachedDocument
+            {
+                Number = _nextNumber++,
+                DocumentType = "Медицинская справка 086у",
+                SeriesNumber = "",
+                Category = "Абитуриент",
+                AdditionalData = "",
+                IssueDate = new DateTime(2023, 5, 15),
+                DocumentInfo = "док. выдан ООО МЦ \"Здоровье\"",
+                AddedDate = DateTime.Now.AddDays(-10),
+                AttachmentName = "med_certificate.pdf"
+            });
+
+            _documents.Add(new AttachedDocument
+            {
+                Number = _nextNumber++,
+                DocumentType = "СНИЛС",
+                SeriesNumber = "123-456-789 01",
+                Category = "Абитуриент",
+                AdditionalData = "",
+                IssueDate = null,
+                DocumentInfo = "Страховой номер индивидуального лицевого счета",
+                AddedDate = DateTime.Now.AddDays(-15),
+                AttachmentName = "snils.pdf"
+            });
+
+            _documents.Add(new AttachedDocument
+            {
+                Number = _nextNumber++,
+                DocumentType = "Фотография 3x4",
+                SeriesNumber = "",
+                Category = "Абитуриент",
+                AdditionalData = "4 шт.",
+                IssueDate = null,
+                DocumentInfo = "Фото на матовой бумаге",
+                AddedDate = DateTime.Now.AddDays(-5),
+                AttachmentName = "photo.jpg"
+            });
+        }
+
+        private void UploadFileButton_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                Title = "Выберите файл документа",
+                Filter = "PDF файлы (*.pdf)|*.pdf|Изображения (*.jpg;*.png;*.jpeg)|*.jpg;*.png;*.jpeg|Документы (*.doc;*.docx)|*.doc;*.docx|Все файлы (*.*)|*.*"
+            };
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                _selectedAttachmentPath = openFileDialog.FileName;
+                _selectedAttachmentName = System.IO.Path.GetFileName(_selectedAttachmentPath);
+                AttachmentFileNameTextBox.Text = _selectedAttachmentName;
+            }
+        }
+
+        private void AddDocumentButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Проверка обязательных полей
+            if (string.IsNullOrWhiteSpace(DocumentTypeCombo.Text))
+            {
+                MessageBox.Show("Пожалуйста, укажите название документа", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            _documents.Add(new AttachedDocument
+            {
+                Number = _nextNumber++,
+                DocumentType = DocumentTypeCombo.Text,
+                SeriesNumber = SeriesNumberTextBox.Text,
+                Category = (CategoryCombo.SelectedItem as ComboBoxItem)?.Content.ToString(),
+                AdditionalData = AdditionalDataTextBox.Text,
+                IssueDate = IssueDatePicker.SelectedDate,
+                DocumentInfo = DocumentInfoTextBox.Text,
+                AddedDate = DateTime.Now,
+                AttachmentName = _selectedAttachmentName,
+                AttachmentPath = _selectedAttachmentPath
+            });
+
+            ClearForm();
+
+            MessageBox.Show("Документ успешно добавлен", "Успех",
+                MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private void ClearForm()
+        {
+            DocumentTypeCombo.Text = "";
+            SeriesNumberTextBox.Text = "";
+            CategoryCombo.SelectedIndex = 0;
+            AdditionalDataTextBox.Text = "";
+            IssueDatePicker.SelectedDate = null;
+            DocumentInfoTextBox.Text = "";
+            AttachmentFileNameTextBox.Text = "";
+            _selectedAttachmentPath = null;
+            _selectedAttachmentName = null;
+        }
+
+        private void CancelAddButton_Click(object sender, RoutedEventArgs e)
+        {
+            ClearForm();
+        }
+
+        private void DeleteDocument_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            var item = button?.Tag as AttachedDocument;
+
+            if (item != null)
+            {
+                var result = MessageBox.Show($"Удалить документ \"{item.DocumentType}\"?",
+                    "Подтверждение удаления", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    _documents.Remove(item);
+                    RenumberDocuments();
+                }
+            }
+        }
+
+        private void DownloadAttachment_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            var item = button?.Tag as AttachedDocument;
+
+            if (item != null && !string.IsNullOrEmpty(item.AttachmentPath))
+            {
+                try
+                {
+                    // Открываем диалог сохранения файла
+                    SaveFileDialog saveFileDialog = new SaveFileDialog
+                    {
+                        Title = "Сохранить файл",
+                        FileName = item.AttachmentName,
+                        Filter = "Все файлы (*.*)|*.*"
+                    };
+
+                    if (saveFileDialog.ShowDialog() == true)
+                    {
+                        System.IO.File.Copy(item.AttachmentPath, saveFileDialog.FileName, true);
+                        MessageBox.Show("Файл успешно сохранен", "Успех",
+                            MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ошибка при сохранении файла: {ex.Message}", "Ошибка",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            else if (item != null && string.IsNullOrEmpty(item.AttachmentPath))
+            {
+                MessageBox.Show("Файл не прикреплен к документу", "Предупреждение",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
+        private void RenumberDocuments()
+        {
+            int number = 1;
+            foreach (var doc in _documents)
+            {
+                doc.Number = number++;
+            }
+            _nextNumber = number;
+        }
+    }
+}

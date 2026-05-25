@@ -1,0 +1,243 @@
+﻿<Page
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      mc:Ignorable="d" 
+      x:Class="Admissions_Reserve.View.ApplicationTypeAndEducationPage"
+      Title="Вид заявления и образование">
+
+    <Page.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Styles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Page.Resources>
+
+    <Grid>
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Style="{StaticResource MainPanelStyle}">
+                <TextBlock Text="Вид заявления и образование" Style="{StaticResource PageTitleStyle}"/>
+                <TextBlock Text="Вид заявления" Style="{StaticResource SectionTitleStyle}" Margin="0,0,0,8}"/>
+
+                <!-- Вид заявления -->
+               
+
+                <StackPanel Margin="0,0,0,8">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Вид заявления " FontSize="11"/>
+                        <TextBlock Text="*" Foreground="Red" FontSize="11" FontWeight="Bold"/>
+                    </StackPanel>
+                    <ComboBox Height="23" FontSize="11" SelectedIndex="0">
+                        <ComboBoxItem Content="Среднее профессиональное образование"/>
+                        <ComboBoxItem Content="Высшее образование - бакалавриат"/>
+                        <ComboBoxItem Content="Высшее образование - магистратура"/>
+                        <ComboBoxItem Content="Высшее образование - аспирантура"/>
+                    </ComboBox>
+                </StackPanel>
+
+                <CheckBox Content="Получает образование данного уровня впервые" Margin="0,0,0,12" FontSize="11"/>
+
+                <!-- Документ об образовании -->
+                <TextBlock Text="Документ об образовании" FontSize="13" FontWeight="Bold" Background="#E8EFF7" Padding="8" Margin="0,0,0,8"/>
+
+                <StackPanel Margin="0,0,0,12">
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                        <TextBlock Text="Документ об образовании: " FontSize="11"/>
+                        <TextBlock Text="*" Foreground="Red" FontSize="11" FontWeight="Bold"/>
+                    </StackPanel>
+                    <RadioButton x:Name="ExistingDocumentRadio" Content="Аттестат" Margin="0,0,0,5" FontSize="11" IsChecked="True"/>
+                    <RadioButton Content="Создать новый документ" Margin="0,0,0,5" FontSize="11"/>
+                </StackPanel>
+
+                <!-- Образовательная организация -->
+                <TextBlock Text="Образовательная организация" FontSize="13" FontWeight="Bold" Background="#E8EFF7" Padding="8" Margin="0,0,0,8"/>
+
+                <Grid Margin="0,0,0,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Страна" FontSize="11"/>
+                        <ComboBox Height="23" FontSize="11" SelectedIndex="0">
+                            <ComboBoxItem Content="Россия"/>
+                            <ComboBoxItem Content="Беларусь"/>
+                            <ComboBoxItem Content="Казахстан"/>
+                            <ComboBoxItem Content="Украина"/>
+                        </ComboBox>
+                    </StackPanel>
+                </Grid>
+
+                <Grid Margin="0,0,0,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Населенный пункт " FontSize="11"/>
+                            <TextBlock Text="*" Foreground="Red" FontSize="11" FontWeight="Bold"/>
+                        </StackPanel>
+                        <TextBox Height="23" FontSize="11"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Образовательная организация " FontSize="11"/>
+                            <TextBlock Text="*" Foreground="Red" FontSize="11" FontWeight="Bold"/>
+                        </StackPanel>
+                        <TextBox Height="23" FontSize="11"/>
+                    </StackPanel>
+                </Grid>
+
+                <!-- Документ об образовании и (или) квалификации -->
+                <TextBlock Text="Документ об образовании и (или) квалификации" FontSize="13" FontWeight="Bold" Background="#E8EFF7" Padding="8" Margin="0,0,0,8"/>
+
+                <Grid Margin="0,0,0,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                        <TextBlock Text="Вид документа" FontSize="11"/>
+                        <ComboBox Height="23" FontSize="11">
+                            <ComboBoxItem Content="Аттестат"/>
+                            <ComboBoxItem Content="Диплом"/>
+                        </ComboBox>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Margin="0,0,8,0">
+                        <TextBlock Text="Уровень образования" FontSize="11"/>
+                        <ComboBox Height="23" FontSize="11">
+                            <ComboBoxItem Content="Среднее общее"/>
+                            <ComboBoxItem Content="Среднее профессиональное"/>
+                        </ComboBox>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Уровень образования (по документу)" FontSize="11"/>
+                        <ComboBox Height="23" FontSize="11">
+                            <ComboBoxItem Content="Среднее общее"/>
+                            <ComboBoxItem Content="Среднее профессиональное"/>
+                        </ComboBox>
+                    </StackPanel>
+                </Grid>
+
+                <Grid Margin="0,0,0,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                        <TextBlock Text="Серия" FontSize="11"/>
+                        <TextBox Height="23" FontSize="11"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Margin="0,0,8,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Номер " FontSize="11"/>
+                            <TextBlock Text="*" Foreground="Red" FontSize="11" FontWeight="Bold"/>
+                        </StackPanel>
+                        <TextBox Height="23" FontSize="11"/>
+                    </StackPanel>
+                    
+                </Grid>
+<Grid Margin="0,0,0,8">
+    <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="*"/>
+    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="1" Margin="0,0,8,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Год окончания " FontSize="11"/>
+                            <TextBlock Text="*" Foreground="Red" FontSize="11" FontWeight="Bold"/>
+                        </StackPanel>
+                        <DatePicker Height="23" FontSize="11"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="0"  Margin="0,0,8,0">
+        <StackPanel Orientation="Horizontal">
+            <TextBlock Text="Дата выдачи " FontSize="11"/>
+            <TextBlock Text="*" Foreground="Red" FontSize="11" FontWeight="Bold"/>
+        </StackPanel>
+        <DatePicker Height="23" FontSize="11"/>
+    </StackPanel>
+</Grid>
+
+                <Grid Margin="0,0,0,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                        <TextBlock Text="Число оценок «Удовл.»" FontSize="11"/>
+                        <TextBox Height="23" FontSize="11"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Margin="0,0,8,0">
+                        <TextBlock Text="Число оценок «Хорошо»" FontSize="11"/>
+                        <TextBox Height="23" FontSize="11"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2" Margin="0,0,8,0">
+                        <TextBlock Text="Число оценок «Отлично»" FontSize="11"/>
+                        <TextBox Height="23" FontSize="11"/>
+                    </StackPanel>
+                </Grid>
+
+                <Grid Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                        <TextBlock Text="Средний балл" FontSize="11"/>
+                        <TextBox Height="23" FontSize="11"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1">
+                        <CheckBox Content="Проверен в ФРДО" Margin="0,19,0,0" FontSize="11"/>
+                    </StackPanel>
+                    
+                </Grid>
+                <!-- Файл скан-копии -->
+                <Grid>
+                    <StackPanel Grid.Column="1" Margin="0,0,8,8">
+                        <TextBlock Text="Файл скан-копии документа об образовании" FontSize="11"/>
+                        <TextBox Height="23" FontSize="11"/>
+                        <TextBlock Text="" FontSize="11"/>
+                    </StackPanel>
+                </Grid>
+
+                
+                
+
+                <!-- Форма получения документа и данные об оригинале -->
+                <TextBlock Text="Форма получения документа и данные об оригинале" FontSize="13" FontWeight="Bold" Background="#E8EFF7" Padding="8" Margin="0,0,0,8"/>
+
+                <Grid Margin="0,0,0,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Форма получения документа" FontSize="11"/>
+                        <ComboBox Height="23" FontSize="11" SelectedIndex="0">
+                            <ComboBoxItem Content="Копия"/>
+                            <ComboBoxItem Content="Оригинал"/>
+                        </ComboBox>
+                    </StackPanel>
+                </Grid>
+
+                <StackPanel Margin="0,0,0,12">
+                    <TextBlock Text="Образовательная организация, в которую подан оригинал" FontSize="11"/>
+                    <TextBox Height="23" FontSize="11"/>
+                </StackPanel>
+
+                <!-- Кнопки навигации -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
+                    <Button x:Name="PrevButton" Content="Назад" Width="90" Height="32" Margin="0,0,10,0" FontSize="11"/>
+                    <Button x:Name="NextButton" Content="Далее" Width="90" Height="32" Margin="0,0,10,0" FontSize="11"/>
+                    <Button x:Name="CancelButton" Content="Отменить" Width="90" Height="32" FontSize="11"/>
+                </StackPanel>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Page>

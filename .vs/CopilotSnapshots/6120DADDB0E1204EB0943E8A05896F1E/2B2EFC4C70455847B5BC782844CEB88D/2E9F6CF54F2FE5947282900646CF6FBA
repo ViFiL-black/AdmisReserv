@@ -1,0 +1,295 @@
+﻿using System;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Windows;
+using System.Windows.Controls;
+
+namespace Admissions_Reserve.View
+{
+    public partial class DocumentsPage : Page
+    {
+        // Модель документа
+        public class DocumentItem : INotifyPropertyChanged
+        {
+            private string _documentType;
+            private string _seriesNumber;
+            private string _category;
+            private string _additionalData;
+            private DateTime? _issueDate;
+            private string _documentInfo;
+            private DateTime _addedDate;
+            private string _personalDataCategory;
+            private bool _isPersonalDataDocument;
+
+            public string DocumentType
+            {
+                get => _documentType;
+                set { _documentType = value; OnPropertyChanged(nameof(DocumentType)); }
+            }
+            public string SeriesNumber
+            {
+                get => _seriesNumber;
+                set { _seriesNumber = value; OnPropertyChanged(nameof(SeriesNumber)); }
+            }
+            public string Category
+            {
+                get => _category;
+                set { _category = value; OnPropertyChanged(nameof(Category)); }
+            }
+            public string AdditionalData
+            {
+                get => _additionalData;
+                set { _additionalData = value; OnPropertyChanged(nameof(AdditionalData)); }
+            }
+            public DateTime? IssueDate
+            {
+                get => _issueDate;
+                set { _issueDate = value; OnPropertyChanged(nameof(IssueDate)); }
+            }
+            public string DocumentInfo
+            {
+                get => _documentInfo;
+                set { _documentInfo = value; OnPropertyChanged(nameof(DocumentInfo)); }
+            }
+            public DateTime AddedDate
+            {
+                get => _addedDate;
+                set { _addedDate = value; OnPropertyChanged(nameof(AddedDate)); }
+            }
+            public string PersonalDataCategory
+            {
+                get => _personalDataCategory;
+                set { _personalDataCategory = value; OnPropertyChanged(nameof(PersonalDataCategory)); }
+            }
+            public bool IsPersonalDataDocument
+            {
+                get => _isPersonalDataDocument;
+                set { _isPersonalDataDocument = value; OnPropertyChanged(nameof(IsPersonalDataDocument)); }
+            }
+
+            public event PropertyChangedEventHandler PropertyChanged;
+            protected void OnPropertyChanged(string name) =>
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+
+        private ObservableCollection<DocumentItem> _documents;
+        private ObservableCollection<DocumentItem> _personalDataDocuments;
+
+        public DocumentsPage()
+        {
+            InitializeComponent();
+            InitializeData();
+        }
+
+        private void InitializeData()
+        {
+            _documents = new ObservableCollection<DocumentItem>();
+            _personalDataDocuments = new ObservableCollection<DocumentItem>();
+
+            LoadSampleDocuments();
+            LoadSamplePersonalDataDocuments();
+
+            DocumentsGrid.ItemsSource = _documents;
+            PersonalDataDocumentsGrid.ItemsSource = _personalDataDocuments;
+        }
+
+        private void LoadSampleDocuments()
+        {
+            _documents.Add(new DocumentItem
+            {
+                DocumentType = "Медицинская справка 086у",
+                SeriesNumber = "",
+                Category = "Абитуриент (прием П_К_2022/2023)",
+                AdditionalData = "",
+                IssueDate = null,
+                DocumentInfo = "док. выдан ООО МЦ \"Здоровье\"",
+                AddedDate = new DateTime(2022, 7, 18, 10, 15, 0),
+                PersonalDataCategory = "Абитуриент (прием П_К_2022/2023)",
+                IsPersonalDataDocument = false
+            });
+
+            _documents.Add(new DocumentItem
+            {
+                DocumentType = "Полис СМС",
+                SeriesNumber = "",
+                Category = "Абитуриент (прием П_К_2022/2023)",
+                AdditionalData = "",
+                IssueDate = null,
+                DocumentInfo = "",
+                AddedDate = new DateTime(2022, 7, 5, 13, 10, 0),
+                PersonalDataCategory = "Абитуриент (прием П_К_2022/2023)",
+                IsPersonalDataDocument = false
+            });
+
+            _documents.Add(new DocumentItem
+            {
+                DocumentType = "Признанный сертификат",
+                SeriesNumber = "",
+                Category = "Абитуриент (прием П_К_2022/2023)",
+                AdditionalData = "",
+                IssueDate = null,
+                DocumentInfo = "",
+                AddedDate = new DateTime(2022, 7, 5, 13, 10, 0),
+                PersonalDataCategory = "Абитуриент (прием П_К_2022/2023)",
+                IsPersonalDataDocument = false
+            });
+
+            _documents.Add(new DocumentItem
+            {
+                DocumentType = "Страховой номер индивидуального лицевого счета",
+                SeriesNumber = "",
+                Category = "Абитуриент (прием П_К_2022/2023)",
+                AdditionalData = "",
+                IssueDate = null,
+                DocumentInfo = "",
+                AddedDate = new DateTime(2022, 7, 5, 13, 10, 0),
+                PersonalDataCategory = "Абитуриент (прием П_К_2022/2023)",
+                IsPersonalDataDocument = false
+            });
+
+            _documents.Add(new DocumentItem
+            {
+                DocumentType = "Фото 3x4, 4 шт.",
+                SeriesNumber = "",
+                Category = "Абитуриент (прием П_К_2022/2023)",
+                AdditionalData = "",
+                IssueDate = null,
+                DocumentInfo = "",
+                AddedDate = new DateTime(2022, 7, 18, 10, 13, 0),
+                PersonalDataCategory = "Абитуриент (прием П_К_2022/2023)",
+                IsPersonalDataDocument = false
+            });
+        }
+
+        private void LoadSamplePersonalDataDocuments()
+        {
+            _personalDataDocuments.Add(new DocumentItem
+            {
+                DocumentType = "Удостоверение личности",
+                SeriesNumber = "",
+                Category = "Абитуриент (прием П_К_2022/2023)",
+                AdditionalData = "",
+                IssueDate = null,
+                DocumentInfo = "Паспорт гражданина Российской Федерации (основной)",
+                AddedDate = new DateTime(2022, 7, 6, 13, 4, 0),
+                PersonalDataCategory = "Абитуриент (прием П_К_2022/2023)",
+                IsPersonalDataDocument = true
+            });
+        }
+
+
+
+        private void AddDocumentButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Проверка обязательных полей
+            if (string.IsNullOrWhiteSpace(DocumentTypeCombo.Text))
+            {
+                MessageBox.Show("Пожалуйста, укажите тип документа", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            // Проверка серии и номера для документов, удостоверяющих личность
+            if (IdentityDocRadio.IsChecked == true &&
+                string.IsNullOrWhiteSpace(SeriesTextBox.Text) &&
+                string.IsNullOrWhiteSpace(NumberTextBox.Text))
+            {
+                var result = MessageBox.Show("Для документа, удостоверяющего личность, желательно указать серию и номер. Продолжить без них?",
+                    "Предупреждение", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (result == MessageBoxResult.No)
+                    return;
+            }
+
+            // Формируем серию и номер
+            string seriesNumber = "";
+            if (!string.IsNullOrWhiteSpace(SeriesTextBox.Text))
+                seriesNumber = SeriesTextBox.Text;
+            if (!string.IsNullOrWhiteSpace(NumberTextBox.Text))
+                seriesNumber += (string.IsNullOrEmpty(seriesNumber) ? "" : " ") + NumberTextBox.Text;
+
+            // Определяем категорию персональных данных
+            string personalDataCategory = (CategoryCombo.SelectedItem as ComboBoxItem)?.Content.ToString() ?? "Абитуриент (прием П_К_2022/2023)";
+
+            // Определяем, является ли документ удостоверением личности
+            bool isIdentityDocument = IdentityDocRadio.IsChecked == true;
+
+            // Формируем информацию о документе
+            string documentInfo = DocumentInfoTextBox.Text;
+            if (string.IsNullOrWhiteSpace(documentInfo) && isIdentityDocument)
+            {
+                documentInfo = $"{DocumentTypeCombo.Text}";
+                if (!string.IsNullOrWhiteSpace(IssuedByTextBox.Text))
+                    documentInfo += $", выдан {IssuedByTextBox.Text}";
+            }
+
+            var newDocument = new DocumentItem
+            {
+                DocumentType = DocumentTypeCombo.Text,
+                SeriesNumber = seriesNumber,
+                Category = personalDataCategory,
+                AdditionalData = AdditionalDataTextBox.Text,
+                IssueDate = IssueDatePicker.SelectedDate,
+                DocumentInfo = documentInfo,
+                AddedDate = DateTime.Now,
+                PersonalDataCategory = personalDataCategory,
+                IsPersonalDataDocument = isIdentityDocument
+            };
+
+            // Добавляем в соответствующую коллекцию
+            if (isIdentityDocument)
+            {
+                _personalDataDocuments.Add(newDocument);
+            }
+            else
+            {
+                _documents.Add(newDocument);
+            }
+
+            // Очищаем форму
+            ClearForm();
+
+            MessageBox.Show("Документ успешно добавлен", "Успех",
+                MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private void ClearForm()
+        {
+            DocumentTypeCombo.Text = "";
+            SeriesTextBox.Text = "";
+            NumberTextBox.Text = "";
+            IssueDatePicker.SelectedDate = null;
+            IssuedByTextBox.Text = "";
+            AdditionalDataTextBox.Text = "";
+            DocumentInfoTextBox.Text = "";
+
+            // Сбрасываем выбор типа документа
+            IdentityDocRadio.IsChecked = true;
+            CategoryCombo.SelectedIndex = 0;
+        }
+
+        private void CancelAddButton_Click(object sender, RoutedEventArgs e)
+        {
+            ClearForm();
+        }
+
+        private void DeleteDocument_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            var item = button?.Tag as DocumentItem;
+
+            if (item != null)
+            {
+                var result = MessageBox.Show($"Удалить документ \"{item.DocumentType}\"?",
+                    "Подтверждение удаления", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    if (item.IsPersonalDataDocument)
+                        _personalDataDocuments.Remove(item);
+                    else
+                        _documents.Remove(item);
+                }
+            }
+        }
+    }
+}

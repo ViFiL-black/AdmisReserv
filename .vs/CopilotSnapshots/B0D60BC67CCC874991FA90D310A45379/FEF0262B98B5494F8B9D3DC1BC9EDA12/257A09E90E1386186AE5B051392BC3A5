@@ -1,0 +1,22 @@
+﻿// Core.cs
+using System;
+using System.Data.SQLite;
+
+namespace Admissions_Reserve.Model
+{
+    public class Core
+    {
+        public SQLiteConnection Connection { get; set; }
+
+        public Core()
+        {
+            Connection = DatabaseHelper.GetConnection();
+        }
+
+        public void Dispose()
+        {
+            Connection?.Close();
+            Connection?.Dispose();
+        }
+    }
+}

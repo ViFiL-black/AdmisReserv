@@ -1,0 +1,283 @@
+﻿<Page
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    x:Class="Admissions_Reserve.View.AdditionalInfoPage"
+    Title="Дополнительная информация">
+
+	<Page.Resources>
+		<ResourceDictionary>
+			<ResourceDictionary.MergedDictionaries>
+				<ResourceDictionary Source="Styles.xaml"/>
+			</ResourceDictionary.MergedDictionaries>
+		</ResourceDictionary>
+	</Page.Resources>
+
+	<Grid>
+		<ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+			<StackPanel Style="{StaticResource MainPanelStyle}">
+
+				<!-- ========== ЗАГОЛОВОК ========== -->
+				<TextBlock Text="Дополнительная информация" Style="{StaticResource PageTitleStyle}"/>
+
+				<!-- ========== РАЗДЕЛ 1: ИСТОЧНИКИ ИНФОРМАЦИИ ОБ ОО ========== -->
+				<TextBlock Text="Источники информации об ОО" Style="{StaticResource SectionTitleStyle}" Margin="0,0,0,10"/>
+
+				<Grid Margin="0,0,0,15">
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="*"/>
+						<ColumnDefinition Width="*"/>
+					</Grid.ColumnDefinitions>
+
+					<!-- Левая колонка -->
+					<StackPanel Grid.Column="0" Margin="0,0,15,0">
+						<Grid Margin="0,0,0,8">
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="120"/>
+								<ColumnDefinition Width="*"/>
+							</Grid.ColumnDefinitions>
+							<TextBlock Grid.Column="0" Text="Страна рождения" FontSize="11" VerticalAlignment="Center"/>
+							<ComboBox Grid.Column="1" Name="BirthCountryCombo" Height="23" FontSize="11" SelectedIndex="0">
+								<ComboBoxItem Content="Россия"/>
+								<ComboBoxItem Content="Беларусь"/>
+								<ComboBoxItem Content="Казахстан"/>
+								<ComboBoxItem Content="Украина"/>
+								<ComboBoxItem Content="Другая"/>
+							</ComboBox>
+						</Grid>
+
+						<CheckBox Name="NoSnilsCheckBox" Content="У меня нет СНИЛС" FontSize="11" Margin="0,0,0,8"/>
+
+						<Grid Margin="0,0,0,8">
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="120"/>
+								<ColumnDefinition Width="*"/>
+							</Grid.ColumnDefinitions>
+							<TextBlock Grid.Column="0" Text="СНИЛС" FontSize="11" VerticalAlignment="Center"/>
+							<TextBox Grid.Column="1" Name="SnilsTextBox" Height="23" FontSize="11" IsEnabled="False"/>
+						</Grid>
+
+						<Grid Margin="0,0,0,8">
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="120"/>
+								<ColumnDefinition Width="*"/>
+							</Grid.ColumnDefinitions>
+							<TextBlock Grid.Column="0" Text="ИНН" FontSize="11" VerticalAlignment="Center"/>
+							<TextBox Grid.Column="1" Name="InnTextBox" Height="23" FontSize="11"/>
+						</Grid>
+					</StackPanel>
+
+					<!-- Правая колонка -->
+					<StackPanel Grid.Column="1">
+						<TextBlock Text="Формат СНИЛС:" FontSize="10" Foreground="Gray" Margin="0,0,0,5"/>
+						<StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+							<CheckBox Name="SnilsSpaceCheckBox" Content="Пробел" FontSize="11" Margin="0,0,15,0" IsChecked="True"/>
+							<CheckBox Name="SnilsHyphenCheckBox" Content="Дефис" FontSize="11"/>
+						</StackPanel>
+					</StackPanel>
+				</Grid>
+
+				<!-- ========== РАЗДЕЛ 2: ОБЩЕЖИТИЕ ========== -->
+				<TextBlock Text="Общежитие" FontSize="13" FontWeight="Bold" Background="#E8EFF7" Padding="8" Margin="0,0,0,10"/>
+
+				<Grid Margin="0,0,0,15">
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="*"/>
+						<ColumnDefinition Width="*"/>
+					</Grid.ColumnDefinitions>
+
+					<CheckBox Grid.Column="0" Name="NeedsDormitoryCheckBox" Content="Нуждается в общежитии" FontSize="11" Margin="0,0,15,0"/>
+					<CheckBox Grid.Column="1" Name="HasDormitoryBenefitsCheckBox" Content="Есть льготы для поселения в общежитие" FontSize="11"/>
+				</Grid>
+
+				<!-- ========== РАЗДЕЛ 3: ИНОСТРАННЫЕ ЯЗЫКИ ========== -->
+				<TextBlock Text="Иностранные языки" FontSize="13" FontWeight="Bold" Background="#E8EFF7" Padding="8" Margin="0,0,0,10"/>
+
+				<Border BorderBrush="#CCCCCC" BorderThickness="1" Margin="0,0,0,15" Padding="5">
+					<StackPanel>
+						<!-- Форма добавления языка -->
+						<Grid Margin="0,0,0,10">
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="*"/>
+								<ColumnDefinition Width="*"/>
+								<ColumnDefinition Width="80"/>
+								<ColumnDefinition Width="80"/>
+							</Grid.ColumnDefinitions>
+							<ComboBox Grid.Column="0" Name="LanguageCombo" Height="23" FontSize="11" Margin="0,0,10,0" SelectedIndex="0">
+								<ComboBoxItem Content="Английский"/>
+								<ComboBoxItem Content="Немецкий"/>
+								<ComboBoxItem Content="Французский"/>
+								<ComboBoxItem Content="Испанский"/>
+								<ComboBoxItem Content="Китайский"/>
+								<ComboBoxItem Content="Японский"/>
+								<ComboBoxItem Content="Корейский"/>
+								<ComboBoxItem Content="Итальянский"/>
+							</ComboBox>
+							<ComboBox Grid.Column="1" Name="LanguageLevelCombo" Height="23" FontSize="11" Margin="0,0,10,0" SelectedIndex="0">
+								<ComboBoxItem Content="Читает и переводит со словарем"/>
+								<ComboBoxItem Content="Читает и переводит без словаря"/>
+								<ComboBoxItem Content="Владеет свободно"/>
+								<ComboBoxItem Content="Разговорный"/>
+								<ComboBoxItem Content="Начальный"/>
+								<ComboBoxItem Content="Средний"/>
+								<ComboBoxItem Content="Продвинутый"/>
+							</ComboBox>
+							<CheckBox Grid.Column="2" Name="IsPrimaryLanguageCheckBox" Content="Основной" FontSize="11" VerticalAlignment="Center"/>
+							<Button Grid.Column="3" Name="AddLanguageButton" Content="Добавить" Width="70" Height="25"
+                                    FontSize="10" Background="#007ACC" Foreground="White" Click="AddLanguageButton_Click"/>
+						</Grid>
+
+						<!-- Таблица языков -->
+						<ScrollViewer HorizontalScrollBarVisibility="Auto" MaxHeight="150">
+							<DataGrid Name="LanguagesGrid" AutoGenerateColumns="False"
+                                      CanUserAddRows="False" CanUserDeleteRows="True"
+                                      HeadersVisibility="Column" FontSize="11" BorderThickness="1"
+                                      BorderBrush="#CCCCCC">
+								<DataGrid.Columns>
+									<DataGridTextColumn Header="Язык" Width="120" Binding="{Binding Language}" />
+									<DataGridTextColumn Header="Степень владения" Width="180" Binding="{Binding Level}" />
+									<DataGridCheckBoxColumn Header="Основной" Width="70" Binding="{Binding IsPrimary}" />
+									<DataGridTemplateColumn Header="Удалить" Width="50">
+										<DataGridTemplateColumn.CellTemplate>
+											<DataTemplate>
+												<Button Content="X" FontSize="10" Width="25" Height="20"
+                                                        Click="DeleteLanguage_Click" Tag="{Binding}"/>
+											</DataTemplate>
+										</DataGridTemplateColumn.CellTemplate>
+									</DataGridTemplateColumn>
+								</DataGrid.Columns>
+							</DataGrid>
+						</ScrollViewer>
+					</StackPanel>
+				</Border>
+
+				<!-- ========== РАЗДЕЛ 4: СПОРТИВНЫЕ ДОСТИЖЕНИЯ ========== -->
+				<TextBlock Text="Спортивные достижения" FontSize="13" FontWeight="Bold" Background="#E8EFF7" Padding="8" Margin="0,0,0,10"/>
+
+				<CheckBox Name="HasSportsAchievementsCheckBox" Content="Имеет спортивные достижения" FontSize="11" Margin="0,0,0,10"/>
+
+				<Border BorderBrush="#CCCCCC" BorderThickness="1" Margin="0,0,0,15" Padding="8" IsEnabled="{Binding IsChecked, ElementName=HasSportsAchievementsCheckBox}">
+					<StackPanel>
+						<Grid Margin="0,0,0,8">
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="120"/>
+								<ColumnDefinition Width="*"/>
+								<ColumnDefinition Width="120"/>
+								<ColumnDefinition Width="*"/>
+							</Grid.ColumnDefinitions>
+							<TextBlock Grid.Column="0" Text="Вид спорта" FontSize="11" VerticalAlignment="Center"/>
+							<TextBox Grid.Column="1" Name="SportTypeTextBox" Height="23" FontSize="11" Margin="0,0,10,0"/>
+							<TextBlock Grid.Column="2" Text="Разряд/звание" FontSize="11" VerticalAlignment="Center"/>
+							<TextBox Grid.Column="3" Name="SportRankTextBox" Height="23" FontSize="11"/>
+						</Grid>
+						<Grid>
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="120"/>
+								<ColumnDefinition Width="*"/>
+								<ColumnDefinition Width="120"/>
+								<ColumnDefinition Width="*"/>
+							</Grid.ColumnDefinitions>
+							<TextBlock Grid.Column="0" Text="Год достижения" FontSize="11" VerticalAlignment="Center"/>
+							<TextBox Grid.Column="1" Name="SportYearTextBox" Height="23" FontSize="11" Margin="0,0,10,0"/>
+							<Button Grid.Column="3" Name="AddSportButton" Content="Добавить достижение" Width="130" Height="25"
+                                    FontSize="10" Background="#007ACC" Foreground="White" Click="AddSportButton_Click" HorizontalAlignment="Left"/>
+						</Grid>
+
+						<!-- Таблица спортивных достижений -->
+						<ScrollViewer HorizontalScrollBarVisibility="Auto" MaxHeight="120" Margin="0,10,0,0">
+							<DataGrid Name="SportsGrid" AutoGenerateColumns="False"
+                                      CanUserAddRows="False" CanUserDeleteRows="True"
+                                      HeadersVisibility="Column" FontSize="11" BorderThickness="1"
+                                      BorderBrush="#CCCCCC">
+								<DataGrid.Columns>
+									<DataGridTextColumn Header="Вид спорта" Width="150" Binding="{Binding SportType}" />
+									<DataGridTextColumn Header="Разряд/звание" Width="150" Binding="{Binding Rank}" />
+									<DataGridTextColumn Header="Год" Width="80" Binding="{Binding Year}" />
+									<DataGridTemplateColumn Header="Удалить" Width="50">
+										<DataGridTemplateColumn.CellTemplate>
+											<DataTemplate>
+												<Button Content="X" FontSize="10" Width="25" Height="20"
+                                                        Click="DeleteSport_Click" Tag="{Binding}"/>
+											</DataTemplate>
+										</DataGridTemplateColumn.CellTemplate>
+									</DataGridTemplateColumn>
+								</DataGrid.Columns>
+							</DataGrid>
+						</ScrollViewer>
+					</StackPanel>
+				</Border>
+
+				<!-- ========== РАЗДЕЛ 5: ПРОФИЛЬНАЯ ПОДГОТОВКА ========== -->
+				<TextBlock Text="Сведения о профильной подготовке" FontSize="13" FontWeight="Bold" Background="#E8EFF7" Padding="8" Margin="0,0,0,10"/>
+
+				<Grid Margin="0,0,0,15">
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="*"/>
+						<ColumnDefinition Width="*"/>
+					</Grid.ColumnDefinitions>
+					<CheckBox Grid.Column="0" Name="CompletedPreparatoryCoursesCheckBox" Content="Подготовительные курсы" FontSize="11" Margin="0,0,15,0"/>
+					<CheckBox Grid.Column="1" Name="CompletedPreparatoryDepartmentCheckBox" Content="Подготовительные отделения" FontSize="11"/>
+				</Grid>
+
+				<!-- ========== РАЗДЕЛ 6: МЕДИЦИНСКОЕ ОБРАЗОВАНИЕ ========== -->
+				<TextBlock Text="Медицинское образование" FontSize="13" FontWeight="Bold" Background="#E8EFF7" Padding="8" Margin="0,0,0,10"/>
+
+				<CheckBox Name="CompletedMedicalEducationCheckBox" Content="Закончил медицинское (фармацевтическое) образовательное учреждение"
+                          FontSize="11" Margin="0,0,0,15"/>
+
+				<!-- ========== РАЗДЕЛ 7: ТРУДОУСТРОЙСТВО ========== -->
+				<TextBlock Text="Сведения о трудоустройстве" FontSize="13" FontWeight="Bold" Background="#E8EFF7" Padding="8" Margin="0,0,0,10"/>
+
+				<Grid Margin="0,0,0,15">
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="140"/>
+						<ColumnDefinition Width="*"/>
+					</Grid.ColumnDefinitions>
+					<TextBlock Grid.Column="0" Text="Место работы в настоящее время" FontSize="11" VerticalAlignment="Center"/>
+					<TextBox Grid.Column="1" Name="CurrentWorkPlaceTextBox" Height="23" FontSize="11"/>
+				</Grid>
+
+				<!-- ========== РАЗДЕЛ 8: СЛУЖБА В АРМИИ ========== -->
+				<TextBlock Text="Сведения о службе в армии" FontSize="13" FontWeight="Bold" Background="#E8EFF7" Padding="8" Margin="0,0,0,10"/>
+
+				<CheckBox Name="ServedInArmyCheckBox" Content="Служил в армии" FontSize="11" Margin="0,0,0,15"/>
+
+				<Border BorderBrush="#CCCCCC" BorderThickness="1" Margin="0,0,0,15" Padding="10"
+                        IsEnabled="{Binding IsChecked, ElementName=ServedInArmyCheckBox}" Background="#FAFAFA">
+					<StackPanel>
+						<Grid Margin="0,0,0,10">
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="140"/>
+								<ColumnDefinition Width="*"/>
+								<ColumnDefinition Width="140"/>
+								<ColumnDefinition Width="*"/>
+							</Grid.ColumnDefinitions>
+							<TextBlock Grid.Column="0" Text="Дата начала службы" FontSize="11" VerticalAlignment="Center"/>
+							<DatePicker Grid.Column="1" Name="ServiceStartDatePicker" Height="23" FontSize="11" Margin="0,0,10,0"/>
+							<TextBlock Grid.Column="2" Text="Дата окончания службы" FontSize="11" VerticalAlignment="Center"/>
+							<DatePicker Grid.Column="3" Name="ServiceEndDatePicker" Height="23" FontSize="11"/>
+						</Grid>
+						<Grid>
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="140"/>
+								<ColumnDefinition Width="*"/>
+							</Grid.ColumnDefinitions>
+							<TextBlock Grid.Column="0" Text="Год увольнения в запас" FontSize="11" VerticalAlignment="Center"/>
+							<TextBox Grid.Column="1" Name="ReserveYearTextBox" Height="23" FontSize="11"/>
+						</Grid>
+					</StackPanel>
+				</Border>
+
+				<!-- ========== КНОПКИ НАВИГАЦИИ ========== -->
+				<StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,10">
+					<Button x:Name="PrevButton" Content="Назад" Width="90" Height="32" Margin="0,0,10,0" FontSize="11" Background="#F0F0F0"/>
+					<Button x:Name="NextButton" Content="Далее" Width="90" Height="32" Margin="0,0,10,0" FontSize="11" Background="#007ACC" Foreground="White"/>
+					<Button x:Name="CancelButton" Content="Отменить" Width="90" Height="32" FontSize="11" Background="#F0F0F0"/>
+				</StackPanel>
+
+			</StackPanel>
+		</ScrollViewer>
+	</Grid>
+</Page>

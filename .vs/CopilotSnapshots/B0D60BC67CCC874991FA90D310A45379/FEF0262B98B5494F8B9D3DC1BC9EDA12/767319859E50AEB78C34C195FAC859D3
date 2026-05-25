@@ -1,0 +1,114 @@
+﻿using System;
+using System.Data.Entity;
+
+namespace Admissions_Reserve.Model
+{
+    public class AdmissionsReseDBEntities : DbContext
+    {
+        private InMemoryDataContext _memoryContext;
+
+        public AdmissionsReseDBEntities()
+            : base("name=AdmissionsReseDBEntities")
+        {
+            _memoryContext = new InMemoryDataContext();
+        }
+
+        public DbSet<Applicants> Applicants => _memoryContext.Applicants;
+        public DbSet<Countries> Countries => _memoryContext.Countries;
+        public DbSet<Citizenships> Citizenships => _memoryContext.Citizenships;
+        public DbSet<Genders> Genders => _memoryContext.Genders;
+        public DbSet<Languages> Languages => _memoryContext.Languages;
+        public DbSet<LanguageLevels> LanguageLevels => _memoryContext.LanguageLevels;
+        public DbSet<ApplicantLanguages> ApplicantLanguages => _memoryContext.ApplicantLanguages;
+        public DbSet<SportAchievements> SportAchievements => _memoryContext.SportAchievements;
+        public DbSet<IndividualAchievements> IndividualAchievements => _memoryContext.IndividualAchievements;
+        public DbSet<IdentityDocuments> IdentityDocuments => _memoryContext.IdentityDocuments;
+        public DbSet<IdentityDocumentTypes> IdentityDocumentTypes => _memoryContext.IdentityDocumentTypes;
+        public DbSet<Applications> Applications => _memoryContext.Applications;
+        public DbSet<Relatives> Relatives => _memoryContext.Relatives;
+        public DbSet<Documents> Documents => _memoryContext.Documents;
+        public DbSet<DocumentTypes> DocumentTypes => _memoryContext.DocumentTypes;
+        public DbSet<AchievementCategories> AchievementCategories => _memoryContext.AchievementCategories;
+        public DbSet<AdmissionStages> AdmissionStages => _memoryContext.AdmissionStages;
+        public DbSet<AdmissionTypes> AdmissionTypes => _memoryContext.AdmissionTypes;
+        public DbSet<ApplicationCompetitions> ApplicationCompetitions => _memoryContext.ApplicationCompetitions;
+        public DbSet<ApplicationEducationDocuments> ApplicationEducationDocuments => _memoryContext.ApplicationEducationDocuments;
+        public DbSet<ApplicationPrivileges> ApplicationPrivileges => _memoryContext.ApplicationPrivileges;
+        public DbSet<BaseEducationLevels> BaseEducationLevels => _memoryContext.BaseEducationLevels;
+        public DbSet<Branches> Branches => _memoryContext.Branches;
+        public DbSet<ChangeHistory> ChangeHistory => _memoryContext.ChangeHistory;
+        public DbSet<Competitions> Competitions => _memoryContext.Competitions;
+        public DbSet<CostReimbursementTypes> CostReimbursementTypes => _memoryContext.CostReimbursementTypes;
+        public DbSet<Departments> Departments => _memoryContext.Departments;
+        public DbSet<DocumentCategories> DocumentCategories => _memoryContext.DocumentCategories;
+        public DbSet<DocumentReceiptForms> DocumentReceiptForms => _memoryContext.DocumentReceiptForms;
+        public DbSet<EducationalOrganizations> EducationalOrganizations => _memoryContext.EducationalOrganizations;
+        public DbSet<EducationLevels> EducationLevels => _memoryContext.EducationLevels;
+        public DbSet<EducationPrograms> EducationPrograms => _memoryContext.EducationPrograms;
+        public DbSet<PersonalDocumentTypes> PersonalDocumentTypes => _memoryContext.PersonalDocumentTypes;
+        public DbSet<RelationDegrees> RelationDegrees => _memoryContext.RelationDegrees;
+        public DbSet<RelativeDocuments> RelativeDocuments => _memoryContext.RelativeDocuments;
+        public DbSet<StudyForms> StudyForms => _memoryContext.StudyForms;
+        public DbSet<TargetAdmissionTypes> TargetAdmissionTypes => _memoryContext.TargetAdmissionTypes;
+
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+        }
+
+        public override int SaveChanges()
+        {
+            return _memoryContext.SaveChanges();
+        }
+    }
+
+    /// <summary>
+    /// In-memory data context for working with SQLite database
+    /// </summary>
+    public class InMemoryDataContext
+    {
+        public DbSet<Applicants> Applicants { get; set; }
+        public DbSet<Countries> Countries { get; set; }
+        public DbSet<Citizenships> Citizenships { get; set; }
+        public DbSet<Genders> Genders { get; set; }
+        public DbSet<Languages> Languages { get; set; }
+        public DbSet<LanguageLevels> LanguageLevels { get; set; }
+        public DbSet<ApplicantLanguages> ApplicantLanguages { get; set; }
+        public DbSet<SportAchievements> SportAchievements { get; set; }
+        public DbSet<IndividualAchievements> IndividualAchievements { get; set; }
+        public DbSet<IdentityDocuments> IdentityDocuments { get; set; }
+        public DbSet<IdentityDocumentTypes> IdentityDocumentTypes { get; set; }
+        public DbSet<Applications> Applications { get; set; }
+        public DbSet<Relatives> Relatives { get; set; }
+        public DbSet<Documents> Documents { get; set; }
+        public DbSet<DocumentTypes> DocumentTypes { get; set; }
+        public DbSet<AchievementCategories> AchievementCategories { get; set; }
+        public DbSet<AdmissionStages> AdmissionStages { get; set; }
+        public DbSet<AdmissionTypes> AdmissionTypes { get; set; }
+        public DbSet<ApplicationCompetitions> ApplicationCompetitions { get; set; }
+        public DbSet<ApplicationEducationDocuments> ApplicationEducationDocuments { get; set; }
+        public DbSet<ApplicationPrivileges> ApplicationPrivileges { get; set; }
+        public DbSet<BaseEducationLevels> BaseEducationLevels { get; set; }
+        public DbSet<Branches> Branches { get; set; }
+        public DbSet<ChangeHistory> ChangeHistory { get; set; }
+        public DbSet<Competitions> Competitions { get; set; }
+        public DbSet<CostReimbursementTypes> CostReimbursementTypes { get; set; }
+        public DbSet<Departments> Departments { get; set; }
+        public DbSet<DocumentCategories> DocumentCategories { get; set; }
+        public DbSet<DocumentReceiptForms> DocumentReceiptForms { get; set; }
+        public DbSet<EducationalOrganizations> EducationalOrganizations { get; set; }
+        public DbSet<EducationLevels> EducationLevels { get; set; }
+        public DbSet<EducationPrograms> EducationPrograms { get; set; }
+        public DbSet<PersonalDocumentTypes> PersonalDocumentTypes { get; set; }
+        public DbSet<RelationDegrees> RelationDegrees { get; set; }
+        public DbSet<RelativeDocuments> RelativeDocuments { get; set; }
+        public DbSet<StudyForms> StudyForms { get; set; }
+        public DbSet<TargetAdmissionTypes> TargetAdmissionTypes { get; set; }
+
+        public int SaveChanges()
+        {
+            // Persist changes to SQLite using DataService
+            return 0;
+        }
+    }
+}

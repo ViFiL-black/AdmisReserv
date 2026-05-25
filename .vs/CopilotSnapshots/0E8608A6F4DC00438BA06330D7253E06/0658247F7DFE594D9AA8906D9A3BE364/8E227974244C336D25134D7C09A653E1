@@ -1,0 +1,534 @@
+﻿using System;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Windows;
+using System.Windows.Controls;
+using Admissions_Reserve.Model;
+
+namespace Admissions_Reserve.View
+{
+    public partial class RelativesPage : Page
+    {
+        // Модель родственника
+        public class RelativeItem : INotifyPropertyChanged
+        {
+            public int Id { get; set; }
+            private int _number;
+            private string _inn;
+            private string _relationDegree;
+            private string _lastName;
+            private string _firstName;
+            private string _patronymic;
+            private DateTime? _birthDate;
+            private string _phone;
+            private string _email;
+            private string _workPlace;
+            private string _position;
+            private string _blockReason;
+            private bool _isBlocked;
+
+            public int Number
+            {
+                get => _number;
+                set { _number = value; OnPropertyChanged(nameof(Number)); }
+            }
+            public string Inn
+            {
+                get => _inn;
+                set { _inn = value; OnPropertyChanged(nameof(Inn)); }
+            }
+            public string RelationDegree
+            {
+                get => _relationDegree;
+                set { _relationDegree = value; OnPropertyChanged(nameof(RelationDegree)); }
+            }
+            public string LastName
+            {
+                get => _lastName;
+                set { _lastName = value; OnPropertyChanged(nameof(LastName)); }
+            }
+            public string FirstName
+            {
+                get => _firstName;
+                set { _firstName = value; OnPropertyChanged(nameof(FirstName)); }
+            }
+            public string Patronymic
+            {
+                get => _patronymic;
+                set { _patronymic = value; OnPropertyChanged(nameof(Patronymic)); }
+            }
+            public DateTime? BirthDate
+            {
+                get => _birthDate;
+                set { _birthDate = value; OnPropertyChanged(nameof(BirthDate)); }
+            }
+            public string Phone
+            {
+                get => _phone;
+                set { _phone = value; OnPropertyChanged(nameof(Phone)); }
+            }
+            public string Email
+            {
+                get => _email;
+                set { _email = value; OnPropertyChanged(nameof(Email)); }
+            }
+            public string WorkPlace
+            {
+                get => _workPlace;
+                set { _workPlace = value; OnPropertyChanged(nameof(WorkPlace)); }
+            }
+            public string Position
+            {
+                get => _position;
+                set { _position = value; OnPropertyChanged(nameof(Position)); }
+            }
+            public string BlockReason
+            {
+                get => _blockReason;
+                set { _blockReason = value; OnPropertyChanged(nameof(BlockReason)); }
+            }
+            public bool IsBlocked
+            {
+                get => _isBlocked;
+                set { _isBlocked = value; OnPropertyChanged(nameof(IsBlocked)); }
+            }
+
+            public event PropertyChangedEventHandler PropertyChanged;
+            protected void OnPropertyChanged(string name) =>
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+
+        private ObservableCollection<RelativeItem> _regularRelatives;
+        private ObservableCollection<RelativeItem> _blockedRelatives;
+        private int _nextNumber = 1;
+        private RelativeItem _selectedRelative;
+
+        public RelativesPage()
+        {
+            InitializeComponent();
+            InitializeData();
+            InitializeEvents();
+        }
+
+        private void InitializeData()
+        {
+            _regularRelatives = new ObservableCollection<RelativeItem>();
+            _blockedRelatives = new ObservableCollection<RelativeItem>();
+
+            // Загружаем данные из БД если есть абитуриент
+            if (SessionManager.CurrentApplicant != null)
+            {
+                LoadRelativesFromDatabase();
+            }
+            else
+            {
+                LoadSampleData();
+            }
+
+            RegularRelativesGrid.ItemsSource = _regularRelatives;
+            BlockedRelativesGrid.ItemsSource = _blockedRelatives;
+        }
+
+        private void LoadRelativesFromDatabase()
+        {
+            try
+            {
+                var relatives = DataService.GetApplicantRelatives(SessionManager.CurrentApplicantId.Value);
+                foreach (var relative in relatives)
+                {
+                    var item = new RelativeItem
+                    {
+                        Id = relative.Id,
+                        Number = _nextNumber++,
+                        LastName = relative.LastName,
+                        FirstName = relative.FirstName,
+                        Patronymic = relative.Patronymic
+                    };
+                    _regularRelatives.Add(item);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка загрузки данных: {ex.Message}", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+                LoadSampleData();
+            }
+        }
+
+        private void LoadSampleData()
+        {
+            // Пустой список для новых абитуриентов
+        }
+
+        private void InitializeEvents()
+        {
+            // Форматирование телефона
+            PhoneTextBox.TextChanged += (s, e) => FormatPhoneNumber(PhoneTextBox);
+
+            // Валидация email
+            EmailTextBox.LostFocus += (s, e) => ValidateEmail(EmailTextBox);
+
+            // Автоматическое форматирование ИНН
+            InnTextBox.TextChanged += (s, e) => FormatInn(InnTextBox);
+        }
+
+        private void FormatPhoneNumber(TextBox textBox)
+        {
+            if (string.IsNullOrWhiteSpace(textBox.Text)) return;
+
+            string cleanText = Regex.Replace(textBox.Text, "[^0-9]", "");
+
+            if (cleanText.Length > 11)
+                cleanText = cleanText.Substring(0, 11);
+
+            string formatted = "";
+
+            if (cleanText.Length >= 1)
+            {
+                if (cleanText.Length == 11 && cleanText[0] == '7')
+                {
+                    formatted = "+7 (";
+                    if (cleanText.Length >= 4) formatted += cleanText.Substring(1, 3);
+                    if (cleanText.Length >= 7) formatted += ") " + cleanText.Substring(4, 3);
+                    if (cleanText.Length >= 9) formatted += "-" + cleanText.Substring(7, 2);
+                    if (cleanText.Length >= 11) formatted += "-" + cleanText.Substring(9, 2);
+                }
+                else
+                {
+                    formatted = cleanText;
+                }
+            }
+
+            if (textBox.Text != formatted)
+            {
+                int cursorPosition = textBox.SelectionStart;
+                textBox.Text = formatted;
+                textBox.SelectionStart = Math.Min(cursorPosition, formatted.Length);
+            }
+        }
+
+        private void ValidateEmail(TextBox textBox)
+        {
+            if (string.IsNullOrWhiteSpace(textBox.Text)) return;
+
+            string emailPattern = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
+            if (!Regex.IsMatch(textBox.Text, emailPattern))
+            {
+                textBox.BorderBrush = System.Windows.Media.Brushes.Red;
+                textBox.ToolTip = "Неверный формат E-mail";
+            }
+            else
+            {
+                textBox.BorderBrush = System.Windows.Media.Brushes.LightGray;
+                textBox.ToolTip = "";
+            }
+        }
+
+        private void FormatInn(TextBox textBox)
+        {
+            if (string.IsNullOrWhiteSpace(textBox.Text)) return;
+
+            string cleanText = Regex.Replace(textBox.Text, "[^0-9]", "");
+
+            if (cleanText.Length > 12)
+                cleanText = cleanText.Substring(0, 12);
+
+            if (textBox.Text != cleanText)
+            {
+                int cursorPosition = textBox.SelectionStart;
+                textBox.Text = cleanText;
+                textBox.SelectionStart = Math.Min(cursorPosition, cleanText.Length);
+            }
+        }
+
+        private void RegularRelativesGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            _selectedRelative = RegularRelativesGrid.SelectedItem as RelativeItem;
+            BlockSelectedButton.IsEnabled = _selectedRelative != null;
+        }
+
+        private void AddRelativeButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Проверка обязательных полей
+            if (string.IsNullOrWhiteSpace(LastNameTextBox.Text))
+            {
+                MessageBox.Show("Пожалуйста, укажите фамилию", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                LastNameTextBox.Focus();
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(FirstNameTextBox.Text))
+            {
+                MessageBox.Show("Пожалуйста, укажите имя", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                FirstNameTextBox.Focus();
+                return;
+            }
+
+            if (BirthDatePicker.SelectedDate == null)
+            {
+                MessageBox.Show("Пожалуйста, укажите дату рождения", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            try
+            {
+                // Сохраняем в БД если есть абитуриент
+                int relativeId = 0;
+                if (SessionManager.CurrentApplicant != null)
+                {
+                    relativeId = DataService.CreateRelative(
+                        SessionManager.CurrentApplicantId.Value,
+                        InnTextBox.Text?.Trim(),
+                        (RelationDegreeCombo.SelectedItem as ComboBoxItem)?.Content.ToString(),
+                        LastNameTextBox.Text?.Trim(),
+                        FirstNameTextBox.Text?.Trim(),
+                        PatronymicTextBox.Text?.Trim(),
+                        BirthDatePicker.SelectedDate,
+                        PhoneTextBox.Text?.Trim(),
+                        EmailTextBox.Text?.Trim(),
+                        WorkPlaceTextBox.Text?.Trim(),
+                        PositionTextBox.Text?.Trim()
+                    );
+                    DataService.LogChange("Relatives", relativeId, "CREATE");
+                }
+
+                var newRelative = new RelativeItem
+                {
+                    Id = relativeId,
+                    Number = _nextNumber++,
+                    Inn = InnTextBox.Text,
+                    RelationDegree = (RelationDegreeCombo.SelectedItem as ComboBoxItem)?.Content.ToString(),
+                    LastName = LastNameTextBox.Text,
+                    FirstName = FirstNameTextBox.Text,
+                    Patronymic = PatronymicTextBox.Text,
+                    BirthDate = BirthDatePicker.SelectedDate,
+                    Phone = PhoneTextBox.Text,
+                    Email = EmailTextBox.Text,
+                    WorkPlace = WorkPlaceTextBox.Text,
+                    Position = PositionTextBox.Text,
+                    IsBlocked = false
+                };
+
+                _regularRelatives.Add(newRelative);
+                ClearForm();
+
+                MessageBox.Show("Родственник успешно добавлен", "Успех",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при сохранении: {ex.Message}", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void EditRelative_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            var item = button?.Tag as RelativeItem;
+
+            if (item != null)
+            {
+                // Заполняем форму данными для редактирования
+                RelationDegreeCombo.Text = item.RelationDegree;
+                LastNameTextBox.Text = item.LastName;
+                FirstNameTextBox.Text = item.FirstName;
+                PatronymicTextBox.Text = item.Patronymic;
+                BirthDatePicker.SelectedDate = item.BirthDate;
+                PhoneTextBox.Text = item.Phone;
+                EmailTextBox.Text = item.Email;
+                InnTextBox.Text = item.Inn;
+                WorkPlaceTextBox.Text = item.WorkPlace;
+                PositionTextBox.Text = item.Position;
+
+                // Удаляем старую запись
+                _regularRelatives.Remove(item);
+
+                MessageBox.Show("Теперь вы можете отредактировать данные и добавить снова",
+                    "Редактирование", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
+        private void ClearForm()
+        {
+            RelationDegreeCombo.SelectedIndex = 0;
+            LastNameTextBox.Text = "";
+            FirstNameTextBox.Text = "";
+            PatronymicTextBox.Text = "";
+            IdTypeCombo.SelectedIndex = 0;
+            IdNumberTextBox.Text = "";
+            IssueDatePicker.SelectedDate = null;
+            IssuedByTextBox.Text = "";
+            DepartmentCodeTextBox.Text = "";
+            BirthDatePicker.SelectedDate = null;
+            BirthPlaceTextBox.Text = "";
+            PhoneTextBox.Text = "";
+            EmailTextBox.Text = "";
+            OkpoTextBox.Text = "";
+            PravdaCheckBox.IsChecked = false;
+            DefactCheckBox.IsChecked = false;
+            InnTextBox.Text = "";
+            WorkPlaceTextBox.Text = "";
+            PositionTextBox.Text = "";
+            BankNameTextBox.Text = "";
+            PersonalAccountTextBox.Text = "";
+            CountryCombo.SelectedIndex = 0;
+            FiasAddressTextBox.Text = "";
+            ApartmentTextBox.Text = "";
+        }
+
+        private void CancelAddButton_Click(object sender, RoutedEventArgs e)
+        {
+            ClearForm();
+        }
+
+        private void DeleteRegularRelative_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            var item = button?.Tag as RelativeItem;
+
+            if (item != null)
+            {
+                var result = MessageBox.Show($"Удалить родственника \"{item.LastName} {item.FirstName}\"?",
+                    "Подтверждение удаления", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    _regularRelatives.Remove(item);
+                    RenumberItems(_regularRelatives);
+                }
+            }
+        }
+
+        private void BlockSelectedButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_selectedRelative == null)
+            {
+                MessageBox.Show("Пожалуйста, выберите родственника для блокировки",
+                    "Предупреждение", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var inputDialog = new InputDialog("Причина блокировки:", "Введите причину блокировки");
+            if (inputDialog.ShowDialog() == true && !string.IsNullOrWhiteSpace(inputDialog.Result))
+            {
+                _regularRelatives.Remove(_selectedRelative);
+
+                _selectedRelative.BlockReason = inputDialog.Result;
+                _selectedRelative.IsBlocked = true;
+                _blockedRelatives.Add(_selectedRelative);
+
+                RenumberItems(_regularRelatives);
+                RenumberItems(_blockedRelatives);
+                _selectedRelative = null;
+                BlockSelectedButton.IsEnabled = false;
+
+                MessageBox.Show("Родственник заблокирован", "Успех",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
+        private void UnblockRelative_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            var item = button?.Tag as RelativeItem;
+
+            if (item != null)
+            {
+                var result = MessageBox.Show($"Разблокировать родственника \"{item.LastName} {item.FirstName}\"?",
+                    "Подтверждение разблокировки", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    _blockedRelatives.Remove(item);
+                    item.IsBlocked = false;
+                    item.BlockReason = null;
+                    _regularRelatives.Add(item);
+
+                    RenumberItems(_regularRelatives);
+                    RenumberItems(_blockedRelatives);
+
+                    MessageBox.Show("Родственник разблокирован", "Успех",
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+        }
+
+        private void RenumberItems(ObservableCollection<RelativeItem> items)
+        {
+            int number = 1;
+            foreach (var item in items)
+            {
+                item.Number = number++;
+            }
+        }
+    }
+
+    // Диалоговое окно для ввода причины блокировки
+    public class InputDialog : Window
+    {
+        public string Result { get; private set; }
+
+        public InputDialog(string title, string prompt)
+        {
+            this.Title = title;
+            this.Width = 400;
+            this.Height = 180;
+            this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            this.ResizeMode = ResizeMode.NoResize;
+
+            var stackPanel = new StackPanel { Margin = new Thickness(10) };
+
+            var promptText = new TextBlock
+            {
+                Text = prompt,
+                FontSize = 12,
+                Margin = new Thickness(0, 0, 0, 10)
+            };
+
+            var textBox = new TextBox
+            {
+                Height = 23,
+                FontSize = 11,
+                Margin = new Thickness(0, 0, 0, 15)
+            };
+
+            var buttonPanel = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right };
+
+            var okButton = new Button
+            {
+                Content = "OK",
+                Width = 75,
+                Height = 25,
+                Margin = new Thickness(0, 0, 10, 0)
+            };
+            okButton.Click += (s, e) =>
+            {
+                Result = textBox.Text;
+                DialogResult = true;
+            };
+
+            var cancelButton = new Button
+            {
+                Content = "Отмена",
+                Width = 75,
+                Height = 25
+            };
+            cancelButton.Click += (s, e) => { DialogResult = false; };
+
+            buttonPanel.Children.Add(okButton);
+            buttonPanel.Children.Add(cancelButton);
+
+            stackPanel.Children.Add(promptText);
+            stackPanel.Children.Add(textBox);
+            stackPanel.Children.Add(buttonPanel);
+
+            this.Content = stackPanel;
+        }
+    }
+}

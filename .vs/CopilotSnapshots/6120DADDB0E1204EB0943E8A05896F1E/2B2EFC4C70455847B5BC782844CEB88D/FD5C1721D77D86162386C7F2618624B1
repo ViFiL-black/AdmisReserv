@@ -1,0 +1,44 @@
+﻿using System.Windows.Controls;
+using Admissions_Reserve.Data;
+using System.Windows;
+
+namespace Admissions_Reserve.View
+{
+    public partial class IdentityPage : BasePage
+    {
+        public IdentityPage()
+        {
+            InitializeComponent();
+            NavBar.BackClicked += NavBar_BackClicked;
+            NavBar.NextClicked += NavBar_NextClicked;
+            NavBar.CancelClicked += NavBar_CancelClicked;
+            NavBar.FinishClicked += NavBar_FinishClicked;
+            NavBar.ShowFinish(false);
+        }
+
+        private void NavBar_BackClicked(object sender, RoutedEventArgs e)
+        {
+            NavigationService?.GoBack();
+        }
+        private void NavBar_NextClicked(object sender, RoutedEventArgs e)
+        {
+            // NavigationService?.Navigate(new NextPage());
+        }
+        private void NavBar_CancelClicked(object sender, RoutedEventArgs e)
+        {
+            SessionData.Instance.Clear();
+            Application.Current.MainWindow.Content = new WelcomePage();
+        }
+        private void NavBar_FinishClicked(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("Данные успешно сохранены!");
+            SessionData.Instance.Clear();
+            Application.Current.MainWindow.Content = new WelcomePage();
+        }
+
+        private void SavePageData()
+        {
+            SessionData.Instance.SetData("Identity", /* ваши данные */ null);
+        }
+    }
+}

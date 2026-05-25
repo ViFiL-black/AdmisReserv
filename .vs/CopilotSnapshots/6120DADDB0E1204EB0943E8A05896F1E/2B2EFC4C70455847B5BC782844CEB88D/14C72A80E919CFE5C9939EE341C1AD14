@@ -1,0 +1,12 @@
+﻿using System.Windows.Controls;
+
+namespace Admissions_Reserve.View
+{
+    public partial class IdentityPage : Page
+    {
+        public IdentityPage()
+        {
+            InitializeComponent();
+        }
+    }
+}

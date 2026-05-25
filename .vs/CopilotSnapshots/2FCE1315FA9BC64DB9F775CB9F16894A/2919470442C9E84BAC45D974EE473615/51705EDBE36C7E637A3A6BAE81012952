@@ -1,0 +1,6 @@
+﻿<Page x:Class="Admissions_Reserve.View.IdentityPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Title="Удостоверение личности">
+    <!-- Контент для удостоверения личности -->
+</Page>

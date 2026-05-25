@@ -1,0 +1,98 @@
+﻿-- Создание базы данных
+CREATE DATABASE AdmissionsReserveDB;
+GO
+
+USE AdmissionsReserveDB;
+GO
+
+-- Абитуриенты
+CREATE TABLE Applicants (
+    Id INT IDENTITY PRIMARY KEY,
+    LastName NVARCHAR(100),
+    FirstName NVARCHAR(100),
+    MiddleName NVARCHAR(100),
+    BirthDate DATE,
+    BirthCountry NVARCHAR(100),
+    Gender NVARCHAR(10),
+    Citizenship NVARCHAR(100),
+    PassportSeries NVARCHAR(20),
+    PassportNumber NVARCHAR(20),
+    PassportIssuedBy NVARCHAR(200),
+    PassportIssueDate DATE,
+    RegistrationAddress NVARCHAR(300),
+    ActualAddress NVARCHAR(300)
+);
+
+-- Контакты
+CREATE TABLE Contacts (
+    Id INT IDENTITY PRIMARY KEY,
+    ApplicantId INT FOREIGN KEY REFERENCES Applicants(Id),
+    Phone NVARCHAR(20),
+    WorkPhone NVARCHAR(20),
+    MobilePhone NVARCHAR(20),
+    Email NVARCHAR(100)
+);
+
+-- Документы об образовании
+CREATE TABLE EducationDocuments (
+    Id INT IDENTITY PRIMARY KEY,
+    ApplicantId INT FOREIGN KEY REFERENCES Applicants(Id),
+    DocType NVARCHAR(100),
+    Series NVARCHAR(50),
+    Number NVARCHAR(50),
+    IssueDate DATE,
+    IssuedBy NVARCHAR(200),
+    EducationLevel NVARCHAR(100)
+);
+
+-- Приложенные документы
+CREATE TABLE AttachedDocuments (
+    Id INT IDENTITY PRIMARY KEY,
+    ApplicantId INT FOREIGN KEY REFERENCES Applicants(Id),
+    FileName NVARCHAR(255),
+    FilePath NVARCHAR(500),
+    DocType NVARCHAR(100)
+);
+
+-- Приоритеты
+CREATE TABLE Priorities (
+    Id INT IDENTITY PRIMARY KEY,
+    ApplicantId INT FOREIGN KEY REFERENCES Applicants(Id),
+    CompetitionGroup NVARCHAR(100),
+    PriorityOrder INT
+);
+
+-- Родственники
+CREATE TABLE Relatives (
+    Id INT IDENTITY PRIMARY KEY,
+    ApplicantId INT FOREIGN KEY REFERENCES Applicants(Id),
+    Relation NVARCHAR(50),
+    LastName NVARCHAR(100),
+    FirstName NVARCHAR(100),
+    MiddleName NVARCHAR(100),
+    BirthDate DATE
+);
+
+-- Индивидуальные достижения
+CREATE TABLE IndividualAchievements (
+    Id INT IDENTITY PRIMARY KEY,
+    ApplicantId INT FOREIGN KEY REFERENCES Applicants(Id),
+    Achievement NVARCHAR(200),
+    Score INT
+);
+
+-- Конкурсы (выбор конкурсов)
+CREATE TABLE ApplicationCompetitions (
+    Id INT IDENTITY PRIMARY KEY,
+    ApplicantId INT FOREIGN KEY REFERENCES Applicants(Id),
+    CompetitionName NVARCHAR(200),
+    Status NVARCHAR(50)
+);
+
+-- Дополнительная информация
+CREATE TABLE AdditionalInfo (
+    Id INT IDENTITY PRIMARY KEY,
+    ApplicantId INT FOREIGN KEY REFERENCES Applicants(Id),
+    InfoSource NVARCHAR(200),
+    OtherInfo NVARCHAR(500)
+);

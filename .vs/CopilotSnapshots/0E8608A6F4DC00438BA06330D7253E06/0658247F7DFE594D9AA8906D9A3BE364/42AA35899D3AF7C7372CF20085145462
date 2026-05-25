@@ -1,0 +1,291 @@
+﻿using System;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Linq;
+using System.Windows;
+using System.Windows.Controls;
+using Microsoft.Win32;
+
+namespace Admissions_Reserve.View
+{
+    public partial class IndividualAchievementsPage : Page
+    {
+        // Модель индивидуального достижения
+        public class IndividualAchievement : INotifyPropertyChanged
+        {
+            private int _number;
+            private string _category;
+            private string _achievementName;
+            private string _year;
+            private int _points;
+            private string _documentName;
+            private string _documentPath;
+
+            public int Number
+            {
+                get => _number;
+                set { _number = value; OnPropertyChanged(nameof(Number)); }
+            }
+            public string Category
+            {
+                get => _category;
+                set { _category = value; OnPropertyChanged(nameof(Category)); }
+            }
+            public string AchievementName
+            {
+                get => _achievementName;
+                set { _achievementName = value; OnPropertyChanged(nameof(AchievementName)); }
+            }
+            public string Year
+            {
+                get => _year;
+                set { _year = value; OnPropertyChanged(nameof(Year)); }
+            }
+            public int Points
+            {
+                get => _points;
+                set { _points = value; OnPropertyChanged(nameof(Points)); }
+            }
+            public string DocumentName
+            {
+                get => _documentName;
+                set { _documentName = value; OnPropertyChanged(nameof(DocumentName)); }
+            }
+            public string DocumentPath
+            {
+                get => _documentPath;
+                set { _documentPath = value; OnPropertyChanged(nameof(DocumentPath)); }
+            }
+
+            public event PropertyChangedEventHandler PropertyChanged;
+            protected void OnPropertyChanged(string name) =>
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+
+        private ObservableCollection<IndividualAchievement> _achievements;
+        private string _uploadedFilePath;
+        private int _nextNumber = 1;
+
+        // Словарь для хранения баллов по категориям (по умолчанию)
+        private readonly System.Collections.Generic.Dictionary<string, int> _defaultPoints =
+            new System.Collections.Generic.Dictionary<string, int>
+        {
+            { "Победитель всероссийской олимпиады школьников", 10 },
+            { "Призер всероссийской олимпиады школьников", 8 },
+            { "Победитель олимпиады школьников из перечня Минобрнауки", 7 },
+            { "Призер олимпиады школьников из перечня Минобрнауки", 5 },
+            { "Значок ГТО (золотой)", 5 },
+            { "Значок ГТО (серебряный)", 3 },
+            { "Аттестат с отличием (золотая медаль)", 10 },
+            { "Аттестат с отличием (серебряная медаль)", 7 },
+            { "Диплом СПО с отличием", 10 },
+            { "Волонтерская деятельность", 3 },
+            { "Участие в творческих конкурсах", 2 },
+            { "Спортивные достижения", 3 },
+            { "Наличие статуса победителя чемпионата «Профессионалы»", 8 },
+            { "Наличие статуса призера чемпионата «Профессионалы»", 5 },
+            { "Наличие статуса победителя чемпионата «Абилимпикс»", 8 },
+            { "Наличие статуса призера чемпионата «Абилимпикс»", 5 },
+            { "Иное", 0 }
+        };
+
+        public IndividualAchievementsPage()
+        {
+            InitializeComponent();
+            InitializeData();
+        }
+
+        private void InitializeData()
+        {
+            _achievements = new ObservableCollection<IndividualAchievement>();
+            AchievementsGrid.ItemsSource = _achievements;
+
+            // Добавляем пример данных
+            LoadSampleAchievements();
+            UpdateTotalPoints();
+        }
+
+        private void LoadSampleAchievements()
+        {
+            _achievements.Add(new IndividualAchievement
+            {
+                Number = _nextNumber++,
+                Category = "Значок ГТО (золотой)",
+                AchievementName = "Золотой значок ГТО",
+                Year = "2025",
+                Points = 5,
+                DocumentName = "gto_certificate.pdf"
+            });
+        }
+
+        private void CategoryCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (CategoryCombo.SelectedItem is ComboBoxItem selectedItem)
+            {
+                string category = selectedItem.Content.ToString();
+                if (_defaultPoints.ContainsKey(category))
+                {
+                    PointsTextBox.Text = _defaultPoints[category].ToString();
+                }
+                else
+                {
+                    PointsTextBox.Text = "0";
+                }
+
+                // Автоматическое заполнение наименования
+                if (category != "Иное")
+                {
+                    AchievementNameTextBox.Text = category;
+                }
+                else
+                {
+                    AchievementNameTextBox.Text = "";
+                }
+            }
+        }
+
+        private void UploadFileButton_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                Title = "Выберите файл, подтверждающий достижение",
+                Filter = "PDF файлы (*.pdf)|*.pdf|Изображения (*.jpg;*.png)|*.jpg;*.png|Все файлы (*.*)|*.*"
+            };
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                _uploadedFilePath = openFileDialog.FileName;
+                string fileName = System.IO.Path.GetFileName(_uploadedFilePath);
+                DocumentInfoTextBox.Text = fileName;
+            }
+        }
+
+        private void AddAchievementButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Проверка обязательных полей
+            if (CategoryCombo.SelectedItem == null)
+            {
+                MessageBox.Show("Пожалуйста, выберите категорию достижения", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            // Проверка корректности баллов
+            if (!int.TryParse(PointsTextBox.Text, out int points) || points < 0)
+            {
+                MessageBox.Show("Пожалуйста, укажите корректное количество баллов", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                PointsTextBox.Focus();
+                return;
+            }
+
+            // Проверка максимальной суммы баллов
+            int currentTotal = _achievements.Sum(a => a.Points);
+            int maxPoints = 20; // Максимум за все достижения
+            if (currentTotal + points > maxPoints)
+            {
+                MessageBox.Show($"Сумма баллов за индивидуальные достижения не может превышать {maxPoints}. " +
+                               $"Текущая сумма: {currentTotal}. Добавляемый балл: {points}",
+                    "Превышение лимита", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            string category = (CategoryCombo.SelectedItem as ComboBoxItem)?.Content.ToString();
+            string achievementName = AchievementNameTextBox.Text;
+            string year = (YearCombo.SelectedItem as ComboBoxItem)?.Content.ToString();
+            string documentName = DocumentInfoTextBox.Text;
+
+            if (string.IsNullOrWhiteSpace(achievementName))
+            {
+                achievementName = category;
+            }
+
+            _achievements.Add(new IndividualAchievement
+            {
+                Number = _nextNumber++,
+                Category = category,
+                AchievementName = achievementName,
+                Year = year,
+                Points = points,
+                DocumentName = string.IsNullOrEmpty(documentName) ? "Не загружен" : documentName,
+                DocumentPath = _uploadedFilePath
+            });
+
+            ClearForm();
+            UpdateTotalPoints();
+
+            MessageBox.Show("Достижение успешно добавлено", "Успех",
+                MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private void ClearForm()
+        {
+            CategoryCombo.SelectedIndex = -1;
+            AchievementNameTextBox.Text = "";
+            YearCombo.SelectedIndex = 0;
+            PointsTextBox.Text = "0";
+            DocumentInfoTextBox.Text = "";
+            _uploadedFilePath = null;
+        }
+
+        private void CancelAddButton_Click(object sender, RoutedEventArgs e)
+        {
+            ClearForm();
+        }
+
+        private void DeleteAchievement_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            var item = button?.Tag as IndividualAchievement;
+
+            if (item != null)
+            {
+                var result = MessageBox.Show($"Удалить достижение \"{item.AchievementName}\"?",
+                    "Подтверждение удаления", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    _achievements.Remove(item);
+                    RenumberAchievements();
+                    UpdateTotalPoints();
+                }
+            }
+        }
+
+        private void RenumberAchievements()
+        {
+            int number = 1;
+            foreach (var achievement in _achievements)
+            {
+                achievement.Number = number++;
+            }
+            _nextNumber = number;
+        }
+
+        private void UpdateTotalPoints()
+        {
+            int totalPoints = _achievements.Sum(a => a.Points);
+            TotalPointsTextBlock.Text = totalPoints.ToString();
+
+            // Подсветка при достижении максимума
+            if (totalPoints >= 20)
+            {
+                TotalPointsTextBlock.Background = System.Windows.Media.Brushes.Green;
+                TotalPointsTextBlock.Foreground = System.Windows.Media.Brushes.White;
+            }
+            else if (totalPoints >= 15)
+            {
+                TotalPointsTextBlock.Background = System.Windows.Media.Brushes.Orange;
+            }
+            else
+            {
+                TotalPointsTextBlock.Background = System.Windows.Media.Brushes.Gray;
+            }
+        }
+
+        private void AchievementsGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            // Можно добавить логику при выборе достижения
+        }
+    }
+}

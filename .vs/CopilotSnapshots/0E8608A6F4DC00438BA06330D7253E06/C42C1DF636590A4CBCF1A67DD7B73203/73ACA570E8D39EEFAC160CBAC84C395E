@@ -1,0 +1,494 @@
+﻿using System;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.IO;
+using System.Linq;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using Microsoft.Win32;
+
+namespace Admissions_Reserve.View
+{
+    public partial class DocumentsPage : Page
+    {
+        // Конвертер видимости для файлов
+        public class BoolToVisibilityConverter : IValueConverter
+        {
+            public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+            {
+                return (value is bool boolValue && boolValue) ? Visibility.Visible : Visibility.Collapsed;
+            }
+
+            public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+            {
+                return value is Visibility visibility && visibility == Visibility.Visible;
+            }
+        }
+
+        // Модель документа
+        public class DocumentItem : INotifyPropertyChanged
+        {
+            private int _number;
+            private string _documentType;
+            private string _seriesNumber;
+            private string _category;
+            private string _additionalData;
+            private DateTime? _issueDate;
+            private string _documentInfo;
+            private DateTime _addedDate;
+            private string _personalDataCategory;
+            private bool _isPersonalDataDocument;
+            private string _attachmentPath;
+            private string _attachmentName;
+            private bool _hasAttachment;
+
+            public int Number
+            {
+                get => _number;
+                set { _number = value; OnPropertyChanged(nameof(Number)); }
+            }
+            public string DocumentType
+            {
+                get => _documentType;
+                set { _documentType = value; OnPropertyChanged(nameof(DocumentType)); }
+            }
+            public string SeriesNumber
+            {
+                get => _seriesNumber;
+                set { _seriesNumber = value; OnPropertyChanged(nameof(SeriesNumber)); }
+            }
+            public string Category
+            {
+                get => _category;
+                set { _category = value; OnPropertyChanged(nameof(Category)); }
+            }
+            public string AdditionalData
+            {
+                get => _additionalData;
+                set { _additionalData = value; OnPropertyChanged(nameof(AdditionalData)); }
+            }
+            public DateTime? IssueDate
+            {
+                get => _issueDate;
+                set { _issueDate = value; OnPropertyChanged(nameof(IssueDate)); }
+            }
+            public string DocumentInfo
+            {
+                get => _documentInfo;
+                set { _documentInfo = value; OnPropertyChanged(nameof(DocumentInfo)); }
+            }
+            public DateTime AddedDate
+            {
+                get => _addedDate;
+                set { _addedDate = value; OnPropertyChanged(nameof(AddedDate)); }
+            }
+            public string PersonalDataCategory
+            {
+                get => _personalDataCategory;
+                set { _personalDataCategory = value; OnPropertyChanged(nameof(PersonalDataCategory)); }
+            }
+            public bool IsPersonalDataDocument
+            {
+                get => _isPersonalDataDocument;
+                set { _isPersonalDataDocument = value; OnPropertyChanged(nameof(IsPersonalDataDocument)); }
+            }
+            public string AttachmentPath
+            {
+                get => _attachmentPath;
+                set
+                {
+                    _attachmentPath = value;
+                    OnPropertyChanged(nameof(AttachmentPath));
+                    HasAttachment = !string.IsNullOrEmpty(value);
+                }
+            }
+            public string AttachmentName
+            {
+                get => _attachmentName;
+                set { _attachmentName = value; OnPropertyChanged(nameof(AttachmentName)); }
+            }
+            public bool HasAttachment
+            {
+                get => _hasAttachment;
+                set { _hasAttachment = value; OnPropertyChanged(nameof(HasAttachment)); }
+            }
+
+            public event PropertyChangedEventHandler PropertyChanged;
+            protected void OnPropertyChanged(string name) =>
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+
+        private ObservableCollection<DocumentItem> _documents;
+        private ObservableCollection<DocumentItem> _personalDataDocuments;
+        private int _nextNumber = 1;
+        private string _selectedAttachmentPath;
+        private string _selectedAttachmentName;
+
+        public DocumentsPage()
+        {
+            InitializeComponent();
+
+            // Регистрация конвертера
+            Resources.Add("BoolToVisibility", new BoolToVisibilityConverter());
+
+            InitializeData();
+            InitializeComboBoxes();
+        }
+
+        private void InitializeData()
+        {
+            _documents = new ObservableCollection<DocumentItem>();
+            _personalDataDocuments = new ObservableCollection<DocumentItem>();
+
+            LoadSampleDocuments();
+            LoadSamplePersonalDataDocuments();
+
+            DocumentsGrid.ItemsSource = _documents;
+            PersonalDataDocumentsGrid.ItemsSource = _personalDataDocuments;
+        }
+
+        private void InitializeComboBoxes()
+        {
+            // Инициализация ComboBox для документов, удостоверяющих личность
+            var identityItems = new[]
+            {
+                "Паспорт гражданина РФ",
+                "Загранпаспорт",
+                "Свидетельство о рождении",
+                "Военный билет",
+                "Водительское удостоверение"
+            };
+
+            var otherItems = new[]
+            {
+                "Медицинская справка 086у",
+                "Полис ОМС",
+                "СНИЛС",
+                "ИНН",
+                "Фото 3x4",
+                "Признанный сертификат",
+                "Справка об инвалидности",
+                "Свидетельство о браке"
+            };
+
+            // Очищаем и заполняем ComboBox
+            DocumentTypeCombo.Items.Clear();
+            foreach (var item in identityItems)
+            {
+                DocumentTypeCombo.Items.Add(item);
+            }
+            DocumentTypeCombo.SelectedIndex = 0;
+        }
+
+        private void LoadSampleDocuments()
+        {
+            _documents.Add(new DocumentItem
+            {
+                Number = _nextNumber++,
+                DocumentType = "Медицинская справка 086у",
+                SeriesNumber = "",
+                Category = "Абитуриент",
+                AdditionalData = "",
+                IssueDate = new DateTime(2026, 5, 10),
+                DocumentInfo = "док. выдан ООО МЦ \"Здоровье\"",
+                AddedDate = DateTime.Now.AddDays(-5),
+                PersonalDataCategory = "Абитуриент (прием 2026)",
+                IsPersonalDataDocument = false
+            });
+
+            _documents.Add(new DocumentItem
+            {
+                Number = _nextNumber++,
+                DocumentType = "СНИЛС",
+                SeriesNumber = "123-456-789 01",
+                Category = "Абитуриент",
+                AdditionalData = "",
+                IssueDate = null,
+                DocumentInfo = "Страховой номер индивидуального лицевого счета",
+                AddedDate = DateTime.Now.AddDays(-10),
+                PersonalDataCategory = "Абитуриент (прием 2026)",
+                IsPersonalDataDocument = false
+            });
+
+            _documents.Add(new DocumentItem
+            {
+                Number = _nextNumber++,
+                DocumentType = "Фото 3x4",
+                SeriesNumber = "",
+                Category = "Абитуриент",
+                AdditionalData = "4 шт.",
+                IssueDate = null,
+                DocumentInfo = "Фото на матовой бумаге",
+                AddedDate = DateTime.Now.AddDays(-3),
+                PersonalDataCategory = "Абитуриент (прием 2026)",
+                IsPersonalDataDocument = false
+            });
+        }
+
+        private void LoadSamplePersonalDataDocuments()
+        {
+            _personalDataDocuments.Add(new DocumentItem
+            {
+                Number = _nextNumber++,
+                DocumentType = "Паспорт гражданина РФ",
+                SeriesNumber = "45 07 654321",
+                Category = "Абитуриент",
+                AdditionalData = "",
+                IssueDate = new DateTime(2015, 6, 15),
+                DocumentInfo = "Паспорт гражданина Российской Федерации (основной)",
+                AddedDate = DateTime.Now.AddDays(-15),
+                PersonalDataCategory = "Абитуриент (прием 2026)",
+                IsPersonalDataDocument = true
+            });
+        }
+
+        private void IdentityDocRadio_Checked(object sender, RoutedEventArgs e)
+        {
+            // Проверяем, что ComboBox существует
+            if (DocumentTypeCombo == null) return;
+
+            var identityItems = new[]
+            {
+                "Паспорт гражданина РФ",
+                "Загранпаспорт",
+                "Свидетельство о рождении",
+                "Военный билет",
+                "Водительское удостоверение"
+            };
+
+            DocumentTypeCombo.Items.Clear();
+            foreach (var item in identityItems)
+            {
+                DocumentTypeCombo.Items.Add(item);
+            }
+            DocumentTypeCombo.SelectedIndex = 0;
+        }
+
+        private void OtherDocRadio_Checked(object sender, RoutedEventArgs e)
+        {
+            // Проверяем, что ComboBox существует
+            if (DocumentTypeCombo == null) return;
+
+            var otherItems = new[]
+            {
+                "Медицинская справка 086у",
+                "Полис ОМС",
+                "СНИЛС",
+                "ИНН",
+                "Фото 3x4",
+                "Признанный сертификат",
+                "Справка об инвалидности",
+                "Свидетельство о браке"
+            };
+
+            DocumentTypeCombo.Items.Clear();
+            foreach (var item in otherItems)
+            {
+                DocumentTypeCombo.Items.Add(item);
+            }
+            DocumentTypeCombo.SelectedIndex = 0;
+        }
+
+        private void UploadFileButton_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                Title = "Выберите файл документа",
+                Filter = "PDF файлы (*.pdf)|*.pdf|Изображения (*.jpg;*.png;*.jpeg)|*.jpg;*.png;*.jpeg|Документы (*.doc;*.docx)|*.doc;*.docx|Все файлы (*.*)|*.*"
+            };
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                _selectedAttachmentPath = openFileDialog.FileName;
+                _selectedAttachmentName = Path.GetFileName(_selectedAttachmentPath);
+                AttachmentFileTextBox.Text = _selectedAttachmentName;
+            }
+        }
+
+        private void AddDocumentButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Проверка обязательных полей
+            if (string.IsNullOrWhiteSpace(DocumentTypeCombo.Text))
+            {
+                MessageBox.Show("Пожалуйста, укажите тип документа", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                DocumentTypeCombo.Focus();
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(NumberTextBox.Text))
+            {
+                MessageBox.Show("Пожалуйста, укажите номер документа", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                NumberTextBox.Focus();
+                return;
+            }
+
+            // Формируем серию и номер
+            string seriesNumber = "";
+            if (!string.IsNullOrWhiteSpace(SeriesTextBox.Text))
+                seriesNumber = SeriesTextBox.Text;
+            if (!string.IsNullOrWhiteSpace(NumberTextBox.Text))
+                seriesNumber += (string.IsNullOrEmpty(seriesNumber) ? "" : " ") + NumberTextBox.Text;
+
+            // Определяем категорию персональных данных
+            string personalDataCategory = (CategoryCombo.SelectedItem as ComboBoxItem)?.Content.ToString() ?? "Абитуриент (прием 2026)";
+
+            // Определяем, является ли документ удостоверением личности
+            bool isIdentityDocument = IdentityDocRadio.IsChecked == true;
+
+            // Формируем информацию о документе
+            string documentInfo = DocumentInfoTextBox.Text;
+            if (string.IsNullOrWhiteSpace(documentInfo) && isIdentityDocument)
+            {
+                documentInfo = DocumentTypeCombo.Text;
+                if (!string.IsNullOrWhiteSpace(IssuedByTextBox.Text))
+                    documentInfo += $", выдан {IssuedByTextBox.Text}";
+            }
+
+            var newDocument = new DocumentItem
+            {
+                Number = _nextNumber++,
+                DocumentType = DocumentTypeCombo.Text,
+                SeriesNumber = seriesNumber,
+                Category = personalDataCategory,
+                AdditionalData = AdditionalDataTextBox.Text,
+                IssueDate = IssueDatePicker.SelectedDate,
+                DocumentInfo = documentInfo,
+                AddedDate = DateTime.Now,
+                PersonalDataCategory = personalDataCategory,
+                IsPersonalDataDocument = isIdentityDocument,
+                AttachmentPath = _selectedAttachmentPath,
+                AttachmentName = _selectedAttachmentName,
+                HasAttachment = !string.IsNullOrEmpty(_selectedAttachmentPath)
+            };
+
+            // Добавляем в соответствующую коллекцию
+            if (isIdentityDocument)
+            {
+                _personalDataDocuments.Add(newDocument);
+                RenumberItems(_personalDataDocuments);
+                MessageBox.Show("Документ, удостоверяющий личность, успешно добавлен", "Успех",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            else
+            {
+                _documents.Add(newDocument);
+                RenumberItems(_documents);
+                MessageBox.Show("Документ успешно добавлен", "Успех",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+
+            ClearForm();
+        }
+
+        private void ClearForm()
+        {
+            DocumentTypeCombo.Text = "";
+            SeriesTextBox.Text = "";
+            NumberTextBox.Text = "";
+            IssueDatePicker.SelectedDate = null;
+            IssuedByTextBox.Text = "";
+            AdditionalDataTextBox.Text = "";
+            DocumentInfoTextBox.Text = "";
+            AttachmentFileTextBox.Text = "";
+            _selectedAttachmentPath = null;
+            _selectedAttachmentName = null;
+
+            IdentityDocRadio.IsChecked = true;
+            CategoryCombo.SelectedIndex = 0;
+        }
+
+        private void CancelAddButton_Click(object sender, RoutedEventArgs e)
+        {
+            ClearForm();
+        }
+
+        private void DeleteDocument_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            var item = button?.Tag as DocumentItem;
+
+            if (item != null)
+            {
+                var result = MessageBox.Show($"Удалить документ \"{item.DocumentType}\"?",
+                    "Подтверждение удаления", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    if (item.IsPersonalDataDocument)
+                    {
+                        _personalDataDocuments.Remove(item);
+                        RenumberItems(_personalDataDocuments);
+                    }
+                    else
+                    {
+                        _documents.Remove(item);
+                        RenumberItems(_documents);
+                    }
+                }
+            }
+        }
+
+        private void OpenFile_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            var item = button?.Tag as DocumentItem;
+
+            if (item != null && !string.IsNullOrEmpty(item.AttachmentPath) && File.Exists(item.AttachmentPath))
+            {
+                try
+                {
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = item.AttachmentPath,
+                        UseShellExecute = true
+                    });
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Не удалось открыть файл: {ex.Message}", "Ошибка",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            else if (item != null && !string.IsNullOrEmpty(item.AttachmentName))
+            {
+                MessageBox.Show($"Файл \"{item.AttachmentName}\" не найден на диске", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
+        private void RenumberItems(ObservableCollection<DocumentItem> items)
+        {
+            int number = 1;
+            foreach (var item in items)
+            {
+                item.Number = number++;
+            }
+        }
+
+        // Получение всех документов
+        public ObservableCollection<DocumentItem> GetAllDocuments()
+        {
+            var allDocuments = new ObservableCollection<DocumentItem>();
+            foreach (var doc in _documents)
+                allDocuments.Add(doc);
+            foreach (var doc in _personalDataDocuments)
+                allDocuments.Add(doc);
+            return allDocuments;
+        }
+
+        // Валидация
+        public bool ValidateDocuments()
+        {
+            if (_personalDataDocuments.Count == 0)
+            {
+                MessageBox.Show("Необходимо добавить хотя бы один документ, удостоверяющий личность",
+                    "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+            return true;
+        }
+    }
+}

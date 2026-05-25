@@ -1,0 +1,114 @@
+﻿// Models.cs
+using System;
+using System.Collections.Generic;
+
+namespace Admissions_Reserve.Model
+{
+    // ========== АБИТУРИЕНТЫ ==========
+    public class Applicants
+    {
+        public int Id { get; set; }
+        public string LastName { get; set; }
+        public string FirstName { get; set; }
+        public string Patronymic { get; set; }
+        public DateTime? BirthDate { get; set; }
+        public string BirthPlace { get; set; }
+        public int? GenderId { get; set; }
+        public int? CitizenshipId { get; set; }
+        public string Snils { get; set; }
+
+        // Адрес регистрации
+        public int? RegistrationCountryId { get; set; }
+        public string RegistrationPostalCode { get; set; }
+        public string RegistrationRegion { get; set; }
+        public string RegistrationDistrict { get; set; }
+        public string RegistrationCity { get; set; }
+        public string RegistrationStreet { get; set; }
+        public string RegistrationHouse { get; set; }
+        public string RegistrationBuilding { get; set; }
+        public string RegistrationApartment { get; set; }
+
+        // Фактический адрес
+        public bool? ActualAddressSame { get; set; }
+        public int? ActualCountryId { get; set; }
+        public string ActualPostalCode { get; set; }
+        public string ActualRegion { get; set; }
+        public string ActualDistrict { get; set; }
+        public string ActualCity { get; set; }
+        public string ActualStreet { get; set; }
+        public string ActualHouse { get; set; }
+        public string ActualBuilding { get; set; }
+        public string ActualApartment { get; set; }
+
+        // Контактные данные
+        public string Phone { get; set; }
+        public string MobilePhone { get; set; }
+        public string Fax { get; set; }
+        public string WorkPhone { get; set; }
+        public string Email { get; set; }
+        public string AdditionalEmail { get; set; }
+        public string Website { get; set; }
+        public string Telegram { get; set; }
+        public string WhatsApp { get; set; }
+        public string Viber { get; set; }
+        public string PreferredContactMethod { get; set; }
+        public string ContactComment { get; set; }
+
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+    }
+
+    // ========== УДОСТОВЕРЕНИЯ ЛИЧНОСТИ ==========
+    public class IdentityDocuments
+    {
+        public int Id { get; set; }
+        public int ApplicantId { get; set; }
+        public int? DocumentTypeId { get; set; }
+        public string Series { get; set; }
+        public string Number { get; set; }
+        public string IssuedBy { get; set; }
+        public DateTime? IssueDate { get; set; }
+        public string DepartmentCode { get; set; }
+        public bool? IsPrimary { get; set; }
+        public DateTime AddedDate { get; set; }
+    }
+
+    // ========== ТИПЫ ДОКУМЕНТОВ ==========
+    public class IdentityDocumentTypes
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
+    // ========== ГРАЖДАНСТВА ==========
+    public class Citizenships
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
+    // ========== СТРАНЫ ==========
+    public class Countries
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public bool IsActive { get; set; }
+    }
+
+    // ========== ПОЛ ==========
+    public class Genders
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
+    // ========== ИСТОРИЯ ИЗМЕНЕНИЙ ==========
+    public class ChangeHistory
+    {
+        public int Id { get; set; }
+        public string TableName { get; set; }
+        public int RecordId { get; set; }
+        public string Action { get; set; }
+        public DateTime ChangedAt { get; set; }
+    }
+}
