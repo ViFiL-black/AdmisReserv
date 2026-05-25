@@ -564,7 +564,7 @@ namespace Admissions_Reserve.View
             }
         }
 
-        // Кнопка ДАЛЕЕ - переход на страницу конкурсов
+        // Кнопка ДАЛЕЕ - переход на страницу дополнительной информации
         private async void NextButton_Click(object sender, RoutedEventArgs e)
         {
             var button = sender as Button;
@@ -578,7 +578,7 @@ namespace Admissions_Reserve.View
                 if (SaveData())
                 {
                     await System.Threading.Tasks.Task.Delay(100);
-                    NavigationService?.Navigate(new ApplicationCompetitionsPage());
+                    NavigationService?.Navigate(new AdditionalInfoPage());
                 }
             }
             catch (Exception ex)

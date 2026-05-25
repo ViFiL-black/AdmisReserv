@@ -368,7 +368,7 @@ namespace Admissions_Reserve.View
             }
         }
 
-        // Кнопка ДАЛЕЕ - переход на страницу индивидуальных достижений
+        // Кнопка ДАЛЕЕ - переход на страницу прикрепленных документов
         private async void NextButton_Click(object sender, RoutedEventArgs e)
         {
             var button = sender as Button;
@@ -382,7 +382,7 @@ namespace Admissions_Reserve.View
                 if (SaveData())
                 {
                     await System.Threading.Tasks.Task.Delay(100);
-                    NavigationService?.Navigate(new IndividualAchievementsPage());
+                    NavigationService?.Navigate(new AttachedDocumentsPage());
                 }
             }
             catch (Exception ex)

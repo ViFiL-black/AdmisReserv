@@ -344,7 +344,7 @@ namespace Admissions_Reserve.View
             }
         }
 
-        // Кнопка ДАЛЕЕ - переход на страницу дополнительной информации
+        // Кнопка ДАЛЕЕ - завершение работы мастера (последняя страница)
         private async void NextButton_Click(object sender, RoutedEventArgs e)
         {
             var button = sender as Button;
@@ -358,7 +358,22 @@ namespace Admissions_Reserve.View
                 if (SaveData())
                 {
                     await System.Threading.Tasks.Task.Delay(100);
-                    NavigationService?.Navigate(new AdditionalInfoPage());
+                    MessageBox.Show("Заявление успешно заполнено! Все данные сохранены в базу данных.", 
+                        "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                    
+                    // Возврат на главную страницу
+                    var mainWindow = Application.Current.MainWindow as MainWindow;
+                    if (mainWindow != null)
+                    {
+                        mainWindow.MainFrame?.Navigate(new WelcomePage());
+                    }
+                    else if (NavigationService?.CanGoBack == true)
+                    {
+                        while (NavigationService.CanGoBack)
+                        {
+                            NavigationService.GoBack();
+                        }
+                    }
                 }
             }
             catch (Exception ex)
