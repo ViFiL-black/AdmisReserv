@@ -18,7 +18,7 @@ namespace Admissions_Reserve.View
             InitializeComponent();
             LoadReferenceData();
 
-            if (SessionManager.CurrentApplicant != null)
+            if (SessionManager.CurrentApplicant != null && SessionManager.CurrentApplicant.Id != 0)
             {
                 // Загружаем актуальные данные из БД
                 currentApplicant = DataService.GetApplicant(SessionManager.CurrentApplicantId.Value);
@@ -30,11 +30,12 @@ namespace Admissions_Reserve.View
             }
             else
             {
+                // Если абитуриент еще не создан, перенаправляем на первую страницу
                 MessageBox.Show("Сначала необходимо заполнить данные удостоверения личности",
-                    "Предупреждение", MessageBoxButton.OK, MessageBoxImage.Warning);
-
-                if (NavigationService?.CanGoBack == true)
-                    NavigationService.GoBack();
+                    "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
+                
+                NavigationService?.Navigate(new IdentityPage());
+                return;
             }
             isInitialized = true;
         }
@@ -125,19 +126,11 @@ namespace Admissions_Reserve.View
                 if (!ValidateData())
                     return false;
 
-                if (SessionManager.CurrentApplicantId == null)
+                // Абитуриент должен быть уже создан на странице IdentityPage
+                if (currentApplicant == null || currentApplicant.Id == 0)
                 {
-                    MessageBox.Show("Ошибка: данные абитуриента не найдены", "Ошибка",
-                        MessageBoxButton.OK, MessageBoxImage.Error);
-                    return false;
-                }
-
-                currentApplicant = DataService.GetApplicant(SessionManager.CurrentApplicantId.Value);
-
-                if (currentApplicant == null)
-                {
-                    MessageBox.Show("Ошибка: данные абитуриента не найдены", "Ошибка",
-                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Ошибка: абитуриент не найден. Пожалуйста, начните с заполнения данных удостоверения личности.",
+                        "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return false;
                 }
 

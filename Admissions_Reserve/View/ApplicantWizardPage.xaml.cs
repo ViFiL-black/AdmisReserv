@@ -1,6 +1,7 @@
 using System;
 using System.Windows.Controls;
 using System.Windows;
+using Admissions_Reserve.Model;
 
 namespace Admissions_Reserve.View
 {
@@ -24,7 +25,12 @@ namespace Admissions_Reserve.View
         public ApplicantWizardPage()
         {
             InitializeComponent();
+            
+            // Абитуриент будет создан при вводе данных на первых страницах (Identity и Contacts)
+            // Здесь мы просто загружаем первую страницу
+            
             NavigateToStep(_currentStep);
+            UpdateNavigationButtons();
         }
 
         private void Step_Click(object sender, RoutedEventArgs e)
@@ -36,6 +42,7 @@ namespace Admissions_Reserve.View
                 {
                     _currentStep = idx;
                     NavigateToStep(_currentStep);
+                    UpdateNavigationButtons();
                 }
             }
         }
@@ -78,6 +85,34 @@ namespace Admissions_Reserve.View
             }
             if (page != null)
                 StepFrame.Navigate(page);
+        }
+
+        private void UpdateNavigationButtons()
+        {
+            // Здесь можно обновлять состояние кнопок навигации если нужно
+            // Например, блокировать кнопку "Назад" на первом шаге
+        }
+
+        // Метод для перехода на следующий шаг
+        public void GoNext()
+        {
+            if (_currentStep < _stepTags.Length - 1)
+            {
+                _currentStep++;
+                NavigateToStep(_currentStep);
+                UpdateNavigationButtons();
+            }
+        }
+
+        // Метод для перехода на предыдущий шаг
+        public void GoBack()
+        {
+            if (_currentStep > 0)
+            {
+                _currentStep--;
+                NavigateToStep(_currentStep);
+                UpdateNavigationButtons();
+            }
         }
     }
 }
