@@ -1,0 +1,255 @@
+<Page
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    mc:Ignorable="d" 
+    x:Class="Admissions_Reserve.View.ApplicationCompetitionsPage"
+    Title="Заявление и выбор конкурсов">
+
+    <Grid>
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Margin="15">
+
+                <!-- ========== ЗАГОЛОВОК ========== -->
+                <TextBlock Text="Заявление и выбор конкурсов" FontSize="16" FontWeight="Bold" Margin="0,0,0,15"/>
+
+                <!-- ========== ВЫБОР КОНКУРСОВ ========== -->
+                <TextBlock Text="Выбор конкурсов" FontSize="13" FontWeight="Bold" Background="#E8EFF7" Padding="8" Margin="0,0,0,8"/>
+
+                <Border BorderBrush="#CCCCCC" BorderThickness="1" Margin="0,0,0,15" Padding="10" Background="#FAFAFA" CornerRadius="5">
+                    <StackPanel>
+                        <!-- Фильтры выбора конкурсов - первая строка -->
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                                <TextBlock Text="Этап набора" FontSize="11" FontWeight="SemiBold"/>
+                                <ComboBox x:Name="StageCombo" Height="23" FontSize="11" SelectedIndex="0">
+                                    <ComboBoxItem Content="Основной набор"/>
+                                    <ComboBoxItem Content="Дополнительный набор"/>
+                                    <ComboBoxItem Content="Целевой набор"/>
+                                </ComboBox>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Margin="0,0,8,0">
+                                <TextBlock Text="Вид возмещения затрат" FontSize="11" FontWeight="SemiBold"/>
+                                <ComboBox x:Name="CostReimbursementCombo" Height="23" FontSize="11" SelectedIndex="0">
+                                    <ComboBoxItem Content="бюджет"/>
+                                    <ComboBoxItem Content="внебюджет"/>
+                                    <ComboBoxItem Content="целевое обучение"/>
+                                </ComboBox>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2" Margin="0,0,8,0">
+                                <TextBlock Text="Форма освоения" FontSize="11" FontWeight="SemiBold"/>
+                                <ComboBox x:Name="StudyFormCombo" Height="23" FontSize="11" SelectedIndex="0">
+                                    <ComboBoxItem Content="Очная"/>
+                                    <ComboBoxItem Content="Заочная"/>
+                                    <ComboBoxItem Content="Очно-заочная"/>
+                                </ComboBox>
+                            </StackPanel>
+                            <StackPanel Grid.Column="3">
+                                <TextBlock Text="Формирующее подр." FontSize="11" FontWeight="SemiBold"/>
+                                <ComboBox x:Name="DepartmentCombo" Height="23" FontSize="11" SelectedIndex="0">
+                                    <ComboBoxItem Content="Отделение автоматики"/>
+                                    <ComboBoxItem Content="Отделение автоматики и электромеханики (Отделение)"/>
+                                    <ComboBoxItem Content="Отделение автоматики и электромеханики"/>
+                                </ComboBox>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Фильтры выбора конкурсов - вторая строка -->
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Направление, специальность, профессия" FontSize="11" FontWeight="SemiBold"/>
+                                    <TextBlock Text="*" Foreground="Red" FontSize="11" FontWeight="Bold"/>
+                                </StackPanel>
+                                <ComboBox x:Name="DirectionCombo" Height="23" FontSize="11" IsEditable="True" SelectedIndex="0">
+                                    <ComboBoxItem Content="08.02.09 Монтаж, наладка и эксплуатация электрооборудования"/>
+                                    <ComboBoxItem Content="15.02.17 Монтаж и ремонт промышленного оборудования"/>
+                                    <ComboBoxItem Content="27.02.04 Автоматические системы управления"/>
+                                    <ComboBoxItem Content="09.02.11 Разработка и управление программным обеспечением"/>
+                                </ComboBox>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Margin="0,0,8,0">
+                                <TextBlock Text="Базовый уровень" FontSize="11" FontWeight="SemiBold"/>
+                                <ComboBox x:Name="BaseLevelCombo" Height="23" FontSize="11" SelectedIndex="0">
+                                    <ComboBoxItem Content="Основной общий"/>
+                                    <ComboBoxItem Content="Средний общий"/>
+                                    <ComboBoxItem Content="Средний профессиональный"/>
+                                </ComboBox>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2" Margin="0,0,8,0">
+                                <TextBlock Text="Вид приема" FontSize="11" FontWeight="SemiBold"/>
+                                <ComboBox x:Name="AdmissionTypeCombo" Height="23" FontSize="11" SelectedIndex="0">
+                                    <ComboBoxItem Content="Общий"/>
+                                    <ComboBoxItem Content="Целевой"/>
+                                    <ComboBoxItem Content="Отдельная квота"/>
+                                </ComboBox>
+                            </StackPanel>
+                            <StackPanel Grid.Column="3">
+                                <TextBlock Text="Вид целевого приема" FontSize="11" FontWeight="SemiBold"/>
+                                <ComboBox x:Name="TargetAdmissionCombo" Height="23" FontSize="11" SelectedIndex="0">
+                                    <ComboBoxItem Content="Не выбран"/>
+                                    <ComboBoxItem Content="Целевое обучение по договору"/>
+                                    <ComboBoxItem Content="Целевой прием по квоте"/>
+                                </ComboBox>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Кнопка поиска/фильтрации -->
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,5,0,0">
+                            <Button Content="🔍 Применить фильтры" Width="130" Height="28" FontSize="11" 
+                                    Background="#007ACC" Foreground="White" Click="ApplyFilters_Click"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- ========== ТАБЛИЦА "ВОЗМОЖНЫЕ ДЛЯ ВЫБОРА" ========== -->
+                <TextBlock Text="Возможные для выбора" FontSize="12" FontWeight="Bold" Margin="0,5,0,5"/>
+
+                <Border BorderBrush="#CCCCCC" BorderThickness="1" Margin="0,0,0,8" CornerRadius="5">
+                    <ScrollViewer Height="220" VerticalScrollBarVisibility="Auto">
+                        <DataGrid Name="AvailableCompetitionsGrid" AutoGenerateColumns="False" 
+                                  CanUserAddRows="False" CanUserDeleteRows="False" 
+                                  HeadersVisibility="Column" FontSize="11" BorderThickness="0"
+                                  RowHeaderWidth="0" SelectionMode="Extended"
+                                  CellEditEnding="AvailableCompetitionsGrid_CellEditEnding">
+                            <DataGrid.Columns>
+                                <DataGridCheckBoxColumn Header="Выбрать" Width="55" Binding="{Binding IsSelected}">
+                                    <DataGridCheckBoxColumn.ElementStyle>
+                                        <Style TargetType="CheckBox">
+                                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                                            <Setter Property="VerticalAlignment" Value="Center"/>
+                                        </Style>
+                                    </DataGridCheckBoxColumn.ElementStyle>
+                                </DataGridCheckBoxColumn>
+                                <DataGridTextColumn Header="Набор ОП для приема" Width="300" Binding="{Binding ProgramName}" />
+                                <DataGridTextColumn Header="На базе" Width="100" Binding="{Binding EducationBase}" />
+                                <DataGridTextColumn Header="Форма освоения" Width="100" Binding="{Binding StudyForm}" />
+                                <DataGridTextColumn Header="Вид приема" Width="100" Binding="{Binding AdmissionType}" />
+                                <DataGridTextColumn Header="Др. характер" Width="120" Binding="{Binding OtherCharacter}" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </ScrollViewer>
+                </Border>
+
+                <!-- ========== ТАБЛИЦА "ВЫБРАННЫЕ КОНКУРСЫ" ========== -->
+                <TextBlock Text="Выбранные конкурсы" FontSize="12" FontWeight="Bold" Margin="0,5,0,5"/>
+
+                <Border BorderBrush="#CCCCCC" BorderThickness="1" Margin="0,0,0,15" CornerRadius="5">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="160">
+                        <DataGrid Name="SelectedCompetitionsGrid" AutoGenerateColumns="False" 
+                                  CanUserAddRows="False" CanUserDeleteRows="True" 
+                                  HeadersVisibility="Column" FontSize="11" BorderThickness="0"
+                                  RowHeaderWidth="0">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="№" Width="40" Binding="{Binding Priority}" />
+                                <DataGridTextColumn Header="Набор ОП для приема" Width="250" Binding="{Binding ProgramName}" />
+                                <DataGridTextColumn Header="Филиал" Width="100" Binding="{Binding Branch}" />
+                                <DataGridTextColumn Header="Форм. подр." Width="160" Binding="{Binding Department}" />
+                                <DataGridTextColumn Header="Вид приема" Width="100" Binding="{Binding AdmissionType}" />
+                                <DataGridTextColumn Header="На базе" Width="100" Binding="{Binding EducationBase}" />
+                                <DataGridTextColumn Header="Доп. условия" Width="120" Binding="{Binding AdditionalConditions}" />
+                                <DataGridTemplateColumn Header="Действия" Width="80">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Button Content="▲" FontSize="10" Width="25" Height="20" Margin="2"
+                                                        ToolTip="Повысить приоритет" Click="MoveUp_Click" Tag="{Binding}"/>
+                                                <Button Content="▼" FontSize="10" Width="25" Height="20" Margin="2"
+                                                        ToolTip="Понизить приоритет" Click="MoveDown_Click" Tag="{Binding}"/>
+                                                <Button Content="✖" FontSize="10" Width="25" Height="20" Margin="2"
+                                                        Background="#FF5722" Foreground="White" ToolTip="Удалить"
+                                                        Click="DeleteSelectedCompetition_Click" Tag="{Binding}"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </ScrollViewer>
+                </Border>
+
+                <!-- ========== ПРЕИМУЩЕСТВЕННОЕ ПРАВО ========== -->
+                <TextBlock Text="Преимущественное право зачисления" FontSize="13" FontWeight="Bold" Background="#E8EFF7" Padding="8" Margin="0,0,0,8"/>
+
+                <Border BorderBrush="#CCCCCC" BorderThickness="1" Margin="0,0,0,15" Padding="10" Background="#FAFAFA" CornerRadius="5">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.Row="0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0" Margin="0,0,15,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Категория, дающая преимущественное право зачисления" FontSize="11" FontWeight="SemiBold"/>
+                                    <TextBlock Text="*" Foreground="Red" FontSize="11" FontWeight="Bold"/>
+                                </StackPanel>
+                                <ComboBox x:Name="PrivilegeCategoryCombo" Height="23" FontSize="11" SelectedIndex="0">
+                                    <ComboBoxItem Content="Не выбрано"/>
+                                    <ComboBoxItem Content="Ветераны боевых действий"/>
+                                    <ComboBoxItem Content="Военнослужащие по контракту"/>
+                                    <ComboBoxItem Content="Герои Российской Федерации"/>
+                                    <ComboBoxItem Content="Граждане, признанные на военную службу по мобилизации"/>
+                                    <ComboBoxItem Content="Граждане, проходящие военную службу в ВС РФ, нац. гвардии"/>
+                                    <ComboBoxItem Content="Дети военнослужащих, участвующих в СВО"/>
+                                    <ComboBoxItem Content="Дети граждан, погибших при участии в СВО"/>
+                                </ComboBox>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Документы, подтверждающие преимущественное право" FontSize="11" FontWeight="SemiBold"/>
+                                    <TextBlock Text="*" Foreground="Red" FontSize="11" FontWeight="Bold"/>
+                                </StackPanel>
+                                <TextBox x:Name="PrivilegeDocumentsTextBox" Height="23" FontSize="11" 
+                         ToolTip="Укажите серию, номер, дату выдачи документа"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <CheckBox x:Name="HasPrivilegeCheckBox" Content="Отметить наличие преимущественного права" 
+                  Grid.Row="1" Margin="0,12,0,0" FontSize="11" 
+                  Checked="HasPrivilegeCheckBox_Checked" Unchecked="HasPrivilegeCheckBox_Unchecked"/>
+                    </Grid>
+                </Border>
+
+                <!-- ========== ДОПОЛНИТЕЛЬНАЯ ИНФОРМАЦИЯ ========== -->
+                <TextBlock Text="Дополнительная информация" FontSize="13" FontWeight="Bold" Background="#E8EFF7" Padding="8" Margin="0,0,0,8"/>
+
+                <Border BorderBrush="#CCCCCC" BorderThickness="1" Margin="0,0,0,15" Padding="10" Background="#FAFAFA" CornerRadius="5">
+                    <StackPanel>
+                        <TextBlock Text="Комментарий к заявлению" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                        <TextBox x:Name="CommentTextBox" Height="60" FontSize="11" TextWrapping="Wrap" 
+                                 AcceptsReturn="True" VerticalScrollBarVisibility="Auto"
+                                 ToolTip="Дополнительная информация к заявлению"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- ========== КНОПКИ НАВИГАЦИИ ========== -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,10">
+                    <Button x:Name="PrevButton" Content="Назад" Width="90" Height="32" Margin="0,0,10,0" FontSize="11" Background="#F0F0F0"/>
+                    <Button x:Name="NextButton" Content="Далее" Width="90" Height="32" Margin="0,0,10,0" FontSize="11" Background="#007ACC" Foreground="White"/>
+                    <Button x:Name="CancelButton" Content="Отменить" Width="90" Height="32" FontSize="11" Background="#F0F0F0"/>
+                </StackPanel>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Page>

@@ -1,0 +1,354 @@
+<Page
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    x:Class="Admissions_Reserve.View.RelativesPage"
+    Title="Данные родственников">
+
+    <Grid>
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Margin="15">
+
+                <!-- ========== ЗАГОЛОВОК ========== -->
+                <TextBlock Text="Данные родственников" FontSize="16" FontWeight="Bold" Margin="0,0,0,15"/>
+
+                <!-- ========== ФОРМА ДОБАВЛЕНИЯ РОДСТВЕННИКА ========== -->
+                <Border BorderBrush="#CCCCCC" BorderThickness="1" Padding="12" Margin="0,0,0,15" Background="#FAFAFA" CornerRadius="5">
+                    <StackPanel>
+                        <TextBlock Text="Добавление родственника" FontSize="13" FontWeight="Bold" Margin="0,0,0,10"/>
+
+                        <!-- Строка 1: Степень родства и ФИО -->
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="120"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="Степень родства" FontSize="11"/>
+                                <TextBlock Text="*" Foreground="Red" FontSize="11" FontWeight="Bold" Margin="2,0,0,0"/>
+                            </StackPanel>
+                            <ComboBox Grid.Column="1" Name="RelationDegreeCombo" Height="23" FontSize="11" Margin="0,0,10,0" SelectedIndex="0">
+                                <ComboBoxItem Content="Отец"/>
+                                <ComboBoxItem Content="Мать"/>
+                                <ComboBoxItem Content="Брат"/>
+                                <ComboBoxItem Content="Сестра"/>
+                                <ComboBoxItem Content="Супруг"/>
+                                <ComboBoxItem Content="Супруга"/>
+                                <ComboBoxItem Content="Сын"/>
+                                <ComboBoxItem Content="Дочь"/>
+                                <ComboBoxItem Content="Дедушка"/>
+                                <ComboBoxItem Content="Бабушка"/>
+                                <ComboBoxItem Content="Опекун"/>
+                                <ComboBoxItem Content="Попечитель"/>
+                            </ComboBox>
+                            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="Фамилия" FontSize="11"/>
+                                <TextBlock Text="*" Foreground="Red" FontSize="11" FontWeight="Bold" Margin="2,0,0,0"/>
+                            </StackPanel>
+                            <TextBox Grid.Column="3" Name="LastNameTextBox" Height="23" FontSize="11" Margin="0,0,10,0"/>
+                            <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="Имя" FontSize="11"/>
+                                <TextBlock Text="*" Foreground="Red" FontSize="11" FontWeight="Bold" Margin="2,0,0,0"/>
+                            </StackPanel>
+                            <TextBox Grid.Column="5" Name="FirstNameTextBox" Height="23" FontSize="11"/>
+                        </Grid>
+
+                        <!-- Строка 2: Отчество -->
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="120"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Отчество" FontSize="11" VerticalAlignment="Center"/>
+                            <TextBox Grid.Column="1" Name="PatronymicTextBox" Height="23" FontSize="11"/>
+                        </Grid>
+
+                        <!-- Разделитель -->
+                        <TextBlock Text="Документ, удостоверяющий личность" FontSize="11" FontWeight="SemiBold" Margin="0,10,0,8" Background="#E8EFF7" Padding="5"/>
+
+                        <!-- Строка 3: Тип удостоверения + Номер -->
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="120"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="Тип удостоверения" FontSize="11"/>
+                                <TextBlock Text="*" Foreground="Red" FontSize="11" FontWeight="Bold" Margin="2,0,0,0"/>
+                            </StackPanel>
+                            <ComboBox Grid.Column="1" Name="IdTypeCombo" Height="23" FontSize="11" Margin="0,0,10,0" SelectedIndex="0">
+                                <ComboBoxItem Content="Паспорт РФ"/>
+                                <ComboBoxItem Content="Свидетельство о рождении"/>
+                                <ComboBoxItem Content="Загранпаспорт"/>
+                                <ComboBoxItem Content="Военный билет"/>
+                                <ComboBoxItem Content="Водительское удостоверение"/>
+                            </ComboBox>
+                            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="Номер" FontSize="11"/>
+                                <TextBlock Text="*" Foreground="Red" FontSize="11" FontWeight="Bold" Margin="2,0,0,0"/>
+                            </StackPanel>
+                            <TextBox Grid.Column="3" Name="IdNumberTextBox" Height="23" FontSize="11"/>
+                        </Grid>
+
+                        <!-- Строка 4: Дата выдачи + Кем выдано -->
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="120"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Дата выдачи" FontSize="11" VerticalAlignment="Center"/>
+                            <DatePicker Grid.Column="1" Name="IssueDatePicker" Height="23" FontSize="11" Margin="0,0,10,0"/>
+                            <TextBlock Grid.Column="2" Text="Кем выдано" FontSize="11" VerticalAlignment="Center"/>
+                            <TextBox Grid.Column="3" Name="IssuedByTextBox" Height="23" FontSize="11"/>
+                        </Grid>
+
+                        <!-- Строка 5: Код подразделения -->
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="120"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Код подразделения" FontSize="11" VerticalAlignment="Center"/>
+                            <TextBox Grid.Column="1" Name="DepartmentCodeTextBox" Height="23" FontSize="11" ToolTip="XXX-XXX"/>
+                        </Grid>
+
+                        <!-- Разделитель -->
+                        <TextBlock Text="Дата и место рождения" FontSize="11" FontWeight="SemiBold" Margin="0,10,0,8" Background="#E8EFF7" Padding="5"/>
+
+                        <!-- Строка 6: Дата рождения + Место рождения -->
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="120"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="Дата рождения" FontSize="11"/>
+                                <TextBlock Text="*" Foreground="Red" FontSize="11" FontWeight="Bold" Margin="2,0,0,0"/>
+                            </StackPanel>
+                            <DatePicker Grid.Column="1" Name="BirthDatePicker" Height="23" FontSize="11" Margin="0,0,10,0"/>
+                            <TextBlock Grid.Column="2" Text="Место рождения" FontSize="11" VerticalAlignment="Center"/>
+                            <TextBox Grid.Column="3" Name="BirthPlaceTextBox" Height="23" FontSize="11" ToolTip="г. Москва, Россия"/>
+                        </Grid>
+
+                        <!-- Разделитель -->
+                        <TextBlock Text="Контактные данные" FontSize="11" FontWeight="SemiBold" Margin="0,10,0,8" Background="#E8EFF7" Padding="5"/>
+
+                        <!-- Строка 7: Телефон + Email -->
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="120"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Телефон" FontSize="11" VerticalAlignment="Center"/>
+                            <TextBox Grid.Column="1" Name="PhoneTextBox" Height="23" FontSize="11" Margin="0,0,10,0" ToolTip="+7 (XXX) XXX-XX-XX"/>
+                            <TextBlock Grid.Column="2" Text="E-mail" FontSize="11" VerticalAlignment="Center"/>
+                            <TextBox Grid.Column="3" Name="EmailTextBox" Height="23" FontSize="11" ToolTip="example@mail.ru"/>
+                        </Grid>
+
+                        <!-- Разделитель -->
+                        <TextBlock Text="Дополнительные данные" FontSize="11" FontWeight="SemiBold" Margin="0,10,0,8" Background="#E8EFF7" Padding="5"/>
+
+                        <!-- Строка 8: ИНН -->
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="120"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="ИНН" FontSize="11" VerticalAlignment="Center"/>
+                            <TextBox Grid.Column="1" Name="InnTextBox" Height="23" FontSize="11" Margin="0,0,10,0" ToolTip="12 цифр"/>
+                            <CheckBox Grid.Column="2" Name="PravdaCheckBox" Content="Правда" FontSize="11" VerticalAlignment="Center" Margin="0,0,15,0"/>
+                            <CheckBox Grid.Column="3" Name="DefactCheckBox" Content="Дефакт" FontSize="11" VerticalAlignment="Center"/>
+                        </Grid>
+
+                        <!-- Строка 9: Место работы + Должность -->
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="120"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Место работы" FontSize="11" VerticalAlignment="Center"/>
+                            <TextBox Grid.Column="1" Name="WorkPlaceTextBox" Height="23" FontSize="11" Margin="0,0,10,0"/>
+                            <TextBlock Grid.Column="2" Text="Должность" FontSize="11" VerticalAlignment="Center"/>
+                            <TextBox Grid.Column="3" Name="PositionTextBox" Height="23" FontSize="11"/>
+                        </Grid>
+
+                        <!-- Строка 10: ОКПО + Лицевой счет -->
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="120"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="120"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="ОКПО" FontSize="11" VerticalAlignment="Center"/>
+                            <TextBox Grid.Column="1" Name="OkpoTextBox" Height="23" FontSize="11" Margin="0,0,10,0"/>
+                            <TextBlock Grid.Column="2" Text="Лицевой счет" FontSize="11" VerticalAlignment="Center"/>
+                            <TextBox Grid.Column="3" Name="PersonalAccountTextBox" Height="23" FontSize="11"/>
+                        </Grid>
+
+                        <!-- Строка 11: Наименование банка -->
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="120"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Наименование банка" FontSize="11" VerticalAlignment="Center"/>
+                            <TextBox Grid.Column="1" Name="BankNameTextBox" Height="23" FontSize="11"/>
+                        </Grid>
+
+                        <!-- Разделитель -->
+                        <TextBlock Text="Адрес проживания" FontSize="11" FontWeight="SemiBold" Margin="0,10,0,8" Background="#E8EFF7" Padding="5"/>
+
+                        <!-- Строка 12: Страна -->
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="120"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="Страна" FontSize="11"/>
+                                <TextBlock Text="*" Foreground="Red" FontSize="11" FontWeight="Bold" Margin="2,0,0,0"/>
+                            </StackPanel>
+                            <ComboBox Grid.Column="1" Name="CountryCombo" Height="23" FontSize="11" SelectedIndex="0">
+                                <ComboBoxItem Content="Российская Федерация"/>
+                                <ComboBoxItem Content="Республика Беларусь"/>
+                                <ComboBoxItem Content="Республика Казахстан"/>
+                                <ComboBoxItem Content="Украина"/>
+                                <ComboBoxItem Content="Другое"/>
+                            </ComboBox>
+                        </Grid>
+
+                        <!-- Строка 13: Адрес ФИАС + Квартира -->
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="120"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Адрес ФИАС" FontSize="11" VerticalAlignment="Center"/>
+                            <TextBox Grid.Column="1" Name="FiasAddressTextBox" Height="23" FontSize="11" Margin="0,0,10,0" ToolTip="федеральный, местный"/>
+                            <TextBlock Grid.Column="2" Text="Квартира" FontSize="11" VerticalAlignment="Center"/>
+                            <TextBox Grid.Column="3" Name="ApartmentTextBox" Height="23" FontSize="11"/>
+                        </Grid>
+
+                        <!-- Кнопки формы -->
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,15,0,0">
+                            <Button Name="AddToListButton" Content="Добавить в список" Width="150" Height="30"
+                                    Margin="0,0,10,0" FontSize="11" Background="#007ACC" Foreground="White" Click="AddRelativeButton_Click"/>
+                            <Button Name="CancelAddButton" Content="Отменить" Width="90" Height="30" FontSize="11"
+                                    Background="#F0F0F0" Click="CancelAddButton_Click"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- ========== ТАБЛИЦА "РОДСТВЕННИКИ" ========== -->
+                <TextBlock Text="Родственники" FontSize="13" FontWeight="Bold" Background="#E8EFF7" Padding="8" Margin="0,0,0,8"/>
+
+                <Border BorderBrush="#CCCCCC" BorderThickness="1" Margin="0,0,0,15" CornerRadius="5">
+                    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" MaxHeight="200">
+                        <DataGrid Name="RegularRelativesGrid" AutoGenerateColumns="False"
+                                  CanUserAddRows="False" CanUserDeleteRows="True"
+                                  HeadersVisibility="Column" FontSize="11" BorderThickness="0"
+                                  RowHeaderWidth="0" SelectionChanged="RegularRelativesGrid_SelectionChanged">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="№" Width="40" Binding="{Binding Number}" />
+                                <DataGridTextColumn Header="ИНН" Width="120" Binding="{Binding Inn}" />
+                                <DataGridTextColumn Header="Степень родства" Width="110" Binding="{Binding RelationDegree}" />
+                                <DataGridTextColumn Header="Фамилия" Width="120" Binding="{Binding LastName}" />
+                                <DataGridTextColumn Header="Имя" Width="100" Binding="{Binding FirstName}" />
+                                <DataGridTextColumn Header="Отчество" Width="100" Binding="{Binding Patronymic}" />
+                                <DataGridTextColumn Header="Дата рождения" Width="100" Binding="{Binding BirthDate, StringFormat='dd.MM.yyyy'}" />
+                                <DataGridTextColumn Header="Телефон" Width="110" Binding="{Binding Phone}" />
+                                <DataGridTextColumn Header="E-mail" Width="130" Binding="{Binding Email}" />
+                                <DataGridTextColumn Header="Место работы" Width="150" Binding="{Binding WorkPlace}" />
+                                <DataGridTextColumn Header="Должность" Width="120" Binding="{Binding Position}" />
+                                <DataGridTemplateColumn Header="Действия" Width="100">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Button Content="✎" FontSize="10" Width="25" Height="20" Margin="2"
+                                                        Background="#2196F3" Foreground="White" ToolTip="Редактировать"
+                                                        Click="EditRelative_Click" Tag="{Binding}"/>
+                                                <Button Content="✖" FontSize="10" Width="25" Height="20" Margin="2"
+                                                        Background="#FF5722" Foreground="White" ToolTip="Удалить"
+                                                        Click="DeleteRegularRelative_Click" Tag="{Binding}"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </ScrollViewer>
+                </Border>
+
+                <!-- ========== ТАБЛИЦА "БЛОКИРОВКА РОДСТВЕННИКА" ========== -->
+                <TextBlock Text="Заблокированные родственники" FontSize="13" FontWeight="Bold" Background="#E8EFF7" Padding="8" Margin="0,0,0,8"/>
+
+                <Border BorderBrush="#CCCCCC" BorderThickness="1" Margin="0,0,0,15" CornerRadius="5">
+                    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" MaxHeight="200">
+                        <DataGrid Name="BlockedRelativesGrid" AutoGenerateColumns="False"
+                                  CanUserAddRows="False" CanUserDeleteRows="True"
+                                  HeadersVisibility="Column" FontSize="11" BorderThickness="0"
+                                  RowHeaderWidth="0">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="№" Width="40" Binding="{Binding Number}" />
+                                <DataGridTextColumn Header="ИНН" Width="120" Binding="{Binding Inn}" />
+                                <DataGridTextColumn Header="Степень родства" Width="110" Binding="{Binding RelationDegree}" />
+                                <DataGridTextColumn Header="Фамилия" Width="120" Binding="{Binding LastName}" />
+                                <DataGridTextColumn Header="Имя" Width="100" Binding="{Binding FirstName}" />
+                                <DataGridTextColumn Header="Отчество" Width="100" Binding="{Binding Patronymic}" />
+                                <DataGridTextColumn Header="Дата рождения" Width="100" Binding="{Binding BirthDate, StringFormat='dd.MM.yyyy'}" />
+                                <DataGridTextColumn Header="Телефон" Width="110" Binding="{Binding Phone}" />
+                                <DataGridTextColumn Header="Причина блокировки" Width="180" Binding="{Binding BlockReason}" />
+                                <DataGridTemplateColumn Header="Действия" Width="80">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Content="Разблок." FontSize="10" Width="65" Height="22"
+                                                    Background="#4CAF50" Foreground="White"
+                                                    Click="UnblockRelative_Click" Tag="{Binding}"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </ScrollViewer>
+                </Border>
+
+                <!-- Кнопка блокировки выбранного родственника -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,15">
+                    <Button Name="BlockSelectedButton" Content="🔒 Блокировать выбранного" Width="180" Height="32"
+                            FontSize="11" Background="#FF5722" Foreground="White" Click="BlockSelectedButton_Click"
+                            IsEnabled="False"/>
+                </StackPanel>
+
+                <!-- ========== КНОПКИ НАВИГАЦИИ ========== -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,10">
+                    <Button x:Name="PrevButton" Content="Назад" Width="90" Height="32" Margin="0,0,10,0" FontSize="11" Background="#F0F0F0"/>
+                    <Button x:Name="NextButton" Content="Далее" Width="90" Height="32" Margin="0,0,10,0" FontSize="11" Background="#007ACC" Foreground="White"/>
+                    <Button x:Name="SaveButton" Content="Сохранить" Width="90" Height="32" Margin="0,0,10,0" FontSize="11" Background="#4CAF50" Foreground="White"/>
+                    <Button x:Name="CancelButton" Content="Отменить" Width="90" Height="32" FontSize="11" Background="#F0F0F0"/>
+                </StackPanel>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Page>

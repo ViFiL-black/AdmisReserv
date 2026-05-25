@@ -1,0 +1,324 @@
+<Page
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    mc:Ignorable="d" 
+    x:Class="Admissions_Reserve.View.IdentityPage"
+    Title="Удостоверение личности">
+
+    <Grid>
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Margin="15">
+
+                <!-- ========== ЗАГОЛОВОК ========== -->
+                <TextBlock Text="Удостоверение личности" FontSize="16" FontWeight="Bold" Margin="0,0,0,15"/>
+
+                <!-- ========== ВЫБОР УДОСТОВЕРЕНИЯ ЛИЧНОСТИ ========== -->
+                <TextBlock Text="Выбор удостоверения личности" FontSize="13" FontWeight="Bold" Background="#E8EFF7" Padding="8" Margin="0,0,0,8"/>
+
+                <Border BorderBrush="#CCCCCC" BorderThickness="1" Margin="0,0,0,15" Padding="10" Background="#FAFAFA">
+                    <StackPanel>
+                        <RadioButton x:Name="ExistingIdentityRadio" Content="▼ Выбрать существующее удостоверение личности" Margin="0,0,0,8" FontSize="11" IsChecked="True"/>
+                        <Border BorderBrush="#CCCCCC" BorderThickness="1" Margin="20,0,0,10" Padding="8" Background="White">
+                            <StackPanel>
+                                <TextBlock Text="Ранее добавленные документы:" FontSize="10" Foreground="Gray" Margin="0,0,0,5"/>
+                                <ComboBox Name="ExistingIdentityCombo" Height="23" FontSize="11" IsEnabled="True" 
+                                          SelectionChanged="ExistingIdentityCombo_SelectionChanged"/>
+                            </StackPanel>
+                        </Border>
+                        <RadioButton x:Name="NewIdentityRadio" Content="➕ Новое удостоверение личности" Margin="0,0,0,5" FontSize="11"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- ========== ФИО ========== -->
+                <TextBlock Text="ФИО" FontSize="13" FontWeight="Bold" Background="#E8EFF7" Padding="8" Margin="0,0,0,8"/>
+
+                <Grid Margin="0,0,0,15">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Фамилия" FontSize="11" FontWeight="SemiBold"/>
+                            <TextBlock Text="*" Foreground="Red" FontSize="11" FontWeight="Bold"/>
+                        </StackPanel>
+                        <TextBox Name="LastNameTextBox" Height="23" FontSize="11"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Margin="0,0,8,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Имя" FontSize="11" FontWeight="SemiBold"/>
+                            <TextBlock Text="*" Foreground="Red" FontSize="11" FontWeight="Bold"/>
+                        </StackPanel>
+                        <TextBox Name="FirstNameTextBox" Height="23" FontSize="11"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Отчество" FontSize="11" FontWeight="SemiBold"/>
+                        <TextBox Name="PatronymicTextBox" Height="23" FontSize="11"/>
+                    </StackPanel>
+                </Grid>
+
+                <!-- ========== УДОСТОВЕРЕНИЕ ЛИЧНОСТИ ========== -->
+                <TextBlock Text="Удостоверение личности" FontSize="13" FontWeight="Bold" Background="#E8EFF7" Padding="8" Margin="0,0,0,8"/>
+
+                <Grid Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Тип удостоверения" FontSize="11" FontWeight="SemiBold"/>
+                            <TextBlock Text="*" Foreground="Red" FontSize="11" FontWeight="Bold"/>
+                        </StackPanel>
+                        <ComboBox Name="IdentityTypeCombo" Height="23" FontSize="11" SelectedIndex="0"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Margin="0,0,8,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Серия" FontSize="11" FontWeight="SemiBold"/>
+                            <TextBlock Text="*" Foreground="Red" FontSize="11" FontWeight="Bold"/>
+                        </StackPanel>
+                        <TextBox Name="SeriesTextBox" Height="23" FontSize="11"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2" Margin="0,0,8,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Номер" FontSize="11" FontWeight="SemiBold"/>
+                            <TextBlock Text="*" Foreground="Red" FontSize="11" FontWeight="Bold"/>
+                        </StackPanel>
+                        <TextBox Name="NumberTextBox" Height="23" FontSize="11"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="3">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Гражданство" FontSize="11" FontWeight="SemiBold"/>
+                            <TextBlock Text="*" Foreground="Red" FontSize="11" FontWeight="Bold"/>
+                        </StackPanel>
+                        <ComboBox Name="CitizenshipCombo" Height="23" FontSize="11" SelectedIndex="0"/>
+                    </StackPanel>
+                </Grid>
+
+                <Grid Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="120"/>
+                        <ColumnDefinition Width="130"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                        <TextBlock Text="Кем выдано" FontSize="11" FontWeight="SemiBold"/>
+                        <TextBox Name="IssuedByTextBox" Height="23" FontSize="11"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Margin="0,0,8,0">
+                        <TextBlock Text="Код подразделения" FontSize="11" FontWeight="SemiBold"/>
+                        <TextBox Name="DepartmentCodeTextBox" Height="23" FontSize="11" ToolTip="XXX-XXX"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Дата выдачи" FontSize="11" FontWeight="SemiBold"/>
+                            <TextBlock Text="*" Foreground="Red" FontSize="11" FontWeight="Bold"/>
+                        </StackPanel>
+                        <DatePicker Name="IssueDatePicker" Height="23" FontSize="11"/>
+                    </StackPanel>
+                </Grid>
+
+                <!-- ========== ПОЛ И ДАТА РОЖДЕНИЯ ========== -->
+                <Grid Margin="0,0,0,15">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                        <TextBlock Text="Пол" FontSize="11" FontWeight="SemiBold"/>
+                        <ComboBox Name="GenderCombo" Height="23" FontSize="11" SelectedIndex="0"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Margin="0,0,8,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Дата рождения" FontSize="11" FontWeight="SemiBold"/>
+                            <TextBlock Text="*" Foreground="Red" FontSize="11" FontWeight="Bold"/>
+                        </StackPanel>
+                        <DatePicker Name="BirthDatePicker" Height="23" FontSize="11"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Место рождения" FontSize="11" FontWeight="SemiBold"/>
+                        <TextBox Name="BirthPlaceTextBox" Height="23" FontSize="11" ToolTip="г. Москва, Россия"/>
+                    </StackPanel>
+                </Grid>
+
+                <!-- ========== СНИЛС ========== -->
+                <TextBlock Text="СНИЛС" FontSize="13" FontWeight="Bold" Background="#E8EFF7" Padding="8" Margin="0,0,0,8"/>
+
+                <Border BorderBrush="#CCCCCC" BorderThickness="1" Margin="0,0,0,15" Padding="10" Background="#FAFAFA">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="180"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" Margin="0,0,15,0">
+                            <TextBlock Text="Формат СНИЛС" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                            <RadioButton x:Name="SnilsSpaceRadio" Content="Пробел (XXX XXX XXX XX)" Margin="0,0,0,5" FontSize="10" IsChecked="True"/>
+                            <RadioButton x:Name="SnilsHyphenRadio" Content="Дефис (XXX-XXX-XXX XX)" Margin="0,0,0,5" FontSize="10"/>
+                            <RadioButton x:Name="SnilsNoneRadio" Content="Без разделит (XXXXXXXXXXX)" FontSize="10"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="СНИЛС" FontSize="11" FontWeight="SemiBold"/>
+                                <TextBlock Text="*" Foreground="Red" FontSize="11" FontWeight="Bold"/>
+                            </StackPanel>
+                            <TextBox Name="SnilsTextBox" Height="23" FontSize="11" ToolTip="Введите 11 цифр"/>
+                            <CheckBox Name="NoSnilsCheckBox" Content="У меня нет СНИЛС" Margin="0,8,0,0" FontSize="11" 
+                                     Checked="NoSnilsCheckBox_Checked" Unchecked="NoSnilsCheckBox_Unchecked"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- ========== АДРЕС РЕГИСТРАЦИИ ========== -->
+                <TextBlock Text="Адрес регистрации" FontSize="13" FontWeight="Bold" Background="#E8EFF7" Padding="8" Margin="0,0,0,8"/>
+
+                <Grid Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Страна" FontSize="11" FontWeight="SemiBold"/>
+                            <TextBlock Text="*" Foreground="Red" FontSize="11" FontWeight="Bold"/>
+                        </StackPanel>
+                        <ComboBox Name="CountryCombo" Height="23" FontSize="11" SelectedIndex="0"/>
+                    </StackPanel>
+                </Grid>
+
+                <Grid Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                        <TextBlock Text="Индекс" FontSize="11" FontWeight="SemiBold"/>
+                        <TextBox Name="PostalCodeTextBox" Height="23" FontSize="11" MaxLength="6"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Margin="0,0,8,0">
+                        <TextBlock Text="Регион/Область" FontSize="11" FontWeight="SemiBold"/>
+                        <TextBox Name="RegionTextBox" Height="23" FontSize="11"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Район" FontSize="11" FontWeight="SemiBold"/>
+                        <TextBox Name="DistrictTextBox" Height="23" FontSize="11"/>
+                    </StackPanel>
+                </Grid>
+
+                <Grid Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                        <TextBlock Text="Населенный пункт" FontSize="11" FontWeight="SemiBold"/>
+                        <TextBox Name="CityTextBox" Height="23" FontSize="11"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Margin="0,0,8,0">
+                        <TextBlock Text="Улица" FontSize="11" FontWeight="SemiBold"/>
+                        <TextBox Name="StreetTextBox" Height="23" FontSize="11"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Дом" FontSize="11" FontWeight="SemiBold"/>
+                        <TextBox Name="HouseTextBox" Height="23" FontSize="11"/>
+                    </StackPanel>
+                </Grid>
+
+                <Grid Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                        <TextBlock Text="Корпус/Строение" FontSize="11" FontWeight="SemiBold"/>
+                        <TextBox Name="BuildingTextBox" Height="23" FontSize="11"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Margin="0,0,8,0">
+                        <TextBlock Text="Квартира" FontSize="11" FontWeight="SemiBold"/>
+                        <TextBox Name="ApartmentTextBox" Height="23" FontSize="11"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2" Margin="0,0,0,0">
+                        <Button Name="CheckAddressButton" Content="Проверить" Width="100" Height="23" FontSize="11" 
+                                Background="#007ACC" Foreground="White" Margin="8,20,0,0" Click="CheckAddressButton_Click"/>
+                    </StackPanel>
+                </Grid>
+
+                <CheckBox Name="SameAsRegistrationCheckBox" Content="Адрес регистрации совпадает с фактическим адресом" 
+                          Margin="0,5,0,15" FontSize="11" Checked="SameAddressCheckBox_Checked" Unchecked="SameAddressCheckBox_Unchecked"/>
+
+                <!-- ========== ФАКТИЧЕСКИЙ АДРЕС (скрыт по умолчанию) ========== -->
+                <Border Name="ActualAddressBorder" BorderBrush="#CCCCCC" BorderThickness="1" Margin="0,0,0,15" Padding="10" 
+                        Background="#FAFAFA" Visibility="Collapsed">
+                    <StackPanel>
+                        <TextBlock Text="Фактический адрес проживания" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,10"/>
+
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Страна" FontSize="11" FontWeight="SemiBold"/>
+                                <ComboBox Name="ActualCountryCombo" Height="23" FontSize="11" SelectedIndex="0"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                                <TextBlock Text="Индекс" FontSize="11" FontWeight="SemiBold"/>
+                                <TextBox Name="ActualPostalCodeTextBox" Height="23" FontSize="11"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Margin="0,0,8,0">
+                                <TextBlock Text="Регион/Область" FontSize="11" FontWeight="SemiBold"/>
+                                <TextBox Name="ActualRegionTextBox" Height="23" FontSize="11"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Населенный пункт" FontSize="11" FontWeight="SemiBold"/>
+                                <TextBox Name="ActualCityTextBox" Height="23" FontSize="11"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                                <TextBlock Text="Улица" FontSize="11" FontWeight="SemiBold"/>
+                                <TextBox Name="ActualStreetTextBox" Height="23" FontSize="11"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Margin="0,0,8,0">
+                                <TextBlock Text="Дом" FontSize="11" FontWeight="SemiBold"/>
+                                <TextBox Name="ActualHouseTextBox" Height="23" FontSize="11"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Квартира" FontSize="11" FontWeight="SemiBold"/>
+                                <TextBox Name="ActualApartmentTextBox" Height="23" FontSize="11"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- ========== КНОПКИ НАВИГАЦИИ ========== -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,10">
+                    <Button x:Name="PrevButton" Content="Назад" Click="PrevButton_Click" Width="90" Height="32" Margin="0,0,10,0" FontSize="11" Background="#F0F0F0"/>
+                    <Button x:Name="NextButton" Content="Далее" Click="NextButton_Click" Width="90" Height="32" Margin="0,0,10,0" FontSize="11" Background="#007ACC" Foreground="White"/>
+                    <Button x:Name="CancelButton" Content="Отменить" Click="CancelButton_Click" Width="90" Height="32" FontSize="11" Background="#F0F0F0"/>
+                </StackPanel>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Page>

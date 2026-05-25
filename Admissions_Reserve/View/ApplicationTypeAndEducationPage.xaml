@@ -1,0 +1,253 @@
+<Page
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    mc:Ignorable="d" 
+    x:Class="Admissions_Reserve.View.ApplicationTypeAndEducationPage"
+    Title="Вид заявления и образование">
+
+    <Grid>
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Margin="15">
+
+                <!-- ========== ЗАГОЛОВОК ========== -->
+                <TextBlock Text="Вид заявления и образование" FontSize="16" FontWeight="Bold" Margin="0,0,0,15"/>
+
+                <!-- ========== ВИД ЗАЯВЛЕНИЯ ========== -->
+                <TextBlock Text="Вид заявления" FontSize="13" FontWeight="Bold" Background="#E8EFF7" Padding="8" Margin="0,0,0,8"/>
+
+                <Border BorderBrush="#CCCCCC" BorderThickness="1" Margin="0,0,0,15" Padding="10" Background="#FAFAFA">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="140"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="Вид заявления" FontSize="11" FontWeight="SemiBold"/>
+                                <TextBlock Text="*" Foreground="Red" FontSize="11" FontWeight="Bold" Margin="2,0,0,0"/>
+                            </StackPanel>
+                            <ComboBox x:Name="ApplicationTypeCombo" Grid.Column="1" Height="23" FontSize="11"/>
+                        </Grid>
+                        <CheckBox x:Name="FirstTimeEducationCheckBox" Content="Получает образование данного уровня впервые" FontSize="11"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- ========== ДОКУМЕНТ ОБ ОБРАЗОВАНИИ ========== -->
+                <TextBlock Text="Документ об образовании" FontSize="13" FontWeight="Bold" Background="#E8EFF7" Padding="8" Margin="0,0,0,8"/>
+
+                <Border BorderBrush="#CCCCCC" BorderThickness="1" Margin="0,0,0,15" Padding="10" Background="#FAFAFA">
+                    <StackPanel>
+                        <TextBlock Text="Выберите документ об образовании:" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                        <RadioButton x:Name="ExistingDocumentRadio" Content="Выбрать существующий документ" Margin="0,0,0,8" FontSize="11" IsChecked="True"
+                                     Checked="ExistingDocumentRadio_Checked"/>
+
+                        <Border BorderBrush="#CCCCCC" BorderThickness="1" Margin="20,0,0,10" Padding="8" Background="White">
+                            <StackPanel>
+                                <TextBlock Text="Ранее добавленные документы:" FontSize="10" Foreground="Gray" Margin="0,0,0,5"/>
+                                <ComboBox x:Name="ExistingDocumentsCombo" Height="23" FontSize="11" IsEnabled="True"
+                                          SelectionChanged="ExistingDocumentsCombo_SelectionChanged"/>
+                            </StackPanel>
+                        </Border>
+
+                        <RadioButton x:Name="NewDocumentRadio" Content="Создать новый документ" Margin="0,0,0,5" FontSize="11"
+                                     Checked="NewDocumentRadio_Checked"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- ========== ОБРАЗОВАТЕЛЬНАЯ ОРГАНИЗАЦИЯ ========== -->
+                <TextBlock Text="Образовательная организация" FontSize="13" FontWeight="Bold" Background="#E8EFF7" Padding="8" Margin="0,0,0,8"/>
+
+                <Border BorderBrush="#CCCCCC" BorderThickness="1" Margin="0,0,0,15" Padding="10" Background="#FAFAFA">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="140"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Страна" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                            <ComboBox x:Name="CountryCombo" Grid.Column="1" Height="23" FontSize="11"/>
+                        </Grid>
+
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="140"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="Населенный пункт" FontSize="11" FontWeight="SemiBold"/>
+                                <TextBlock Text="*" Foreground="Red" FontSize="11" FontWeight="Bold" Margin="2,0,0,0"/>
+                            </StackPanel>
+                            <TextBox x:Name="CityTextBox" Grid.Column="1" Height="23" FontSize="11"/>
+                        </Grid>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="140"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="Образовательная организация" FontSize="11" FontWeight="SemiBold"/>
+                                <TextBlock Text="*" Foreground="Red" FontSize="11" FontWeight="Bold" Margin="2,0,0,0"/>
+                            </StackPanel>
+                            <TextBox x:Name="EducationalOrgTextBox" Grid.Column="1" Height="23" FontSize="11"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- ========== ДОКУМЕНТ ОБ ОБРАЗОВАНИИ И КВАЛИФИКАЦИИ ========== -->
+                <TextBlock Text="Документ об образовании и (или) квалификации" FontSize="13" FontWeight="Bold" Background="#E8EFF7" Padding="8" Margin="0,0,0,8"/>
+
+                <Border BorderBrush="#CCCCCC" BorderThickness="1" Margin="0,0,0,15" Padding="10" Background="#FAFAFA">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                                <TextBlock Text="Вид документа" FontSize="11" FontWeight="SemiBold"/>
+                                <ComboBox x:Name="DocumentTypeCombo" Grid.Column="1" Height="23" FontSize="11" SelectedIndex="0"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Margin="0,0,8,0">
+                                <TextBlock Text="Уровень образования" FontSize="11" FontWeight="SemiBold"/>
+                                <ComboBox x:Name="EducationLevelCombo" Height="23" FontSize="11"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Уровень образования (по документу)" FontSize="11" FontWeight="SemiBold"/>
+                                <ComboBox x:Name="DocumentEducationLevelCombo" Height="23" FontSize="11"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                                <TextBlock Text="Серия" FontSize="11" FontWeight="SemiBold"/>
+                                <TextBox x:Name="SeriesTextBox" Height="23" FontSize="11"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Номер" FontSize="11" FontWeight="SemiBold"/>
+                                    <TextBlock Text="*" Foreground="Red" FontSize="11" FontWeight="Bold" Margin="2,0,0,0"/>
+                                </StackPanel>
+                                <TextBox x:Name="NumberTextBox" Height="23" FontSize="11"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Дата выдачи" FontSize="11" FontWeight="SemiBold"/>
+                                    <TextBlock Text="*" Foreground="Red" FontSize="11" FontWeight="Bold" Margin="2,0,0,0"/>
+                                </StackPanel>
+                                <DatePicker x:Name="IssueDatePicker" Height="23" FontSize="11"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Год окончания" FontSize="11" FontWeight="SemiBold"/>
+                                    <TextBlock Text="*" Foreground="Red" FontSize="11" FontWeight="Bold" Margin="2,0,0,0"/>
+                                </StackPanel>
+                                <DatePicker x:Name="GraduationYearPicker" Height="23" FontSize="11" ToolTip="Выберите год окончания"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                                <TextBlock Text="Число оценок «Удовл.»" FontSize="11" FontWeight="SemiBold"/>
+                                <TextBox x:Name="SatisfactoryCountTextBox" Height="23" FontSize="11" Text="0"
+                                         TextChanged="Grades_TextChanged"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Margin="0,0,8,0">
+                                <TextBlock Text="Число оценок «Хорошо»" FontSize="11" FontWeight="SemiBold"/>
+                                <TextBox x:Name="GoodCountTextBox" Height="23" FontSize="11" Text="0"
+                                         TextChanged="Grades_TextChanged"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Число оценок «Отлично»" FontSize="11" FontWeight="SemiBold"/>
+                                <TextBox x:Name="ExcellentCountTextBox" Height="23" FontSize="11" Text="0"
+                                         TextChanged="Grades_TextChanged"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                                <TextBlock Text="Средний балл" FontSize="11" FontWeight="SemiBold"/>
+                                <TextBox x:Name="AverageScoreTextBox" Height="23" FontSize="11" IsReadOnly="True" Background="#F5F5F5"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,20,0,0">
+                                <CheckBox x:Name="FrdoVerifiedCheckBox" Content="Проверен в ФРДО" FontSize="11"/>
+                                <Button x:Name="CheckFrdoButton" Content="Проверить" Width="80" Height="23" Margin="15,0,0,0" 
+                                        FontSize="10" Background="#4CAF50" Foreground="White" Click="CheckFrdoButton_Click"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Файл скан-копии -->
+                        <Grid Margin="0,10,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="140"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Файл скан-копии" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                            <TextBox x:Name="ScanFileTextBox" Grid.Column="1" Height="23" FontSize="11" IsReadOnly="True" Background="#F5F5F5" Margin="0,0,8,0"/>
+                            <Button x:Name="UploadScanButton" Grid.Column="2" Content="Загрузить файл" Width="100" Height="23" 
+                                    FontSize="10" Background="#007ACC" Foreground="White" Click="UploadScanButton_Click"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- ========== ФОРМА ПОЛУЧЕНИЯ ДОКУМЕНТА ========== -->
+                <TextBlock Text="Форма получения документа и данные об оригинале" FontSize="13" FontWeight="Bold" Background="#E8EFF7" Padding="8" Margin="0,0,0,8"/>
+
+                <Border BorderBrush="#CCCCCC" BorderThickness="1" Margin="0,0,0,15" Padding="10" Background="#FAFAFA">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="140"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Форма получения документа" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                            <ComboBox x:Name="DocumentFormCombo" Grid.Column="1" Height="23" FontSize="11"/>
+                        </Grid>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="140"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Образовательная организация (оригинал)" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                            <TextBox x:Name="OriginalOrganizationTextBox" Grid.Column="1" Height="23" FontSize="11" 
+                                     ToolTip="Организация, в которую подан оригинал документа"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- ========== КНОПКИ НАВИГАЦИИ ========== -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,10">
+                    <Button x:Name="PrevButton" Content="Назад" Click="PrevButton_Click" Width="90" Height="32" Margin="0,0,10,0" FontSize="11" Background="#F0F0F0"/>
+                    <Button x:Name="NextButton" Content="Далее" Click="NextButton_Click" Width="90" Height="32" Margin="0,0,10,0" FontSize="11" Background="#007ACC" Foreground="White"/>
+                    <Button x:Name="CancelButton" Content="Отменить" Click="CancelButton_Click" Width="90" Height="32" FontSize="11" Background="#F0F0F0"/>
+                </StackPanel>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Page>
