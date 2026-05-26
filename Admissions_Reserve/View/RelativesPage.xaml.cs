@@ -109,6 +109,22 @@ namespace Admissions_Reserve.View
         public RelativesPage()
         {
             InitializeComponent();
+            
+            // Проверяем, был ли создан абитуриент
+            if (SessionManager.CurrentApplicant == null || SessionManager.CurrentApplicant.Id == 0)
+            {
+                MessageBox.Show("Сначала необходимо заполнить данные удостоверения личности и контактной информации",
+                    "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
+                
+                // Возвращаемся на предыдущую страницу после загрузки
+                Loaded += (s, e) =>
+                {
+                    if (NavigationService?.CanGoBack == true)
+                        NavigationService.GoBack();
+                };
+                return;
+            }
+            
             InitializeData();
             InitializeEvents();
             isInitialized = true;
@@ -120,14 +136,7 @@ namespace Admissions_Reserve.View
             _blockedRelatives = new ObservableCollection<RelativeItem>();
 
             // Загружаем данные из БД если есть абитуриент
-            if (SessionManager.CurrentApplicant != null)
-            {
-                LoadRelativesFromDatabase();
-            }
-            else
-            {
-                LoadSampleData();
-            }
+            LoadRelativesFromDatabase();
 
             RegularRelativesGrid.ItemsSource = _regularRelatives;
             BlockedRelativesGrid.ItemsSource = _blockedRelatives;
@@ -155,13 +164,7 @@ namespace Admissions_Reserve.View
             {
                 MessageBox.Show($"Ошибка загрузки данных: {ex.Message}", "Ошибка",
                     MessageBoxButton.OK, MessageBoxImage.Error);
-                LoadSampleData();
             }
-        }
-
-        private void LoadSampleData()
-        {
-            // Пустой список для новых абитуриентов
         }
 
         private void InitializeEvents()
@@ -277,6 +280,28 @@ namespace Admissions_Reserve.View
             {
                 MessageBox.Show("Пожалуйста, укажите дату рождения", "Ошибка",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            // Дополнительная валидация форматов
+            if (!string.IsNullOrWhiteSpace(PhoneTextBox.Text) && !ValidationHelper.IsValidPhoneNumber(PhoneTextBox.Text))
+            {
+                MessageBox.Show("Телефон родственника имеет неверный формат.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                PhoneTextBox.Focus();
+                return;
+            }
+
+            if (!string.IsNullOrWhiteSpace(EmailTextBox.Text) && !ValidationHelper.IsValidEmail(EmailTextBox.Text))
+            {
+                MessageBox.Show("E-mail родственника имеет неверный формат.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                EmailTextBox.Focus();
+                return;
+            }
+
+            if (!string.IsNullOrWhiteSpace(InnTextBox.Text) && !ValidationHelper.IsValidInn(InnTextBox.Text))
+            {
+                MessageBox.Show("ИНН родственника имеет неверный формат.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                InnTextBox.Focus();
                 return;
             }
 

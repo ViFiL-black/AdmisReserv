@@ -1,0 +1,227 @@
+﻿using System;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Linq;
+using System.Windows;
+using System.Windows.Controls;
+using Admissions_Reserve.Model;
+
+namespace Admissions_Reserve.View
+{
+    public partial class AttachedDocumentsPage : Page
+    {
+        public class AttachedDocument : INotifyPropertyChanged
+        {
+            public int Id { get; set; }
+            public int Number { get; set; }
+            public string DocumentType { get; set; }
+            public string SeriesNumber { get; set; }
+            public string Category { get; set; }
+            public DateTime? IssueDate { get; set; }
+            public string DocumentInfo { get; set; }
+
+            public event PropertyChangedEventHandler PropertyChanged;
+            protected void OnPropertyChanged(string name) =>
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+
+        private ObservableCollection<AttachedDocument> _documents;
+        private int _nextNumber = 1;
+        private bool isSaving = false;
+
+        public AttachedDocumentsPage()
+        {
+            InitializeComponent();
+            _documents = new ObservableCollection<AttachedDocument>();
+            DocumentsGrid.ItemsSource = _documents;
+            Loaded += Page_Loaded;
+        }
+
+        private void Page_Loaded(object sender, RoutedEventArgs e)
+        {
+            LoadReferenceData();
+            LoadMainDocuments();
+            LoadAttachedDocumentsFromDB();
+        }
+
+        private void LoadReferenceData()
+        {
+            try
+            {
+                var docTypes = DataService.GetAll<PersonalDocumentTypes>().Where(d => d.IsActive).ToList();
+                DocumentTypeCombo.ItemsSource = docTypes;
+                DocumentTypeCombo.DisplayMemberPath = "Name";
+
+                var categories = new[] { "Абитуриент", "Родитель", "Опекун", "Супруг(а)" };
+                CategoryCombo.ItemsSource = categories;
+                if (categories.Any()) CategoryCombo.SelectedIndex = 0;
+            }
+            catch { }
+        }
+
+        private void LoadMainDocuments()
+        {
+            try
+            {
+                if (SessionManager.CurrentApplicantId == null) return;
+
+                // Загружаем документ об образовании
+                var eduDocs = DataService.GetApplicantEducationDocuments(SessionManager.CurrentApplicantId.Value);
+                var eduDoc = eduDocs.FirstOrDefault();
+                if (eduDoc != null)
+                {
+                    EduDocType.Text = eduDoc.DocumentTypeId?.ToString() ?? "Документ об образовании";
+                    EduDocDate.Text = eduDoc.IssueDate?.ToString("dd.MM.yyyy") ?? "-";
+                    EduDocSeriesNumber.Text = $"{eduDoc.Series} {eduDoc.Number}".Trim();
+                    EduDocOrg.Text = eduDoc.EducationalOrg ?? "-";
+                }
+
+                // Загружаем удостоверение личности
+                var idDocs = DataService.GetAllIdentityDocuments(SessionManager.CurrentApplicantId.Value);
+                var idDoc = idDocs.FirstOrDefault(d => d.IsPrimary == true) ?? idDocs.FirstOrDefault();
+                if (idDoc != null)
+                {
+                    var docTypes = DataService.GetAll<IdentityDocumentTypes>();
+                    var docType = docTypes.FirstOrDefault(dt => dt.Id == idDoc.DocumentTypeId);
+                    IdDocType.Text = docType?.Name ?? "Паспорт";
+                    IdDocDate.Text = idDoc.IssueDate?.ToString("dd.MM.yyyy") ?? "-";
+                    IdDocSeriesNumber.Text = $"{idDoc.Series} {idDoc.Number}".Trim();
+                    IdDocIssuedBy.Text = idDoc.IssuedBy ?? "-";
+                }
+            }
+            catch { }
+        }
+
+        private void LoadAttachedDocumentsFromDB()
+        {
+            try
+            {
+                if (SessionManager.CurrentApplicantId == null) return;
+                _documents.Clear();
+                _nextNumber = 1;
+
+                var docs = DataService.GetApplicantAttachedDocuments(SessionManager.CurrentApplicantId.Value);
+                foreach (var doc in docs)
+                {
+                    _documents.Add(new AttachedDocument
+                    {
+                        Id = doc.Id,
+                        Number = _nextNumber++,
+                        DocumentType = doc.DocumentName ?? doc.DocumentType ?? "",
+                        SeriesNumber = "",
+                        Category = "",
+                        IssueDate = doc.UploadedAt,
+                        DocumentInfo = ""
+                    });
+                }
+                DocumentsGrid.Items.Refresh();
+            }
+            catch { }
+        }
+
+        private void AddDocumentButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(DocumentTypeCombo.Text))
+            {
+                MessageBox.Show("Укажите название документа", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            try
+            {
+                if (SessionManager.CurrentApplicantId == null) return;
+
+                DataService.CreateAttachedDocument(
+                    SessionManager.CurrentApplicantId.Value,
+                    DocumentTypeCombo.Text,
+                    "Прочий документ",
+                    "",
+                    0
+                );
+
+                _documents.Add(new AttachedDocument
+                {
+                    Number = _nextNumber++,
+                    DocumentType = DocumentTypeCombo.Text,
+                    SeriesNumber = SeriesNumberTextBox.Text?.Trim(),
+                    Category = CategoryCombo.SelectedItem?.ToString(),
+                    IssueDate = IssueDatePicker.SelectedDate,
+                    DocumentInfo = DocumentInfoTextBox.Text?.Trim()
+                });
+
+                ClearForm();
+                DocumentsGrid.Items.Refresh();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void ClearForm()
+        {
+            DocumentTypeCombo.SelectedIndex = -1;
+            SeriesNumberTextBox.Text = "";
+            CategoryCombo.SelectedIndex = 0;
+            IssueDatePicker.SelectedDate = null;
+            DocumentInfoTextBox.Text = "";
+        }
+
+        private void CancelAddButton_Click(object sender, RoutedEventArgs e) => ClearForm();
+
+        private void DeleteDocument_Click(object sender, RoutedEventArgs e)
+        {
+            if ((sender as Button)?.Tag is AttachedDocument item)
+            {
+                if (MessageBox.Show($"Удалить \"{item.DocumentType}\"?", "Подтверждение",
+                    MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                {
+                    if (item.Id > 0)
+                        DataService.DeleteAttachedDocument(item.Id);
+                    _documents.Remove(item);
+                    RenumberDocuments();
+                }
+            }
+        }
+
+        private void RenumberDocuments()
+        {
+            int n = 1;
+            foreach (var d in _documents) d.Number = n++;
+            _nextNumber = n;
+            DocumentsGrid.Items.Refresh();
+        }
+
+        private void PrevButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (NavigationService?.CanGoBack == true)
+                NavigationService.GoBack();
+        }
+
+        private void CompleteButton_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("Заявление успешно заполнено! Все данные сохранены.", "Успех",
+                MessageBoxButton.OK, MessageBoxImage.Information);
+
+            SessionManager.Clear();
+
+            if (NavigationService?.CanGoBack == true)
+                while (NavigationService.CanGoBack) NavigationService.GoBack();
+            else
+                Application.Current.Shutdown();
+        }
+
+        private void CancelButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (MessageBox.Show("Отменить?", "Подтверждение",
+                MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+            {
+                SessionManager.Clear();
+                if (NavigationService?.CanGoBack == true)
+                    while (NavigationService.CanGoBack) NavigationService.GoBack();
+                else
+                    Application.Current.Shutdown();
+            }
+        }
+    }
+}

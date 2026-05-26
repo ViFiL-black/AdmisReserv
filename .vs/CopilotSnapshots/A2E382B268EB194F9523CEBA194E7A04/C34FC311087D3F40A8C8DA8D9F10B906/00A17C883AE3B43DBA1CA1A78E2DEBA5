@@ -1,0 +1,267 @@
+﻿using System;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Linq;
+using System.Windows;
+using System.Windows.Controls;
+using Admissions_Reserve.Model;
+
+namespace Admissions_Reserve.View
+{
+    public partial class PrioritiesPage : Page
+    {
+        public class PriorityItem : INotifyPropertyChanged
+        {
+            private int _priority;
+            private string _programCode;
+            private string _programName;
+            private string _studyForm;
+            private string _educationBase;
+            private string _department;
+            private string _admissionType;
+            private string _branch;
+            private bool _isSelected;
+
+            public int Priority
+            {
+                get => _priority;
+                set { _priority = value; OnPropertyChanged(nameof(Priority)); }
+            }
+            public string ProgramCode
+            {
+                get => _programCode;
+                set { _programCode = value; OnPropertyChanged(nameof(ProgramCode)); }
+            }
+            public string ProgramName
+            {
+                get => _programName;
+                set { _programName = value; OnPropertyChanged(nameof(ProgramName)); }
+            }
+            public string StudyForm
+            {
+                get => _studyForm;
+                set { _studyForm = value; OnPropertyChanged(nameof(StudyForm)); }
+            }
+            public string EducationBase
+            {
+                get => _educationBase;
+                set { _educationBase = value; OnPropertyChanged(nameof(EducationBase)); }
+            }
+            public string Department
+            {
+                get => _department;
+                set { _department = value; OnPropertyChanged(nameof(Department)); }
+            }
+            public string AdmissionType
+            {
+                get => _admissionType;
+                set { _admissionType = value; OnPropertyChanged(nameof(AdmissionType)); }
+            }
+            public string Branch
+            {
+                get => _branch;
+                set { _branch = value; OnPropertyChanged(nameof(Branch)); }
+            }
+            public bool IsSelected
+            {
+                get => _isSelected;
+                set { _isSelected = value; OnPropertyChanged(nameof(IsSelected)); }
+            }
+
+            public string DisplayName => $"{ProgramCode} {ProgramName} / {StudyForm}, {EducationBase}, {Department} / {AdmissionType}";
+
+            public event PropertyChangedEventHandler PropertyChanged;
+            protected void OnPropertyChanged(string name) =>
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+
+        private ObservableCollection<PriorityItem> _priorities;
+        private bool isSaving = false;
+
+        public PrioritiesPage()
+        {
+            InitializeComponent();
+            _priorities = new ObservableCollection<PriorityItem>();
+            PrioritiesGrid.ItemsSource = _priorities;
+            Loaded += Page_Loaded;
+        }
+
+        private void Page_Loaded(object sender, RoutedEventArgs e)
+        {
+            LoadPrioritiesFromDatabase();
+        }
+
+        private void LoadPrioritiesFromDatabase()
+        {
+            try
+            {
+                if (SessionManager.CurrentApplicantId == null) return;
+                _priorities.Clear();
+
+                // Загружаем выбранные конкурсы из CompetitionPriorities
+                var competitions = DataService.GetApplicantCompetitions(SessionManager.CurrentApplicantId.Value);
+
+                if (competitions.Any())
+                {
+                    int priority = 1;
+                    foreach (var comp in competitions.OrderBy(c => c.PriorityOrder))
+                    {
+                        string name = comp.CompetitionName ?? "";
+                        string code = "";
+                        string programName = name;
+
+                        // Получаем детали из Competitions
+                        var compDetails = DataService.GetByCondition<Competitions>("Name = @Name",
+                            new System.Data.SQLite.SQLiteParameter("@Name", name)).FirstOrDefault();
+
+                        // Пытаемся получить код программы
+                        var programs = DataService.GetAll<EducationPrograms>();
+                        var program = programs.FirstOrDefault(p => name.Contains(p.Name));
+                        if (program != null)
+                        {
+                            code = program.Code ?? "";
+                            programName = program.Name ?? name;
+                        }
+
+                        _priorities.Add(new PriorityItem
+                        {
+                            Priority = priority++,
+                            ProgramCode = code,
+                            ProgramName = programName,
+                            StudyForm = compDetails?.StudyForm ?? "",
+                            EducationBase = compDetails?.EducationBase ?? "",
+                            Department = compDetails?.Department ?? "",
+                            AdmissionType = compDetails?.AdmissionType ?? "",
+                            Branch = compDetails?.Branch ?? "",
+                            IsSelected = comp.IsSelected ?? true
+                        });
+                    }
+                }
+                else
+                {
+                    LoadSamplePriorities();
+                }
+
+                PrioritiesGrid.Items.Refresh();
+            }
+            catch
+            {
+                LoadSamplePriorities();
+            }
+        }
+
+        private void LoadSamplePriorities()
+        {
+            _priorities.Clear();
+            var sample = new[]
+            {
+                new PriorityItem { Priority = 1, ProgramCode = "09.02.11", ProgramName = "Разработка и управление ПО", StudyForm = "очная", EducationBase = "Осн. общ.", Department = "Отделение ИТ", AdmissionType = "общий", Branch = "Головная орг.", IsSelected = true },
+                new PriorityItem { Priority = 2, ProgramCode = "08.02.09", ProgramName = "Монтаж электрооборудования", StudyForm = "очная", EducationBase = "Осн. общ.", Department = "Отделение автоматики", AdmissionType = "общий", Branch = "Головная орг.", IsSelected = true },
+                new PriorityItem { Priority = 3, ProgramCode = "15.02.17", ProgramName = "Монтаж оборудования", StudyForm = "очная", EducationBase = "Осн. общ.", Department = "Отделение автоматики", AdmissionType = "общий", Branch = "Головная орг.", IsSelected = false }
+            };
+            foreach (var item in sample) _priorities.Add(item);
+            PrioritiesGrid.Items.Refresh();
+        }
+
+        private void MoveUp_Click(object sender, RoutedEventArgs e)
+        {
+            if ((sender as Button)?.Tag is PriorityItem item)
+            {
+                int idx = _priorities.IndexOf(item);
+                if (idx > 0)
+                {
+                    _priorities.Move(idx, idx - 1);
+                    RecalculatePriorities();
+                }
+            }
+        }
+
+        private void MoveDown_Click(object sender, RoutedEventArgs e)
+        {
+            if ((sender as Button)?.Tag is PriorityItem item)
+            {
+                int idx = _priorities.IndexOf(item);
+                if (idx < _priorities.Count - 1)
+                {
+                    _priorities.Move(idx, idx + 1);
+                    RecalculatePriorities();
+                }
+            }
+        }
+
+        private void RecalculatePriorities()
+        {
+            for (int i = 0; i < _priorities.Count; i++)
+                _priorities[i].Priority = i + 1;
+            PrioritiesGrid.Items.Refresh();
+        }
+
+        private bool SaveData()
+        {
+            if (isSaving) return false;
+            try
+            {
+                isSaving = true;
+                if (SessionManager.CurrentApplicantId == null) return false;
+
+                // Удаляем старые приоритеты
+                var existing = DataService.GetApplicantPriorities(SessionManager.CurrentApplicantId.Value);
+                foreach (var p in existing)
+                    DataService.DeleteApplicationPriority(p.Id);
+
+                // Сохраняем новые приоритеты
+                foreach (var item in _priorities)
+                {
+                    DataService.CreateApplicationPriority(
+                        SessionManager.CurrentApplicantId.Value,
+                        item.Priority,
+                        item.ProgramCode ?? "",
+                        item.ProgramName ?? "",
+                        item.StudyForm ?? "",
+                        item.EducationBase ?? "",
+                        item.Department ?? "",
+                        item.AdmissionType ?? "",
+                        item.Branch ?? ""
+                    );
+                }
+
+                DataService.LogChange("ApplicationPriorities", SessionManager.CurrentApplicantId.Value, "UPDATE");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка сохранения: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
+            }
+            finally { isSaving = false; }
+        }
+
+        private void PrevButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (NavigationService?.CanGoBack == true)
+                NavigationService.GoBack();
+        }
+
+        private void NextButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (SaveData())
+            {
+                MessageBox.Show("Приоритеты сохранены!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                NavigationService?.Navigate(new AttachedDocumentsPage());
+            }
+        }
+
+        private void CancelButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (MessageBox.Show("Отменить изменения?", "Подтверждение",
+                MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+            {
+                SessionManager.Clear();
+                if (NavigationService?.CanGoBack == true)
+                    while (NavigationService.CanGoBack) NavigationService.GoBack();
+                else
+                    Application.Current.Shutdown();
+            }
+        }
+    }
+}

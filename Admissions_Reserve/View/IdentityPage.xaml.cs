@@ -482,12 +482,20 @@ namespace Admissions_Reserve.View
 
             if (!BirthDatePicker.SelectedDate.HasValue)
                 errors.Add("• Дата рождения обязательна для заполнения");
+            else if (BirthDatePicker.SelectedDate.Value >= DateTime.Today)
+                errors.Add("• Дата рождения не может быть в будущем");
+            else if ((DateTime.Today.Year - BirthDatePicker.SelectedDate.Value.Year) < 16)
+                errors.Add("• Абитуриент должен быть старше 16 лет");
 
             if (string.IsNullOrWhiteSpace(NumberTextBox.Text))
                 errors.Add("• Номер документа обязателен для заполнения");
+            else if (!ValidationHelper.IsValidPassportNumber(NumberTextBox.Text + (SeriesTextBox.Text ?? "")))
+                errors.Add("• Неверный формат номера документа (требуется 10 цифр)");
 
             if (!IssueDatePicker.SelectedDate.HasValue)
                 errors.Add("• Дата выдачи документа обязательна для заполнения");
+            else if (IssueDatePicker.SelectedDate > DateTime.Today)
+                errors.Add("• Дата выдачи не может быть в будущем");
 
             if (string.IsNullOrWhiteSpace(CityTextBox.Text))
                 errors.Add("• Населенный пункт обязателен для заполнения");
@@ -500,6 +508,13 @@ namespace Admissions_Reserve.View
 
             if (CountryCombo.SelectedValue == null)
                 errors.Add("• Страна регистрации обязательна для выбора");
+
+            // Валидация СНИЛС (если указан)
+            if (!string.IsNullOrWhiteSpace(SnilsTextBox.Text) && NoSnilsCheckBox.IsChecked != true)
+            {
+                if (!ValidationHelper.IsValidSnils(SnilsTextBox.Text))
+                    errors.Add("• СНИЛС имеет неверный формат (требуется 11 цифр, возможны дефисы)");
+            }
 
             if (errors.Any())
             {

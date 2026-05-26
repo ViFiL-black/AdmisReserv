@@ -48,6 +48,17 @@ namespace Admissions_Reserve.View
 
         private void ApplicationTypeAndEducationPage_Loaded(object sender, RoutedEventArgs e)
         {
+            // Проверяем, был ли создан абитуриент
+            if (SessionManager.CurrentApplicant == null || SessionManager.CurrentApplicant.Id == 0)
+            {
+                MessageBox.Show("Сначала необходимо заполнить данные удостоверения личности и контактной информации",
+                    "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
+                
+                if (NavigationService?.CanGoBack == true)
+                    NavigationService.GoBack();
+                return;
+            }
+            
             LoadReferenceData();
             LoadExistingDocuments();
             isInitialized = true;
@@ -563,10 +574,35 @@ namespace Admissions_Reserve.View
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
             }
+            else if (IssueDatePicker.SelectedDate > DateTime.Today)
+            {
+                MessageBox.Show("Дата выдачи документа не может быть в будущем", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
 
             if (GraduationYearPicker.SelectedDate == null)
             {
                 MessageBox.Show("Пожалуйста, укажите год окончания", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
+            // Валидация оценок
+            int satisfactory = ParseInt(SatisfactoryCountTextBox.Text);
+            int good = ParseInt(GoodCountTextBox.Text);
+            int excellent = ParseInt(ExcellentCountTextBox.Text);
+
+            if (satisfactory < 0 || good < 0 || excellent < 0)
+            {
+                MessageBox.Show("Количество оценок не может быть отрицательным", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
+            if (satisfactory + good + excellent == 0)
+            {
+                MessageBox.Show("Необходимо указать хотя бы одну оценку", "Ошибка",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
             }

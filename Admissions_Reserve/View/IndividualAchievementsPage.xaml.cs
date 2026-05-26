@@ -185,28 +185,59 @@ namespace Admissions_Reserve.View
                 isSaving = true;
                 if (SessionManager.CurrentApplicantId == null) return false;
 
-                int applicantId = SessionManager.CurrentApplicantId.Value;
-
-                // Delete existing achievements for this applicant
-                try
-                {
-                    var existing = DatabasePersistenceHelper.LoadIndividualAchievements(applicantId);
-                    foreach (var exAch in existing)
-                    {
-                        DatabasePersistenceHelper.DeleteIndividualAchievement(exAch.Id, applicantId);
-                    }
-                }
-                catch { /* Ignore if table missing or other issues */ }
-
-                // Save current collection
+                // Валидация каждой записи
                 foreach (var ach in _achievements)
                 {
-                    DatabasePersistenceHelper.SaveIndividualAchievement(applicantId,
-                        ach.Category, ach.AchievementName, ach.Year, ach.Points, ach.DocumentName, ach.DocumentPath);
+                    if (string.IsNullOrWhiteSpace(ach.Category))
+                    {
+                        MessageBox.Show("Выберите категорию для всех достижений.", "Ошибка валидации", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        return false;
+                    }
+
+                    if (string.IsNullOrWhiteSpace(ach.AchievementName) || ach.AchievementName.Length < 2)
+                    {
+                        MessageBox.Show($"Название достижения некорректно: '{ach.AchievementName}'.", "Ошибка валидации", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        return false;
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(ach.Year))
+                    {
+                        if (!int.TryParse(ach.Year, out int yearInt) || !ValidationHelper.IsValidYear(yearInt))
+                        {
+                            MessageBox.Show($"Год указан неверно: '{ach.Year}'.", "Ошибка валидации", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            return false;
+                        }
+                    }
+
+                    if (ach.Points < 0)
+                    {
+                        MessageBox.Show($"Баллы должны быть неотрицательными: {ach.Points}.", "Ошибка валидации", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        return false;
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(ach.DocumentPath))
+                    {
+                        try
+                        {
+                            if (!System.IO.File.Exists(ach.DocumentPath))
+                            {
+                                MessageBox.Show($"Файл подтверждения достижения не найден: {ach.DocumentPath}", "Ошибка валидации", MessageBoxButton.OK, MessageBoxImage.Warning);
+                                return false;
+                            }
+                        }
+                        catch { }
+                    }
                 }
 
-                // Log change
-                DataService.LogChange("IndividualAchievements", applicantId, "UPDATE");
+                var existing = DataService.GetApplicantIndividualAchievements(SessionManager.CurrentApplicantId.Value);
+                foreach (var ach in existing) DataService.DeleteIndividualAchievement(ach.Id);
+
+                foreach (var ach in _achievements)
+                {
+                    DataService.CreateIndividualAchievementFull(SessionManager.CurrentApplicantId.Value, ach.Category, ach.AchievementName, ach.Year, ach.Points, ach.DocumentName, ach.DocumentPath);
+                }
+
+                DataService.LogChange("IndividualAchievements", SessionManager.CurrentApplicantId.Value, "UPDATE");
                 return true;
             }
             catch (Exception ex)

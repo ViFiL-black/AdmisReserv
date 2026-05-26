@@ -111,6 +111,7 @@
     <Compile Include="Model\DataService.cs" />
     <Compile Include="Model\ExportHelper.cs" />
     <Compile Include="Model\FormattingHelper.cs" />
+    <Compile Include="Model\InputValidationHelper.cs" />
     <Compile Include="Model\LogHelper.cs" />
     <Compile Include="Model\Models.cs" />
     <Compile Include="Model\PageModels.cs" />
@@ -143,6 +144,7 @@
     <Compile Include="View\IndividualAchievementsPage.xaml.cs">
       <DependentUpon>IndividualAchievementsPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\InputValidators.cs" />
     <Compile Include="View\LoginWindow.xaml.cs">
       <DependentUpon>LoginWindow.xaml</DependentUpon>
     </Compile>

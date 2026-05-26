@@ -34,7 +34,12 @@ namespace Admissions_Reserve.View
                 MessageBox.Show("Сначала необходимо заполнить данные удостоверения личности",
                     "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
                 
-                NavigationService?.Navigate(new IdentityPage());
+                // Пытаемся вернуться на предыдущую страницу после загрузки
+                Loaded += (s, e) =>
+                {
+                    if (NavigationService?.CanGoBack == true)
+                        NavigationService.GoBack();
+                };
                 return;
             }
             isInitialized = true;
@@ -237,13 +242,13 @@ namespace Admissions_Reserve.View
             {
                 errors.Add("• E-mail обязателен для заполнения");
             }
-            else if (!IsValidEmail(EmailTextBox.Text.Trim()))
+            else if (!ValidationHelper.IsValidEmail(EmailTextBox.Text.Trim()))
             {
                 errors.Add("• Введите корректный E-mail адрес");
             }
 
             if (!string.IsNullOrWhiteSpace(AdditionalEmailTextBox.Text) &&
-                !IsValidEmail(AdditionalEmailTextBox.Text.Trim()))
+                !ValidationHelper.IsValidEmail(AdditionalEmailTextBox.Text.Trim()))
             {
                 errors.Add("• Дополнительный E-mail имеет неверный формат");
             }
@@ -255,6 +260,16 @@ namespace Admissions_Reserve.View
             if (!hasPhone)
             {
                 errors.Add("• Укажите хотя бы один контактный телефон");
+            }
+            else
+            {
+                // Проверяем форматы телефонов если они заполнены
+                if (!string.IsNullOrWhiteSpace(ContactPhoneTextBox.Text) && !ValidationHelper.IsValidPhoneNumber(ContactPhoneTextBox.Text))
+                    errors.Add("• Телефон имеет неверный формат");
+                if (!string.IsNullOrWhiteSpace(MobilePhoneTextBox.Text) && !ValidationHelper.IsValidPhoneNumber(MobilePhoneTextBox.Text))
+                    errors.Add("• Мобильный телефон имеет неверный формат");
+                if (!string.IsNullOrWhiteSpace(WorkPhoneTextBox.Text) && !ValidationHelper.IsValidPhoneNumber(WorkPhoneTextBox.Text))
+                    errors.Add("• Рабочий телефон имеет неверный формат");
             }
 
             if (CountryCombo.SelectedValue == null)
@@ -271,19 +286,6 @@ namespace Admissions_Reserve.View
             }
 
             return true;
-        }
-
-        private bool IsValidEmail(string email)
-        {
-            try
-            {
-                var addr = new System.Net.Mail.MailAddress(email);
-                return addr.Address == email;
-            }
-            catch
-            {
-                return false;
-            }
         }
 
         // Кнопка ДАЛЕЕ - переход на страницу образования

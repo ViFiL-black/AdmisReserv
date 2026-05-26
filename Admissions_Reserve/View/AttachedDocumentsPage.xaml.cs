@@ -127,6 +127,15 @@ namespace Admissions_Reserve.View
                 return;
             }
 
+            // Проверяем, что хотя бы что-то заполнено
+            if (string.IsNullOrWhiteSpace(SeriesNumberTextBox.Text) &&
+                string.IsNullOrWhiteSpace(DocumentInfoTextBox.Text))
+            {
+                MessageBox.Show("Укажите серию, номер или информацию о документе", "Ошибка", 
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             try
             {
                 if (SessionManager.CurrentApplicantId == null) return;
@@ -151,6 +160,7 @@ namespace Admissions_Reserve.View
 
                 ClearForm();
                 DocumentsGrid.Items.Refresh();
+                MessageBox.Show("Документ успешно добавлен", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {

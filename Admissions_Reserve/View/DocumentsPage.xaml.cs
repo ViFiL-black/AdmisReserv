@@ -14,20 +14,6 @@ namespace Admissions_Reserve.View
 {
     public partial class DocumentsPage : Page
     {
-        // Конвертер видимости для файлов
-        public class BoolToVisibilityConverter : IValueConverter
-        {
-            public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-            {
-                return (value is bool boolValue && boolValue) ? Visibility.Visible : Visibility.Collapsed;
-            }
-
-            public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-            {
-                return value is Visibility visibility && visibility == Visibility.Visible;
-            }
-        }
-
         // Модель документа
         public class DocumentItem : INotifyPropertyChanged
         {
@@ -159,7 +145,6 @@ namespace Admissions_Reserve.View
 
         private void DocumentsPage_Loaded(object sender, RoutedEventArgs e)
         {
-            Resources.Add("BoolToVisibility", new BoolToVisibilityConverter());
 
             InitializeData();
             LoadDocumentTypesFromDatabase();
@@ -393,8 +378,7 @@ namespace Admissions_Reserve.View
 
         private void AddDocumentButton_Click(object sender, RoutedEventArgs e)
         {
-            // Проверка обязательных полей
-            if (DocumentTypeCombo.SelectedItem == null)
+            if (DocumentTypeCombo.SelectedValue == null)
             {
                 MessageBox.Show("Пожалуйста, выберите тип документа", "Ошибка",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -407,6 +391,25 @@ namespace Admissions_Reserve.View
                 MessageBox.Show("Пожалуйста, укажите номер документа", "Ошибка",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 NumberTextBox.Focus();
+                return;
+            }
+
+            // Проверяем, что хотя бы серия или номер содержат цифры
+            string documentSeries = SeriesTextBox.Text?.Trim() ?? "";
+            string documentNumber = NumberTextBox.Text?.Trim() ?? "";
+            if (!System.Text.RegularExpressions.Regex.IsMatch(documentSeries + documentNumber, @"\d"))
+            {
+                MessageBox.Show("Серия и номер должны содержать хотя бы одну цифру", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            // Если дата выдачи указана, проверяем, что она не в будущем
+            if (IssueDatePicker.SelectedDate.HasValue && IssueDatePicker.SelectedDate.Value > DateTime.Today)
+            {
+                MessageBox.Show("Дата выдачи документа не может быть в будущем", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                IssueDatePicker.Focus();
                 return;
             }
 
@@ -424,8 +427,8 @@ namespace Admissions_Reserve.View
                 string selectedTypeName = DocumentTypeCombo.Text;
 
                 // Формируем серию и номер
-                string series = SeriesTextBox.Text?.Trim() ?? "";
-                string number = NumberTextBox.Text?.Trim() ?? "";
+                string series = documentSeries;
+                string number = documentNumber;
                 string seriesNumber = string.IsNullOrEmpty(series) ? number : $"{series} {number}";
 
                 // Определяем категорию персональных данных

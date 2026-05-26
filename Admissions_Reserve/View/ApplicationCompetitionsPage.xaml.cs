@@ -357,11 +357,27 @@ namespace Admissions_Reserve.View
                 isSaving = true;
                 if (SessionManager.CurrentApplicantId == null) return false;
 
+                // Валидация: должно быть выбрано хотя бы одно направление
+                if (_selectedCompetitions == null || _selectedCompetitions.Count == 0)
+                {
+                    MessageBox.Show("Пожалуйста, выберите хотя бы один конкурс.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return false;
+                }
+
+                // Ограничим длину комментария
+                var comment = CommentTextBox.Text?.Trim() ?? "";
+                if (comment.Length > 1000)
+                {
+                    MessageBox.Show("Комментарий слишком длинный (макс. 1000 символов).", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    CommentTextBox.Focus();
+                    return false;
+                }
+
                 // Сохраняем комментарий
                 var applicant = DataService.GetApplicant(SessionManager.CurrentApplicantId.Value);
                 if (applicant != null)
                 {
-                    applicant.ApplicationComment = CommentTextBox.Text?.Trim();
+                    applicant.ApplicationComment = comment;
                     applicant.UpdatedAt = DateTime.Now;
                     DataService.UpdateApplicant(applicant);
                 }

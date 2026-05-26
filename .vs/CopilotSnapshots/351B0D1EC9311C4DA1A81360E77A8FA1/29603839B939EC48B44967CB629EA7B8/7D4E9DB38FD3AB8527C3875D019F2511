@@ -1,0 +1,344 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Windows;
+using System.Windows.Controls;
+using Admissions_Reserve.Model;
+
+namespace Admissions_Reserve.View
+{
+    public partial class ContactsPage : Page
+    {
+        private Applicants currentApplicant;
+        private bool isLoadingData = false;
+        private bool isInitialized = false;
+
+        public ContactsPage()
+        {
+            InitializeComponent();
+            LoadReferenceData();
+
+            if (SessionManager.CurrentApplicant != null && SessionManager.CurrentApplicant.Id != 0)
+            {
+                // Загружаем актуальные данные из БД
+                currentApplicant = DataService.GetApplicant(SessionManager.CurrentApplicantId.Value);
+                if (currentApplicant != null)
+                {
+                    SessionManager.CurrentApplicant = currentApplicant;
+                    LoadApplicantData();
+                }
+            }
+            else
+            {
+                // Если абитуриент еще не создан, перенаправляем на первую страницу
+                MessageBox.Show("Сначала необходимо заполнить данные удостоверения личности",
+                    "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
+                
+                // Пытаемся вернуться на предыдущую страницу после загрузки
+                Loaded += (s, e) =>
+                {
+                    if (NavigationService?.CanGoBack == true)
+                        NavigationService.GoBack();
+                };
+                return;
+            }
+            isInitialized = true;
+        }
+
+        private void LoadReferenceData()
+        {
+            try
+            {
+                var countries = DataService.GetByCondition<Countries>("IsActive = 1");
+                CountryCombo.ItemsSource = countries;
+                CountryCombo.DisplayMemberPath = "Name";
+                CountryCombo.SelectedValuePath = "Id";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка загрузки справочных данных: {ex.Message}", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void LoadApplicantData()
+        {
+            if (currentApplicant == null) return;
+
+            ContactPhoneTextBox.Text = currentApplicant.Phone ?? "";
+            MobilePhoneTextBox.Text = currentApplicant.MobilePhone ?? "";
+            FaxTextBox.Text = currentApplicant.Fax ?? "";
+            WorkPhoneTextBox.Text = currentApplicant.WorkPhone ?? "";
+            EmailTextBox.Text = currentApplicant.Email ?? "";
+            AdditionalEmailTextBox.Text = currentApplicant.AdditionalEmail ?? "";
+
+            if (currentApplicant.ActualCountryId.HasValue)
+                CountryCombo.SelectedValue = currentApplicant.ActualCountryId.Value;
+
+            PostalCodeTextBox.Text = currentApplicant.ActualPostalCode ?? "";
+            RegionTextBox.Text = currentApplicant.ActualRegion ?? "";
+            DistrictTextBox.Text = currentApplicant.ActualDistrict ?? "";
+            CityTextBox.Text = currentApplicant.ActualCity ?? "";
+            StreetTextBox.Text = currentApplicant.ActualStreet ?? "";
+            HouseTextBox.Text = currentApplicant.ActualHouse ?? "";
+            BuildingTextBox.Text = currentApplicant.ActualBuilding ?? "";
+            ApartmentTextBox.Text = currentApplicant.ActualApartment ?? "";
+
+            WebsiteTextBox.Text = currentApplicant.Website ?? "";
+            TelegramTextBox.Text = currentApplicant.Telegram ?? "";
+            WhatsAppTextBox.Text = currentApplicant.WhatsApp ?? "";
+            ViberTextBox.Text = currentApplicant.Viber ?? "";
+
+            SetPreferredContactMethod(currentApplicant.PreferredContactMethod);
+            CommentTextBox.Text = currentApplicant.ContactComment ?? "";
+        }
+
+        private void SetPreferredContactMethod(string method)
+        {
+            switch (method?.ToLower())
+            {
+                case "phone":
+                    PreferredPhoneRadio.IsChecked = true;
+                    break;
+                case "email":
+                    PreferredEmailRadio.IsChecked = true;
+                    break;
+                case "messenger":
+                    PreferredMessengerRadio.IsChecked = true;
+                    break;
+                default:
+                    PreferredPhoneRadio.IsChecked = true;
+                    break;
+            }
+        }
+
+        private string GetPreferredContactMethod()
+        {
+            if (PreferredPhoneRadio.IsChecked == true)
+                return "Phone";
+            else if (PreferredEmailRadio.IsChecked == true)
+                return "Email";
+            else if (PreferredMessengerRadio.IsChecked == true)
+                return "Messenger";
+            else
+                return "Phone";
+        }
+
+        private bool SaveData()
+        {
+            try
+            {
+                if (!ValidateData())
+                    return false;
+
+                // Абитуриент должен быть уже создан на странице IdentityPage
+                if (currentApplicant == null || currentApplicant.Id == 0)
+                {
+                    MessageBox.Show("Ошибка: абитуриент не найден. Пожалуйста, начните с заполнения данных удостоверения личности.",
+                        "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return false;
+                }
+
+                // Сохраняем данные из формы
+                currentApplicant.Phone = ContactPhoneTextBox.Text?.Trim();
+                currentApplicant.MobilePhone = MobilePhoneTextBox.Text?.Trim();
+                currentApplicant.Fax = FaxTextBox.Text?.Trim();
+                currentApplicant.WorkPhone = WorkPhoneTextBox.Text?.Trim();
+                currentApplicant.Email = EmailTextBox.Text?.Trim();
+                currentApplicant.AdditionalEmail = AdditionalEmailTextBox.Text?.Trim();
+
+                if (CountryCombo.SelectedValue != null)
+                    currentApplicant.ActualCountryId = (int)CountryCombo.SelectedValue;
+
+                currentApplicant.ActualPostalCode = PostalCodeTextBox.Text?.Trim();
+                currentApplicant.ActualRegion = RegionTextBox.Text?.Trim();
+                currentApplicant.ActualDistrict = DistrictTextBox.Text?.Trim();
+                currentApplicant.ActualCity = CityTextBox.Text?.Trim();
+                currentApplicant.ActualStreet = StreetTextBox.Text?.Trim();
+                currentApplicant.ActualHouse = HouseTextBox.Text?.Trim();
+                currentApplicant.ActualBuilding = BuildingTextBox.Text?.Trim();
+                currentApplicant.ActualApartment = ApartmentTextBox.Text?.Trim();
+
+                currentApplicant.Website = WebsiteTextBox.Text?.Trim();
+                currentApplicant.Telegram = TelegramTextBox.Text?.Trim();
+                currentApplicant.WhatsApp = WhatsAppTextBox.Text?.Trim();
+                currentApplicant.Viber = ViberTextBox.Text?.Trim();
+
+                currentApplicant.PreferredContactMethod = GetPreferredContactMethod();
+                currentApplicant.ContactComment = CommentTextBox.Text?.Trim();
+                currentApplicant.UpdatedAt = DateTime.Now;
+
+                // Сохраняем в БД
+                DataService.UpdateApplicant(currentApplicant);
+                DataService.LogChange("Applicants", currentApplicant.Id, "UPDATE");
+
+                // Обновляем SessionManager
+                SessionManager.CurrentApplicant = currentApplicant;
+
+                MessageBox.Show("Контактные данные успешно сохранены!", "Успех",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при сохранении данных: {ex.Message}", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
+            }
+        }
+
+        private void CopyFromRegistration_Checked(object sender, RoutedEventArgs e)
+        {
+            if (!isInitialized) return;
+
+            try
+            {
+                if (SessionManager.CurrentApplicantId == null || SessionManager.CurrentApplicantId == 0)
+                {
+                    MessageBox.Show("Сначала сохраните данные удостоверения личности", "Информация",
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                    CopyFromRegistrationCheckBox.IsChecked = false;
+                    return;
+                }
+
+                var applicant = DataService.GetApplicant(SessionManager.CurrentApplicantId.Value);
+                if (applicant != null)
+                {
+                    if (applicant.RegistrationCountryId.HasValue)
+                        CountryCombo.SelectedValue = applicant.RegistrationCountryId.Value;
+
+                    PostalCodeTextBox.Text = applicant.RegistrationPostalCode ?? "";
+                    RegionTextBox.Text = applicant.RegistrationRegion ?? "";
+                    DistrictTextBox.Text = applicant.RegistrationDistrict ?? "";
+                    CityTextBox.Text = applicant.RegistrationCity ?? "";
+                    StreetTextBox.Text = applicant.RegistrationStreet ?? "";
+                    HouseTextBox.Text = applicant.RegistrationHouse ?? "";
+                    BuildingTextBox.Text = applicant.RegistrationBuilding ?? "";
+                    ApartmentTextBox.Text = applicant.RegistrationApartment ?? "";
+
+                    MessageBox.Show("Адрес успешно скопирован из данных удостоверения личности", "Информация",
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при копировании адреса: {ex.Message}", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+                CopyFromRegistrationCheckBox.IsChecked = false;
+            }
+        }
+
+        private void CopyFromRegistration_Unchecked(object sender, RoutedEventArgs e)
+        {
+            // Оставляем поля доступными для редактирования
+        }
+
+        private bool ValidateData()
+        {
+            var errors = new List<string>();
+
+            if (string.IsNullOrWhiteSpace(EmailTextBox.Text))
+            {
+                errors.Add("• E-mail обязателен для заполнения");
+            }
+            else if (!ValidationHelper.IsValidEmail(EmailTextBox.Text.Trim()))
+            {
+                errors.Add("• Введите корректный E-mail адрес");
+            }
+
+            if (!string.IsNullOrWhiteSpace(AdditionalEmailTextBox.Text) &&
+                !ValidationHelper.IsValidEmail(AdditionalEmailTextBox.Text.Trim()))
+            {
+                errors.Add("• Дополнительный E-mail имеет неверный формат");
+            }
+
+            bool hasPhone = !string.IsNullOrWhiteSpace(ContactPhoneTextBox.Text) ||
+                           !string.IsNullOrWhiteSpace(MobilePhoneTextBox.Text) ||
+                           !string.IsNullOrWhiteSpace(WorkPhoneTextBox.Text);
+
+            if (!hasPhone)
+            {
+                errors.Add("• Укажите хотя бы один контактный телефон");
+            }
+            else
+            {
+                // Проверяем форматы телефонов если они заполнены
+                if (!string.IsNullOrWhiteSpace(ContactPhoneTextBox.Text) && !ValidationHelper.IsValidPhoneNumber(ContactPhoneTextBox.Text))
+                    errors.Add("• Телефон имеет неверный формат");
+                if (!string.IsNullOrWhiteSpace(MobilePhoneTextBox.Text) && !ValidationHelper.IsValidPhoneNumber(MobilePhoneTextBox.Text))
+                    errors.Add("• Мобильный телефон имеет неверный формат");
+                if (!string.IsNullOrWhiteSpace(WorkPhoneTextBox.Text) && !ValidationHelper.IsValidPhoneNumber(WorkPhoneTextBox.Text))
+                    errors.Add("• Рабочий телефон имеет неверный формат");
+            }
+
+            if (CountryCombo.SelectedValue == null)
+                errors.Add("• Страна проживания обязательна для выбора");
+
+            if (string.IsNullOrWhiteSpace(CityTextBox.Text))
+                errors.Add("• Населенный пункт обязателен для заполнения");
+
+            if (errors.Any())
+            {
+                MessageBox.Show("Пожалуйста, исправьте следующие ошибки:\n\n" + string.Join("\n", errors),
+                    "Ошибки валидации", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
+            return true;
+        }
+
+        // Кнопка ДАЛЕЕ - переход на страницу образования
+        private void NextButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (SaveData())
+            {
+                // Переход на страницу "Вид заявления и образование"
+                NavigationService?.Navigate(new ApplicationTypeAndEducationPage());
+            }
+        }
+
+        // Кнопка НАЗАД - возврат на страницу удостоверения личности
+        private void PrevButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Сохраняем данные перед возвратом
+            SaveData();
+
+            // Возвращаемся на предыдущую страницу
+            if (NavigationService?.CanGoBack == true)
+                NavigationService.GoBack();
+        }
+
+        // Кнопка ОТМЕНИТЬ
+        private void CancelButton_Click(object sender, RoutedEventArgs e)
+        {
+            var result = MessageBox.Show("Вы уверены, что хотите отменить ввод данных?\nВсе несохраненные данные будут потеряны.",
+                "Подтверждение", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                SessionManager.Clear();
+
+                // Закрываем приложение или возвращаемся на главную
+                if (NavigationService?.CanGoBack == true)
+                {
+                    // Возвращаемся назад несколько раз до главной страницы
+                    while (NavigationService.CanGoBack)
+                    {
+                        NavigationService.GoBack();
+                    }
+                }
+                else
+                {
+                    Application.Current.Shutdown();
+                }
+            }
+        }
+
+        private void CheckAddressButton_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("Проверка адреса будет реализована через интеграцию с ФИАС",
+                "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+    }
+}
