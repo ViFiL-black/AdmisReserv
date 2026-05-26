@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -10,7 +11,6 @@ namespace Admissions_Reserve.View
 {
     public partial class ApplicationCompetitionsPage : Page
     {
-        // Модель конкурса
         public class CompetitionItem : INotifyPropertyChanged
         {
             private bool _isSelected;
@@ -19,10 +19,8 @@ namespace Admissions_Reserve.View
             private string _educationBase;
             private string _studyForm;
             private string _admissionType;
-            private string _otherCharacter;
             private string _branch;
             private string _department;
-            private string _additionalConditions;
 
             public bool IsSelected
             {
@@ -54,11 +52,6 @@ namespace Admissions_Reserve.View
                 get => _admissionType;
                 set { _admissionType = value; OnPropertyChanged(nameof(AdmissionType)); }
             }
-            public string OtherCharacter
-            {
-                get => _otherCharacter;
-                set { _otherCharacter = value; OnPropertyChanged(nameof(OtherCharacter)); }
-            }
             public string Branch
             {
                 get => _branch;
@@ -68,11 +61,6 @@ namespace Admissions_Reserve.View
             {
                 get => _department;
                 set { _department = value; OnPropertyChanged(nameof(Department)); }
-            }
-            public string AdditionalConditions
-            {
-                get => _additionalConditions;
-                set { _additionalConditions = value; OnPropertyChanged(nameof(AdditionalConditions)); }
             }
 
             public event PropertyChangedEventHandler PropertyChanged;
@@ -84,85 +72,216 @@ namespace Admissions_Reserve.View
         private ObservableCollection<CompetitionItem> _selectedCompetitions;
         private int _nextPriority = 1;
         private bool isInitialized = false;
+        private bool isSaving = false;
 
         public ApplicationCompetitionsPage()
         {
             InitializeComponent();
-            InitializeData();
-            isInitialized = true;
-        }
-
-        private void InitializeData()
-        {
             _availableCompetitions = new ObservableCollection<CompetitionItem>();
             _selectedCompetitions = new ObservableCollection<CompetitionItem>();
 
-            LoadAvailableCompetitions();
-
             AvailableCompetitionsGrid.ItemsSource = _availableCompetitions;
             SelectedCompetitionsGrid.ItemsSource = _selectedCompetitions;
+
+            Loaded += Page_Loaded;
         }
 
-        private void LoadAvailableCompetitions()
+        private void Page_Loaded(object sender, RoutedEventArgs e)
         {
-            var programs = new[]
-            {
-                new CompetitionItem
-                {
-                    ProgramName = "08.02.09 Монтаж, наладка и эксплуатация электрооборудования промышленных и гражданских зданий",
-                    EducationBase = "Осн. общ.", StudyForm = "Очная", AdmissionType = "Общий",
-                    OtherCharacter = "Головная орг.", Branch = "Головная орг.", Department = "Отделение автоматики",
-                    IsSelected = false
-                },
-                new CompetitionItem
-                {
-                    ProgramName = "15.02.17 Монтаж, техническое обслуживание, эксплуатация и ремонт промышленного оборудования (по отраслям)",
-                    EducationBase = "Осн. общ.", StudyForm = "Очная", AdmissionType = "Общий",
-                    OtherCharacter = "Головная орг.", Branch = "Головная орг.", Department = "Отделение автоматики и электромеханики",
-                    IsSelected = false
-                },
-                new CompetitionItem
-                {
-                    ProgramName = "27.02.04 Автоматические системы управления",
-                    EducationBase = "Осн. общ.", StudyForm = "Очная", AdmissionType = "Общий",
-                    OtherCharacter = "Головная орг.", Branch = "Головная орг.",
-                    Department = "Отделение автоматики и электромеханики (в том числе с применением автоматических систем управления)",
-                    IsSelected = false
-                },
-                new CompetitionItem
-                {
-                    ProgramName = "09.02.11 Разработка и управление программным обеспечением",
-                    EducationBase = "Осн. общ.", StudyForm = "Очная", AdmissionType = "Общий",
-                    OtherCharacter = "Головная орг.", Branch = "Головная орг.", Department = "Отделение автоматики и электромеханики",
-                    IsSelected = false
-                }
-            };
+            LoadReferenceData();
+            LoadAllCompetitions();
+            LoadSelectedCompetitionsFromDB();
+            LoadApplicantData();
+            isInitialized = true;
+        }
 
-            foreach (var program in programs)
-                _availableCompetitions.Add(program);
+        private void LoadReferenceData()
+        {
+            try
+            {
+                var stages = DataService.GetAll<AdmissionStages>();
+                if (stages.Any()) { StageCombo.ItemsSource = stages; StageCombo.DisplayMemberPath = "Name"; StageCombo.SelectedIndex = 0; }
+                else StageCombo.ItemsSource = new[] { "Основной набор", "Дополнительный набор", "Целевой набор" };
+
+                var costs = DataService.GetAll<CostReimbursementTypes>();
+                if (costs.Any()) { CostReimbursementCombo.ItemsSource = costs; CostReimbursementCombo.DisplayMemberPath = "Name"; CostReimbursementCombo.SelectedIndex = 0; }
+                else CostReimbursementCombo.ItemsSource = new[] { "бюджет", "внебюджет", "целевое обучение" };
+
+                var studyForms = DataService.GetAll<StudyForms>();
+                if (studyForms.Any()) { StudyFormCombo.ItemsSource = studyForms; StudyFormCombo.DisplayMemberPath = "Name"; StudyFormCombo.SelectedIndex = 0; }
+                else StudyFormCombo.ItemsSource = new[] { "Очная", "Заочная", "Очно-заочная" };
+
+                var departments = DataService.GetAll<Departments>();
+                if (departments.Any()) { DepartmentCombo.ItemsSource = departments; DepartmentCombo.DisplayMemberPath = "Name"; DepartmentCombo.SelectedIndex = 0; }
+                else DepartmentCombo.ItemsSource = new[] { "Отделение автоматики", "Отделение автоматики и электромеханики", "Отделение ИТ" };
+
+                var programs = DataService.GetAll<EducationPrograms>();
+                if (programs.Any()) { DirectionCombo.ItemsSource = programs; DirectionCombo.DisplayMemberPath = "Name"; DirectionCombo.SelectedIndex = 0; }
+                else DirectionCombo.ItemsSource = new[] { "08.02.09 Монтаж электрооборудования", "15.02.17 Монтаж оборудования", "27.02.04 Автоматические системы", "09.02.11 Разработка ПО" };
+
+                var baseLevels = DataService.GetAll<BaseEducationLevels>();
+                if (baseLevels.Any()) { BaseLevelCombo.ItemsSource = baseLevels; BaseLevelCombo.DisplayMemberPath = "Name"; BaseLevelCombo.SelectedIndex = 0; }
+                else BaseLevelCombo.ItemsSource = new[] { "Основной общий", "Средний общий", "Средний профессиональный" };
+
+                var admissionTypes = DataService.GetAll<AdmissionTypes>();
+                if (admissionTypes.Any()) { AdmissionTypeCombo.ItemsSource = admissionTypes; AdmissionTypeCombo.DisplayMemberPath = "Name"; AdmissionTypeCombo.SelectedIndex = 0; }
+                else AdmissionTypeCombo.ItemsSource = new[] { "Общий", "Целевой", "Отдельная квота" };
+
+                var targetTypes = DataService.GetAll<TargetAdmissionTypes>();
+                if (targetTypes.Any()) { TargetAdmissionCombo.ItemsSource = targetTypes; TargetAdmissionCombo.DisplayMemberPath = "Name"; TargetAdmissionCombo.SelectedIndex = 0; }
+                else TargetAdmissionCombo.ItemsSource = new[] { "Не выбран", "Целевое обучение по договору", "Целевой прием по квоте" };
+
+                var privilegeCategories = DataService.GetAll<AchievementCategories>();
+                if (privilegeCategories.Any()) { PrivilegeCategoryCombo.ItemsSource = privilegeCategories; PrivilegeCategoryCombo.DisplayMemberPath = "Name"; PrivilegeCategoryCombo.SelectedIndex = 0; }
+                else PrivilegeCategoryCombo.ItemsSource = new[] { "Не выбрано", "Ветераны боевых действий", "Дети военнослужащих" };
+
+                // Устанавливаем первый элемент выбранным
+                if (StageCombo.Items.Count > 0) StageCombo.SelectedIndex = 0;
+                if (CostReimbursementCombo.Items.Count > 0) CostReimbursementCombo.SelectedIndex = 0;
+                if (StudyFormCombo.Items.Count > 0) StudyFormCombo.SelectedIndex = 0;
+                if (DepartmentCombo.Items.Count > 0) DepartmentCombo.SelectedIndex = 0;
+                if (DirectionCombo.Items.Count > 0) DirectionCombo.SelectedIndex = 0;
+                if (BaseLevelCombo.Items.Count > 0) BaseLevelCombo.SelectedIndex = 0;
+                if (AdmissionTypeCombo.Items.Count > 0) AdmissionTypeCombo.SelectedIndex = 0;
+                if (TargetAdmissionCombo.Items.Count > 0) TargetAdmissionCombo.SelectedIndex = 0;
+                if (PrivilegeCategoryCombo.Items.Count > 0) PrivilegeCategoryCombo.SelectedIndex = 0;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка загрузки справочников: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
+        private void LoadAllCompetitions()
+        {
+            try
+            {
+                _availableCompetitions.Clear();
+                var competitions = DataService.GetByCondition<Competitions>("IsActive = 1");
+
+                if (competitions.Any())
+                {
+                    foreach (var comp in competitions)
+                    {
+                        _availableCompetitions.Add(new CompetitionItem
+                        {
+                            ProgramName = comp.Name ?? "",
+                            EducationBase = comp.EducationBase ?? "",
+                            StudyForm = comp.StudyForm ?? "",
+                            AdmissionType = comp.AdmissionType ?? "",
+                            Branch = comp.Branch ?? "",
+                            Department = comp.Department ?? "",
+                            IsSelected = false
+                        });
+                    }
+                }
+
+                if (_availableCompetitions.Count == 0)
+                {
+                    
+                }
+
+                AvailableCompetitionsGrid.Items.Refresh();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка загрузки конкурсов: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
+        private void LoadSelectedCompetitionsFromDB()
+        {
+            try
+            {
+                if (SessionManager.CurrentApplicantId == null) return;
+
+                _selectedCompetitions.Clear();
+                var priorities = DataService.GetApplicantCompetitions(SessionManager.CurrentApplicantId.Value);
+
+                foreach (var p in priorities.OrderBy(p => p.PriorityOrder))
+                {
+                    _selectedCompetitions.Add(new CompetitionItem
+                    {
+                        Priority = p.PriorityOrder,
+                        ProgramName = p.CompetitionName ?? "",
+                        IsSelected = true
+                    });
+                }
+
+                _nextPriority = _selectedCompetitions.Count + 1;
+                SelectedCompetitionsGrid.Items.Refresh();
+            }
+            catch { }
+        }
+
+        private void LoadApplicantData()
+        {
+            try
+            {
+                if (SessionManager.CurrentApplicantId == null) return;
+                var applicant = DataService.GetApplicant(SessionManager.CurrentApplicantId.Value);
+                if (applicant != null && !string.IsNullOrEmpty(applicant.ApplicationComment))
+                {
+                    CommentTextBox.Text = applicant.ApplicationComment;
+                }
+            }
+            catch { }
         }
 
         private void ApplyFilters_Click(object sender, RoutedEventArgs e)
         {
-            if (!isInitialized) return;
-            // Здесь можно добавить логику фильтрации
-            MessageBox.Show("Фильтры применены", "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
+            try
+            {
+                string studyForm = StudyFormCombo.SelectedItem?.GetType().GetProperty("Name")?.GetValue(StudyFormCombo.SelectedItem)?.ToString() ?? StudyFormCombo.Text;
+                string admissionType = AdmissionTypeCombo.SelectedItem?.GetType().GetProperty("Name")?.GetValue(AdmissionTypeCombo.SelectedItem)?.ToString() ?? AdmissionTypeCombo.Text;
+                string department = DepartmentCombo.SelectedItem?.GetType().GetProperty("Name")?.GetValue(DepartmentCombo.SelectedItem)?.ToString() ?? DepartmentCombo.Text;
+
+                var allCompetitions = DataService.GetByCondition<Competitions>("IsActive = 1");
+                var filtered = allCompetitions.AsEnumerable();
+
+                if (!string.IsNullOrEmpty(studyForm) && StudyFormCombo.SelectedIndex > -1)
+                    filtered = filtered.Where(c => c.StudyForm != null && c.StudyForm.Contains(studyForm));
+
+                if (!string.IsNullOrEmpty(admissionType) && AdmissionTypeCombo.SelectedIndex > -1)
+                    filtered = filtered.Where(c => c.AdmissionType != null && c.AdmissionType.Contains(admissionType));
+
+                if (!string.IsNullOrEmpty(department) && DepartmentCombo.SelectedIndex > -1)
+                    filtered = filtered.Where(c => c.Department != null && c.Department.Contains(department));
+
+                _availableCompetitions.Clear();
+                foreach (var comp in filtered)
+                {
+                    _availableCompetitions.Add(new CompetitionItem
+                    {
+                        ProgramName = comp.Name ?? "",
+                        EducationBase = comp.EducationBase ?? "",
+                        StudyForm = comp.StudyForm ?? "",
+                        AdmissionType = comp.AdmissionType ?? "",
+                        Branch = comp.Branch ?? "",
+                        Department = comp.Department ?? "",
+                        IsSelected = false
+                    });
+                }
+                AvailableCompetitionsGrid.Items.Refresh();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка фильтрации: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
         }
 
-        private void AvailableCompetitionsGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
+        private void AddSelectedCompetitions_Click(object sender, RoutedEventArgs e)
         {
-            if (!isInitialized) return;
-            if (e.EditAction != DataGridEditAction.Commit) return;
-
-            var item = e.Row.Item as CompetitionItem;
-            if (item == null) return;
-
-            if (item.IsSelected)
+            var selected = _availableCompetitions.Where(c => c.IsSelected).ToList();
+            if (!selected.Any())
             {
-                // Проверяем, не добавлен ли уже
-                bool exists = _selectedCompetitions.Any(s => s.ProgramName == item.ProgramName);
+                MessageBox.Show("Выберите хотя бы один конкурс", "Предупреждение", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
 
-                if (!exists)
+            foreach (var item in selected)
+            {
+                if (!_selectedCompetitions.Any(s => s.ProgramName == item.ProgramName))
                 {
                     _selectedCompetitions.Add(new CompetitionItem
                     {
@@ -171,39 +290,25 @@ namespace Admissions_Reserve.View
                         EducationBase = item.EducationBase,
                         StudyForm = item.StudyForm,
                         AdmissionType = item.AdmissionType,
-                        OtherCharacter = item.OtherCharacter,
                         Branch = item.Branch,
                         Department = item.Department,
-                        AdditionalConditions = "текущее",
                         IsSelected = true
                     });
                 }
+                item.IsSelected = false;
             }
-            else
-            {
-                // Удаляем из выбранных
-                var toRemove = _selectedCompetitions.FirstOrDefault(s => s.ProgramName == item.ProgramName);
-                if (toRemove != null)
-                {
-                    _selectedCompetitions.Remove(toRemove);
-                    RenumberPriorities();
-                }
-            }
+            SelectedCompetitionsGrid.Items.Refresh();
+            AvailableCompetitionsGrid.Items.Refresh();
         }
 
         private void MoveUp_Click(object sender, RoutedEventArgs e)
         {
-            if (!isInitialized) return;
-
-            var button = sender as Button;
-            var item = button?.Tag as CompetitionItem;
-
-            if (item != null)
+            if ((sender as Button)?.Tag is CompetitionItem item)
             {
-                int currentIndex = _selectedCompetitions.IndexOf(item);
-                if (currentIndex > 0)
+                int idx = _selectedCompetitions.IndexOf(item);
+                if (idx > 0)
                 {
-                    _selectedCompetitions.Move(currentIndex, currentIndex - 1);
+                    _selectedCompetitions.Move(idx, idx - 1);
                     RenumberPriorities();
                 }
             }
@@ -211,17 +316,12 @@ namespace Admissions_Reserve.View
 
         private void MoveDown_Click(object sender, RoutedEventArgs e)
         {
-            if (!isInitialized) return;
-
-            var button = sender as Button;
-            var item = button?.Tag as CompetitionItem;
-
-            if (item != null)
+            if ((sender as Button)?.Tag is CompetitionItem item)
             {
-                int currentIndex = _selectedCompetitions.IndexOf(item);
-                if (currentIndex < _selectedCompetitions.Count - 1)
+                int idx = _selectedCompetitions.IndexOf(item);
+                if (idx < _selectedCompetitions.Count - 1)
                 {
-                    _selectedCompetitions.Move(currentIndex, currentIndex + 1);
+                    _selectedCompetitions.Move(idx, idx + 1);
                     RenumberPriorities();
                 }
             }
@@ -229,25 +329,13 @@ namespace Admissions_Reserve.View
 
         private void DeleteSelectedCompetition_Click(object sender, RoutedEventArgs e)
         {
-            if (!isInitialized) return;
-
-            var button = sender as Button;
-            var item = button?.Tag as CompetitionItem;
-
-            if (item != null)
+            if ((sender as Button)?.Tag is CompetitionItem item)
             {
-                var result = MessageBox.Show($"Удалить конкурс \"{item.ProgramName}\"?",
-                    "Подтверждение удаления", MessageBoxButton.YesNo, MessageBoxImage.Question);
-
-                if (result == MessageBoxResult.Yes)
+                if (MessageBox.Show($"Удалить конкурс \"{item.ProgramName}\"?", "Подтверждение",
+                    MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                 {
                     _selectedCompetitions.Remove(item);
                     RenumberPriorities();
-
-                    // Снимаем отметку в таблице доступных
-                    var available = _availableCompetitions.FirstOrDefault(a => a.ProgramName == item.ProgramName);
-                    if (available != null)
-                        available.IsSelected = false;
                 }
             }
         }
@@ -256,215 +344,80 @@ namespace Admissions_Reserve.View
         {
             int priority = 1;
             foreach (var item in _selectedCompetitions)
-            {
                 item.Priority = priority++;
-            }
             _nextPriority = priority;
             SelectedCompetitionsGrid.Items.Refresh();
         }
 
-        private void HasPrivilegeCheckBox_Checked(object sender, RoutedEventArgs e)
-        {
-            if (!isInitialized) return;
-            PrivilegeCategoryCombo.IsEnabled = true;
-            PrivilegeDocumentsTextBox.IsEnabled = true;
-        }
-
-        private void HasPrivilegeCheckBox_Unchecked(object sender, RoutedEventArgs e)
-        {
-            if (!isInitialized) return;
-            PrivilegeCategoryCombo.IsEnabled = false;
-            PrivilegeDocumentsTextBox.IsEnabled = false;
-            PrivilegeCategoryCombo.SelectedIndex = 0;
-            PrivilegeDocumentsTextBox.Text = "";
-        }
-
-        // Получение данных
-        public ApplicationData GetApplicationData()
-        {
-            return new ApplicationData
-            {
-                Stage = (StageCombo.SelectedItem as ComboBoxItem)?.Content.ToString(),
-                CostReimbursement = (CostReimbursementCombo.SelectedItem as ComboBoxItem)?.Content.ToString(),
-                StudyForm = (StudyFormCombo.SelectedItem as ComboBoxItem)?.Content.ToString(),
-                Department = (DepartmentCombo.SelectedItem as ComboBoxItem)?.Content.ToString(),
-                Direction = (DirectionCombo.SelectedItem as ComboBoxItem)?.Content.ToString(),
-                BaseLevel = (BaseLevelCombo.SelectedItem as ComboBoxItem)?.Content.ToString(),
-                AdmissionType = (AdmissionTypeCombo.SelectedItem as ComboBoxItem)?.Content.ToString(),
-                TargetAdmission = (TargetAdmissionCombo.SelectedItem as ComboBoxItem)?.Content.ToString(),
-                HasPrivilege = HasPrivilegeCheckBox.IsChecked == true,
-                PrivilegeCategory = (PrivilegeCategoryCombo.SelectedItem as ComboBoxItem)?.Content.ToString(),
-                PrivilegeDocuments = PrivilegeDocumentsTextBox.Text,
-                SelectedCompetitions = new ObservableCollection<CompetitionItem>(_selectedCompetitions),
-                Comment = CommentTextBox.Text
-            };
-        }
-
-        // Валидация
-        public bool ValidateForm()
-        {
-            if (string.IsNullOrWhiteSpace(DirectionCombo.Text))
-            {
-                MessageBox.Show("Пожалуйста, укажите направление подготовки", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
-                return false;
-            }
-
-            if (_selectedCompetitions.Count == 0)
-            {
-                MessageBox.Show("Пожалуйста, выберите хотя бы один конкурс", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
-                return false;
-            }
-
-            if (HasPrivilegeCheckBox.IsChecked == true && string.IsNullOrWhiteSpace(PrivilegeDocumentsTextBox.Text))
-            {
-                MessageBox.Show("Пожалуйста, укажите документы, подтверждающие преимущественное право",
-                    "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return false;
-            }
-
-            return true;
-        }
-
-        // Сохранение данных конкурсов в БД
         private bool SaveData()
         {
+            if (isSaving) return false;
             try
             {
-                if (SessionManager.CurrentApplicantId == null)
+                isSaving = true;
+                if (SessionManager.CurrentApplicantId == null) return false;
+
+                // Сохраняем комментарий
+                var applicant = DataService.GetApplicant(SessionManager.CurrentApplicantId.Value);
+                if (applicant != null)
                 {
-                    MessageBox.Show("Ошибка: данные абитуриента не найдены", "Ошибка",
-                        MessageBoxButton.OK, MessageBoxImage.Error);
-                    return false;
+                    applicant.ApplicationComment = CommentTextBox.Text?.Trim();
+                    applicant.UpdatedAt = DateTime.Now;
+                    DataService.UpdateApplicant(applicant);
                 }
 
-                // Сохраняем выбранные конкурсы в базу данных
-                int priorityOrder = 1;
-                foreach (var competition in _selectedCompetitions)
+                // Удаляем старые конкурсы
+                var existingCompetitions = DataService.GetApplicantCompetitions(SessionManager.CurrentApplicantId.Value);
+                foreach (var comp in existingCompetitions)
+                    DataService.DeleteCompetitionPriority(comp.Id);
+
+                // Сохраняем новые
+                int priority = 1;
+                foreach (var comp in _selectedCompetitions)
                 {
-                    var existingCompetition = DataService.GetApplicantCompetitions(SessionManager.CurrentApplicantId.Value)
-                        .FirstOrDefault(c => c.CompetitionName == competition.ProgramName);
-
-                    if (existingCompetition == null)
-                    {
-                        // Создаем новую запись
-                        DataService.CreateCompetitionPriority(
-                            SessionManager.CurrentApplicantId.Value,
-                            competition.ProgramName ?? "",
-                            priorityOrder
-                        );
-                    }
-                    else
-                    {
-                        // Обновляем существующую запись
-                        existingCompetition.PriorityOrder = priorityOrder;
-                        DataService.UpdateCompetitionPriority(existingCompetition);
-                    }
-
-                    priorityOrder++;
+                    DataService.CreateCompetitionPriority(
+                        SessionManager.CurrentApplicantId.Value,
+                        comp.ProgramName ?? "",
+                        priority++);
                 }
 
                 DataService.LogChange("CompetitionPriorities", SessionManager.CurrentApplicantId.Value, "UPDATE");
-
-                MessageBox.Show("Данные о конкурсах успешно сохранены!", "Успех",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
-
                 return true;
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка при сохранении данных: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Ошибка сохранения: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
+            finally { isSaving = false; }
         }
 
-        // Кнопка ДАЛЕЕ - переход на страницу индивидуальных достижений
-        private async void NextButton_Click(object sender, RoutedEventArgs e)
-        {
-            var button = sender as Button;
-            if (button != null)
-            {
-                button.IsEnabled = false;
-            }
-
-            try
-            {
-                if (SaveData())
-                {
-                    await System.Threading.Tasks.Task.Delay(100);
-                    NavigationService?.Navigate(new IndividualAchievementsPage());
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка при переходе: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-            finally
-            {
-                if (button != null)
-                {
-                    button.IsEnabled = true;
-                }
-            }
-        }
-
-        // Кнопка НАЗАД - возврат на страницу документов
         private void PrevButton_Click(object sender, RoutedEventArgs e)
         {
             SaveData();
-
             if (NavigationService?.CanGoBack == true)
                 NavigationService.GoBack();
         }
 
-        // Кнопка ОТМЕНИТЬ
-        private void CancelButton_Click(object sender, RoutedEventArgs e)
+        private void NextButton_Click(object sender, RoutedEventArgs e)
         {
-            var result = MessageBox.Show("Вы уверены, что хотите отменить ввод данных?\nВсе несохраненные данные будут потеряны.",
-                "Подтверждение", MessageBoxButton.YesNo, MessageBoxImage.Question);
-
-            if (result == MessageBoxResult.Yes)
+            if (SaveData())
             {
-                SessionManager.Clear();
-
-                var mainWindow = Application.Current.MainWindow as MainWindow;
-                if (mainWindow != null)
-                {
-                    mainWindow.MainFrame.Navigate(new WelcomePage());
-                }
-                else if (NavigationService?.CanGoBack == true)
-                {
-                    while (NavigationService.CanGoBack)
-                    {
-                        NavigationService.GoBack();
-                    }
-                }
-                else
-                {
-                    Application.Current.Shutdown();
-                }
+                MessageBox.Show("Данные успешно сохранены!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
-    }
 
-    // Класс для хранения данных заявления
-    public class ApplicationData
-    {
-        public string Stage { get; set; }
-        public string CostReimbursement { get; set; }
-        public string StudyForm { get; set; }
-        public string Department { get; set; }
-        public string Direction { get; set; }
-        public string BaseLevel { get; set; }
-        public string AdmissionType { get; set; }
-        public string TargetAdmission { get; set; }
-        public bool HasPrivilege { get; set; }
-        public string PrivilegeCategory { get; set; }
-        public string PrivilegeDocuments { get; set; }
-        public ObservableCollection<ApplicationCompetitionsPage.CompetitionItem> SelectedCompetitions { get; set; }
-        public string Comment { get; set; }
+        private void CancelButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (MessageBox.Show("Отменить изменения?", "Подтверждение",
+                MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+            {
+                SessionManager.Clear();
+                if (NavigationService?.CanGoBack == true)
+                    while (NavigationService.CanGoBack) NavigationService.GoBack();
+                else
+                    Application.Current.Shutdown();
+            }
+        }
     }
 }

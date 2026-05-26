@@ -1,10 +1,9 @@
-﻿// Models.cs
+﻿// Models.cs - полный код (замените полностью)
 using System;
 using System.Collections.Generic;
 
 namespace Admissions_Reserve.Model
 {
-    // ========== АБИТУРИЕНТЫ ==========
     public partial class Applicants
     {
         public int Id { get; set; }
@@ -17,6 +16,7 @@ namespace Admissions_Reserve.Model
         public int? CitizenshipId { get; set; }
         public string Snils { get; set; }
         public string Inn { get; set; }
+        public int? BirthCountryId { get; set; }
         public string Email { get; set; }
         public string AdditionalEmail { get; set; }
         public string Phone { get; set; }
@@ -29,8 +29,6 @@ namespace Admissions_Reserve.Model
         public string Viber { get; set; }
         public string PreferredContactMethod { get; set; }
         public string ContactComment { get; set; }
-
-        // Адрес регистрации
         public int? RegistrationCountryId { get; set; }
         public string RegistrationPostalCode { get; set; }
         public string RegistrationRegion { get; set; }
@@ -40,8 +38,6 @@ namespace Admissions_Reserve.Model
         public string RegistrationHouse { get; set; }
         public string RegistrationBuilding { get; set; }
         public string RegistrationApartment { get; set; }
-
-        // Фактический адрес
         public bool? ActualAddressSame { get; set; }
         public int? ActualCountryId { get; set; }
         public string ActualPostalCode { get; set; }
@@ -52,10 +48,9 @@ namespace Admissions_Reserve.Model
         public string ActualHouse { get; set; }
         public string ActualBuilding { get; set; }
         public string ActualApartment { get; set; }
-
-        // Дополнительные поля
         public bool? NeedsDormitory { get; set; }
         public bool? HasDormitoryBenefits { get; set; }
+        public bool? HasSportsAchievements { get; set; }
         public bool? CompletedPreparatoryCourses { get; set; }
         public bool? CompletedPreparatoryDepartment { get; set; }
         public bool? CompletedMedicalEducation { get; set; }
@@ -65,10 +60,8 @@ namespace Admissions_Reserve.Model
         public DateTime? ServiceEndDate { get; set; }
         public int? ReserveYear { get; set; }
         public string ApplicationComment { get; set; }
-
         public DateTime? CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
-
         public virtual ICollection<ApplicantLanguages> ApplicantLanguages { get; set; }
         public virtual ICollection<Applications> Applications { get; set; }
         public virtual ICollection<Documents> Documents { get; set; }
@@ -76,13 +69,11 @@ namespace Admissions_Reserve.Model
         public virtual ICollection<IndividualAchievements> IndividualAchievements { get; set; }
         public virtual ICollection<Relatives> Relatives { get; set; }
         public virtual ICollection<SportAchievements> SportAchievements { get; set; }
-
         public virtual Countries Countries { get; set; }
         public virtual Citizenships Citizenships { get; set; }
         public virtual Genders Genders { get; set; }
     }
 
-    // ========== УДОСТОВЕРЕНИЯ ЛИЧНОСТИ ==========
     public partial class IdentityDocuments
     {
         public int Id { get; set; }
@@ -95,26 +86,22 @@ namespace Admissions_Reserve.Model
         public string DepartmentCode { get; set; }
         public bool? IsPrimary { get; set; }
         public DateTime? AddedDate { get; set; }
-
         public virtual Applicants Applicants { get; set; }
         public virtual IdentityDocumentTypes IdentityDocumentTypes { get; set; }
     }
 
-    // ========== ТИПЫ ДОКУМЕНТОВ ==========
     public partial class IdentityDocumentTypes
     {
         public int Id { get; set; }
         public string Name { get; set; }
     }
 
-    // ========== ГРАЖДАНСТВА ==========
     public partial class Citizenships
     {
         public int Id { get; set; }
         public string Name { get; set; }
     }
 
-    // ========== СТРАНЫ ==========
     public partial class Countries
     {
         public int Id { get; set; }
@@ -122,14 +109,12 @@ namespace Admissions_Reserve.Model
         public bool IsActive { get; set; }
     }
 
-    // ========== ПОЛ ==========
     public partial class Genders
     {
         public int Id { get; set; }
         public string Name { get; set; }
     }
 
-    // ========== ИСТОРИЯ ИЗМЕНЕНИЙ ==========
     public partial class ChangeHistory
     {
         public int Id { get; set; }
@@ -139,14 +124,12 @@ namespace Admissions_Reserve.Model
         public DateTime ChangedAt { get; set; }
     }
 
-    // ========== ЯЗЫКИ ==========
     public partial class Languages
     {
         public int Id { get; set; }
         public string Name { get; set; }
     }
 
-    // ========== УРОВНИ ВЛАДЕНИЯ ЯЗЫКОМ ==========
     public partial class LanguageLevels
     {
         public int Id { get; set; }
@@ -154,7 +137,6 @@ namespace Admissions_Reserve.Model
         public int SortOrder { get; set; }
     }
 
-    // ========== ЯЗЫКИ АБИТУРИЕНТА ==========
     public partial class ApplicantLanguages
     {
         public int Id { get; set; }
@@ -162,9 +144,10 @@ namespace Admissions_Reserve.Model
         public int? LanguageId { get; set; }
         public int? LanguageLevelId { get; set; }
         public bool? IsPrimary { get; set; }
+        public string LanguageName { get; set; }
+        public string LevelName { get; set; }
     }
 
-    // ========== ДОКУМЕНТЫ ==========
     public partial class Documents
     {
         public int Id { get; set; }
@@ -174,14 +157,12 @@ namespace Admissions_Reserve.Model
         public string Number { get; set; }
     }
 
-    // ========== ТИПЫ ДОКУМЕНТОВ ==========
     public partial class DocumentTypes
     {
         public int Id { get; set; }
         public string Name { get; set; }
     }
 
-    // ========== ПРИЛОЖЕНИЯ ==========
     public partial class Applications
     {
         public int Id { get; set; }
@@ -190,7 +171,6 @@ namespace Admissions_Reserve.Model
         public DateTime? CreatedAt { get; set; }
     }
 
-    // ========== ДОСТИЖЕНИЯ ==========
     public partial class SportAchievements
     {
         public int Id { get; set; }
@@ -201,14 +181,28 @@ namespace Admissions_Reserve.Model
         public int? Year { get; set; }
     }
 
+    // Models.cs - замените класс IndividualAchievements
     public partial class IndividualAchievements
     {
         public int Id { get; set; }
         public int? ApplicantId { get; set; }
+        public int? AchievementTypeId { get; set; }
         public string Achievement { get; set; }
+        public string AchievementName { get; set; }
+        public string Year { get; set; }
+        public int Points { get; set; }
+        public string DocumentName { get; set; }
+        public string DocumentPath { get; set; }
+        public DateTime? CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
     }
-
-    // ========== РОДСТВЕННИКИ ==========
+    // Models.cs - добавьте в конец файла
+    public partial class IndividualAchievementTypes
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public int DefaultPoints { get; set; }
+    }
     public partial class Relatives
     {
         public int Id { get; set; }
@@ -229,7 +223,6 @@ namespace Admissions_Reserve.Model
         public DateTime? UpdatedAt { get; set; }
     }
 
-    // ========== ВСПОМОГАТЕЛЬНЫЕ КЛАССЫ ==========
     public partial class AchievementCategories
     {
         public int Id { get; set; }
@@ -278,10 +271,17 @@ namespace Admissions_Reserve.Model
         public string Name { get; set; }
     }
 
+    // ========== ИСПРАВЛЕННЫЙ КЛАСС COMPETITIONS ==========
     public partial class Competitions
     {
         public int Id { get; set; }
         public string Name { get; set; }
+        public string EducationBase { get; set; }
+        public string StudyForm { get; set; }
+        public string AdmissionType { get; set; }
+        public string Department { get; set; }
+        public string Branch { get; set; }
+        public bool IsActive { get; set; }
     }
 
     public partial class CostReimbursementTypes
@@ -313,8 +313,6 @@ namespace Admissions_Reserve.Model
         public int Id { get; set; }
         public string Name { get; set; }
     }
-
-    // ========== НОВЫЕ КЛАССЫ ДЛ Я НОВЫХ ТАБЛИЦ ==========
 
     public partial class EducationDocuments
     {
@@ -420,16 +418,12 @@ namespace Admissions_Reserve.Model
         public DateTime UpdatedAt { get; set; }
     }
 
-    // ========== ДОПОЛНИТЕЛЬНЫЕ СПРАВОЧНИКИ ==========
-
     public partial class EducationPrograms
     {
         public int Id { get; set; }
         public string Name { get; set; }
         public string Code { get; set; }
     }
-
-    // Обновите класс PersonalDocumentTypes в Models.cs:
 
     public partial class PersonalDocumentTypes
     {
@@ -438,18 +432,50 @@ namespace Admissions_Reserve.Model
         public int SortOrder { get; set; }
         public bool IsActive { get; set; }
     }
+
     public partial class RelationDegrees
     {
         public int Id { get; set; }
         public string Name { get; set; }
     }
 
-    public partial class RelativeDocuments
+    public class RelativeTypes
     {
         public int Id { get; set; }
-        public int RelativeId { get; set; }
-        public string DocumentType { get; set; }
-        public string DocumentNumber { get; set; }
+        public string Name { get; set; }
+    }
+
+    public class RelativeDocuments
+    {
+        public int Id { get; set; }
+        public int ApplicantId { get; set; }
+        public int? RelativeTypeId { get; set; }
+        public string LastName { get; set; }
+        public string FirstName { get; set; }
+        public string Patronymic { get; set; }
+        public DateTime? BirthDate { get; set; }
+        public string BirthPlace { get; set; }
+        public int? GenderId { get; set; }
+        public int? DocumentTypeId { get; set; }
+        public string Series { get; set; }
+        public string Number { get; set; }
+        public string IssuedBy { get; set; }
+        public DateTime? IssueDate { get; set; }
+        public string DepartmentCode { get; set; }
+        public string Snils { get; set; }
+        public string Inn { get; set; }
+        public string Phone { get; set; }
+        public string Email { get; set; }
+        public string RegistrationAddress { get; set; }
+        public string ActualAddress { get; set; }
+        public string Workplace { get; set; }
+        public string Position { get; set; }
+        public bool IsGuardian { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+        public string RelativeTypeName { get; set; }
+        public string GenderName { get; set; }
+        public string DocumentTypeName { get; set; }
     }
 
     public partial class StudyForms

@@ -1,0 +1,1898 @@
+﻿// DataService.cs
+using System;
+using System.Collections.Generic;
+using System.Data.SQLite;
+using System.IO;
+
+namespace Admissions_Reserve.Model
+{
+    public class DataService
+    {
+        // ========== МЕТОДЫ ДЛЯ АБИТУРИЕНТОВ ==========
+        // Добавьте эти методы в DataService.cs
+
+        public static List<EducationDocuments> GetApplicantEducationDocuments(int applicantId)
+        {
+            var docs = new List<EducationDocuments>();
+
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = "SELECT * FROM EducationDocuments WHERE ApplicantId = @ApplicantId";
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@ApplicantId", applicantId);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            docs.Add(ReadEducationDocumentFromReader(reader));
+                        }
+                    }
+                }
+            }
+            return docs;
+        }
+
+        public static EducationDocuments GetEducationDocument(int id)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = "SELECT * FROM EducationDocuments WHERE Id = @Id";
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@Id", id);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            return ReadEducationDocumentFromReader(reader);
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
+        public static int CreateEducationDocument(EducationDocuments doc)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = @"INSERT INTO EducationDocuments (
+            ApplicantId, ApplicationTypeId, FirstTimeEducation,
+            CountryId, City, EducationalOrg,
+            DocumentTypeId, EducationLevelId, DocumentEducationLevelId,
+            Series, Number, IssueDate, GraduationYear,
+            SatisfactoryCount, GoodCount, ExcellentCount, AverageScore,
+            FrdoVerified, ScanFilePath, DocumentFormId, OriginalOrganization,
+            CreatedAt, UpdatedAt
+        ) VALUES (
+            @ApplicantId, @ApplicationTypeId, @FirstTimeEducation,
+            @CountryId, @City, @EducationalOrg,
+            @DocumentTypeId, @EducationLevelId, @DocumentEducationLevelId,
+            @Series, @Number, @IssueDate, @GraduationYear,
+            @SatisfactoryCount, @GoodCount, @ExcellentCount, @AverageScore,
+            @FrdoVerified, @ScanFilePath, @DocumentFormId, @OriginalOrganization,
+            @CreatedAt, @UpdatedAt
+        ); SELECT last_insert_rowid();";
+
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    AddEducationDocumentParameters(cmd, doc);
+                    var result = cmd.ExecuteScalar();
+                    return Convert.ToInt32(result);
+                }
+            }
+        }
+
+        public static void UpdateEducationDocument(EducationDocuments doc)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = @"UPDATE EducationDocuments SET 
+            ApplicationTypeId = @ApplicationTypeId,
+            FirstTimeEducation = @FirstTimeEducation,
+            CountryId = @CountryId, City = @City, EducationalOrg = @EducationalOrg,
+            DocumentTypeId = @DocumentTypeId,
+            EducationLevelId = @EducationLevelId,
+            DocumentEducationLevelId = @DocumentEducationLevelId,
+            Series = @Series, Number = @Number,
+            IssueDate = @IssueDate, GraduationYear = @GraduationYear,
+            SatisfactoryCount = @SatisfactoryCount,
+            GoodCount = @GoodCount,
+            ExcellentCount = @ExcellentCount,
+            AverageScore = @AverageScore,
+            FrdoVerified = @FrdoVerified,
+            ScanFilePath = @ScanFilePath,
+            DocumentFormId = @DocumentFormId,
+            OriginalOrganization = @OriginalOrganization,
+            UpdatedAt = @UpdatedAt
+        WHERE Id = @Id";
+
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@Id", doc.Id);
+                    AddEducationDocumentParameters(cmd, doc);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        private static void AddEducationDocumentParameters(SQLiteCommand cmd, EducationDocuments doc)
+        {
+            cmd.Parameters.AddWithValue("@ApplicantId", doc.ApplicantId);
+            cmd.Parameters.AddWithValue("@ApplicationTypeId", (object)doc.ApplicationTypeId ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@FirstTimeEducation", doc.FirstTimeEducation);
+            cmd.Parameters.AddWithValue("@CountryId", (object)doc.CountryId ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@City", (object)doc.City ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@EducationalOrg", (object)doc.EducationalOrg ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@DocumentTypeId", (object)doc.DocumentTypeId ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@EducationLevelId", (object)doc.EducationLevelId ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@DocumentEducationLevelId", (object)doc.DocumentEducationLevelId ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@Series", (object)doc.Series ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@Number", (object)doc.Number ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@IssueDate", (object)doc.IssueDate?.ToString("yyyy-MM-dd HH:mm:ss") ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@GraduationYear", (object)doc.GraduationYear?.ToString("yyyy-MM-dd HH:mm:ss") ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@SatisfactoryCount", doc.SatisfactoryCount);
+            cmd.Parameters.AddWithValue("@GoodCount", doc.GoodCount);
+            cmd.Parameters.AddWithValue("@ExcellentCount", doc.ExcellentCount);
+            cmd.Parameters.AddWithValue("@AverageScore", doc.AverageScore);
+            cmd.Parameters.AddWithValue("@FrdoVerified", doc.FrdoVerified);
+            cmd.Parameters.AddWithValue("@ScanFilePath", (object)doc.ScanFilePath ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@DocumentFormId", (object)doc.DocumentFormId ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@OriginalOrganization", (object)doc.OriginalOrganization ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@CreatedAt", doc.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss"));
+            cmd.Parameters.AddWithValue("@UpdatedAt", doc.UpdatedAt.ToString("yyyy-MM-dd HH:mm:ss"));
+        }
+
+        private static EducationDocuments ReadEducationDocumentFromReader(SQLiteDataReader reader)
+        {
+            return new EducationDocuments
+            {
+                Id = Convert.ToInt32(reader["Id"]),
+                ApplicantId = Convert.ToInt32(reader["ApplicantId"]),
+                ApplicationTypeId = reader["ApplicationTypeId"] != DBNull.Value ? Convert.ToInt32(reader["ApplicationTypeId"]) : (int?)null,
+                FirstTimeEducation = Convert.ToBoolean(reader["FirstTimeEducation"]),
+                CountryId = reader["CountryId"] != DBNull.Value ? Convert.ToInt32(reader["CountryId"]) : (int?)null,
+                City = reader["City"]?.ToString(),
+                EducationalOrg = reader["EducationalOrg"]?.ToString(),
+                DocumentTypeId = reader["DocumentTypeId"] != DBNull.Value ? Convert.ToInt32(reader["DocumentTypeId"]) : (int?)null,
+                EducationLevelId = reader["EducationLevelId"] != DBNull.Value ? Convert.ToInt32(reader["EducationLevelId"]) : (int?)null,
+                DocumentEducationLevelId = reader["DocumentEducationLevelId"] != DBNull.Value ? Convert.ToInt32(reader["DocumentEducationLevelId"]) : (int?)null,
+                Series = reader["Series"]?.ToString(),
+                Number = reader["Number"]?.ToString(),
+                IssueDate = reader["IssueDate"] != DBNull.Value ? Convert.ToDateTime(reader["IssueDate"]) : (DateTime?)null,
+                GraduationYear = reader["GraduationYear"] != DBNull.Value ? Convert.ToDateTime(reader["GraduationYear"]) : (DateTime?)null,
+                SatisfactoryCount = Convert.ToInt32(reader["SatisfactoryCount"]),
+                GoodCount = Convert.ToInt32(reader["GoodCount"]),
+                ExcellentCount = Convert.ToInt32(reader["ExcellentCount"]),
+                AverageScore = Convert.ToDouble(reader["AverageScore"]),
+                FrdoVerified = Convert.ToBoolean(reader["FrdoVerified"]),
+                ScanFilePath = reader["ScanFilePath"]?.ToString(),
+                DocumentFormId = reader["DocumentFormId"] != DBNull.Value ? Convert.ToInt32(reader["DocumentFormId"]) : (int?)null,
+                OriginalOrganization = reader["OriginalOrganization"]?.ToString(),
+                CreatedAt = Convert.ToDateTime(reader["CreatedAt"]),
+                UpdatedAt = Convert.ToDateTime(reader["UpdatedAt"])
+            };
+        }
+
+        public static int CreateApplicant(Applicants applicant)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = @"INSERT INTO Applicants (
+                    LastName, FirstName, Patronymic, BirthDate, BirthPlace,
+                    GenderId, CitizenshipId, Snils, Inn, BirthCountryId,
+                    RegistrationCountryId, RegistrationPostalCode, RegistrationRegion,
+                    RegistrationDistrict, RegistrationCity, RegistrationStreet,
+                    RegistrationHouse, RegistrationBuilding, RegistrationApartment,
+                    ActualAddressSame, ActualCountryId, ActualPostalCode,
+                    ActualRegion, ActualDistrict, ActualCity, ActualStreet,
+                    ActualHouse, ActualBuilding, ActualApartment,
+                    Phone, MobilePhone, Fax, WorkPhone, Email, AdditionalEmail,
+                    Website, Telegram, WhatsApp, Viber,
+                    PreferredContactMethod, ContactComment,
+                    NeedsDormitory, HasDormitoryBenefits, HasSportsAchievements,
+                    CompletedPreparatoryCourses, CompletedPreparatoryDepartment, CompletedMedicalEducation,
+                    CurrentWorkPlace, ServedInArmy, ServiceStartDate, ServiceEndDate, ReserveYear,
+                    ApplicationComment,
+                    CreatedAt, UpdatedAt
+                ) VALUES (
+                    @LastName, @FirstName, @Patronymic, @BirthDate, @BirthPlace,
+                    @GenderId, @CitizenshipId, @Snils, @Inn, @BirthCountryId,
+                    @RegistrationCountryId, @RegistrationPostalCode, @RegistrationRegion,
+                    @RegistrationDistrict, @RegistrationCity, @RegistrationStreet,
+                    @RegistrationHouse, @RegistrationBuilding, @RegistrationApartment,
+                    @ActualAddressSame, @ActualCountryId, @ActualPostalCode,
+                    @ActualRegion, @ActualDistrict, @ActualCity, @ActualStreet,
+                    @ActualHouse, @ActualBuilding, @ActualApartment,
+                    @Phone, @MobilePhone, @Fax, @WorkPhone, @Email, @AdditionalEmail,
+                    @Website, @Telegram, @WhatsApp, @Viber,
+                    @PreferredContactMethod, @ContactComment,
+                    @NeedsDormitory, @HasDormitoryBenefits, @HasSportsAchievements,
+                    @CompletedPreparatoryCourses, @CompletedPreparatoryDepartment, @CompletedMedicalEducation,
+                    @CurrentWorkPlace, @ServedInArmy, @ServiceStartDate, @ServiceEndDate, @ReserveYear,
+                    @ApplicationComment,
+                    @CreatedAt, @UpdatedAt
+                ); SELECT last_insert_rowid();";
+
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    AddApplicantParameters(cmd, applicant);
+                    var result = cmd.ExecuteScalar();
+                    return Convert.ToInt32(result);
+                }
+            }
+        }
+
+        public static void UpdateApplicant(Applicants applicant)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = @"UPDATE Applicants SET 
+                    LastName = @LastName, FirstName = @FirstName, Patronymic = @Patronymic,
+                    BirthDate = @BirthDate, BirthPlace = @BirthPlace,
+                    GenderId = @GenderId, CitizenshipId = @CitizenshipId, Snils = @Snils,
+                    Inn = @Inn, BirthCountryId = @BirthCountryId,
+                    RegistrationCountryId = @RegistrationCountryId,
+                    RegistrationPostalCode = @RegistrationPostalCode,
+                    RegistrationRegion = @RegistrationRegion,
+                    RegistrationDistrict = @RegistrationDistrict,
+                    RegistrationCity = @RegistrationCity,
+                    RegistrationStreet = @RegistrationStreet,
+                    RegistrationHouse = @RegistrationHouse,
+                    RegistrationBuilding = @RegistrationBuilding,
+                    RegistrationApartment = @RegistrationApartment,
+                    ActualAddressSame = @ActualAddressSame,
+                    ActualCountryId = @ActualCountryId,
+                    ActualPostalCode = @ActualPostalCode,
+                    ActualRegion = @ActualRegion,
+                    ActualDistrict = @ActualDistrict,
+                    ActualCity = @ActualCity,
+                    ActualStreet = @ActualStreet,
+                    ActualHouse = @ActualHouse,
+                    ActualBuilding = @ActualBuilding,
+                    ActualApartment = @ActualApartment,
+                    Phone = @Phone, MobilePhone = @MobilePhone, Fax = @Fax,
+                    WorkPhone = @WorkPhone, Email = @Email, AdditionalEmail = @AdditionalEmail,
+                    Website = @Website, Telegram = @Telegram, WhatsApp = @WhatsApp,
+                    Viber = @Viber, PreferredContactMethod = @PreferredContactMethod,
+                    ContactComment = @ContactComment,
+                    NeedsDormitory = @NeedsDormitory,
+                    HasDormitoryBenefits = @HasDormitoryBenefits,
+                    HasSportsAchievements = @HasSportsAchievements,
+                    CompletedPreparatoryCourses = @CompletedPreparatoryCourses,
+                    CompletedPreparatoryDepartment = @CompletedPreparatoryDepartment,
+                    CompletedMedicalEducation = @CompletedMedicalEducation,
+                    CurrentWorkPlace = @CurrentWorkPlace,
+                    ServedInArmy = @ServedInArmy,
+                    ServiceStartDate = @ServiceStartDate,
+                    ServiceEndDate = @ServiceEndDate,
+                    ReserveYear = @ReserveYear,
+                    ApplicationComment = @ApplicationComment,
+                    UpdatedAt = @UpdatedAt
+                WHERE Id = @Id";
+
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@Id", applicant.Id);
+                    AddApplicantParameters(cmd, applicant);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        private static void AddApplicantParameters(SQLiteCommand cmd, Applicants applicant)
+        {
+            cmd.Parameters.AddWithValue("@LastName", (object)applicant.LastName ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@FirstName", (object)applicant.FirstName ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@Patronymic", (object)applicant.Patronymic ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@BirthDate", (object)applicant.BirthDate.ToString("yyyy-MM-dd HH:mm:ss") ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@BirthPlace", (object)applicant.BirthPlace ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@GenderId", (object)applicant.GenderId ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@CitizenshipId", (object)applicant.CitizenshipId ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@Snils", (object)applicant.Snils ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@Inn", (object)applicant.Inn ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@BirthCountryId", (object)applicant.BirthCountryId ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@RegistrationCountryId", (object)applicant.RegistrationCountryId ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@RegistrationPostalCode", (object)applicant.RegistrationPostalCode ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@RegistrationRegion", (object)applicant.RegistrationRegion ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@RegistrationDistrict", (object)applicant.RegistrationDistrict ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@RegistrationCity", (object)applicant.RegistrationCity ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@RegistrationStreet", (object)applicant.RegistrationStreet ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@RegistrationHouse", (object)applicant.RegistrationHouse ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@RegistrationBuilding", (object)applicant.RegistrationBuilding ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@RegistrationApartment", (object)applicant.RegistrationApartment ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@ActualAddressSame", (object)applicant.ActualAddressSame ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@ActualCountryId", (object)applicant.ActualCountryId ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@ActualPostalCode", (object)applicant.ActualPostalCode ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@ActualRegion", (object)applicant.ActualRegion ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@ActualDistrict", (object)applicant.ActualDistrict ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@ActualCity", (object)applicant.ActualCity ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@ActualStreet", (object)applicant.ActualStreet ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@ActualHouse", (object)applicant.ActualHouse ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@ActualBuilding", (object)applicant.ActualBuilding ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@ActualApartment", (object)applicant.ActualApartment ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@Phone", (object)applicant.Phone ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@MobilePhone", (object)applicant.MobilePhone ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@Fax", (object)applicant.Fax ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@WorkPhone", (object)applicant.WorkPhone ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@Email", (object)applicant.Email ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@AdditionalEmail", (object)applicant.AdditionalEmail ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@Website", (object)applicant.Website ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@Telegram", (object)applicant.Telegram ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@WhatsApp", (object)applicant.WhatsApp ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@Viber", (object)applicant.Viber ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@PreferredContactMethod", (object)applicant.PreferredContactMethod ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@ContactComment", (object)applicant.ContactComment ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@NeedsDormitory", (object)(applicant.NeedsDormitory ?? false ? 1 : 0));
+            cmd.Parameters.AddWithValue("@HasDormitoryBenefits", (object)(applicant.HasDormitoryBenefits ?? false ? 1 : 0));
+            cmd.Parameters.AddWithValue("@HasSportsAchievements", (object)(applicant.HasSportsAchievements ?? false ? 1 : 0));
+            cmd.Parameters.AddWithValue("@CompletedPreparatoryCourses", (object)(applicant.CompletedPreparatoryCourses ?? false ? 1 : 0));
+            cmd.Parameters.AddWithValue("@CompletedPreparatoryDepartment", (object)(applicant.CompletedPreparatoryDepartment ?? false ? 1 : 0));
+            cmd.Parameters.AddWithValue("@CompletedMedicalEducation", (object)(applicant.CompletedMedicalEducation ?? false ? 1 : 0));
+            cmd.Parameters.AddWithValue("@CurrentWorkPlace", (object)applicant.CurrentWorkPlace ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@ServedInArmy", (object)(applicant.ServedInArmy ?? false ? 1 : 0));
+            cmd.Parameters.AddWithValue("@ServiceStartDate", (object)applicant.ServiceStartDate?.ToString("yyyy-MM-dd") ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@ServiceEndDate", (object)applicant.ServiceEndDate?.ToString("yyyy-MM-dd") ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@ReserveYear", (object)applicant.ReserveYear ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@ApplicationComment", (object)applicant.ApplicationComment ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@CreatedAt", (object)applicant.CreatedAt?.ToString("yyyy-MM-dd HH:mm:ss") ?? (object)DBNull.Value);
+            cmd.Parameters.AddWithValue("@UpdatedAt", (object)applicant.UpdatedAt?.ToString("yyyy-MM-dd HH:mm:ss") ?? (object)DBNull.Value);
+        }
+
+        private static Applicants ReadApplicantFromReader(SQLiteDataReader reader)
+        {
+            return new Applicants
+            {
+                Id = Convert.ToInt32(reader["Id"]),
+                LastName = reader["LastName"]?.ToString(),
+                FirstName = reader["FirstName"]?.ToString(),
+                Patronymic = reader["Patronymic"]?.ToString(),
+                BirthDate = reader["BirthDate"] != DBNull.Value ? Convert.ToDateTime(reader["BirthDate"]) : DateTime.MinValue,
+                BirthPlace = reader["BirthPlace"]?.ToString(),
+                GenderId = reader["GenderId"] != DBNull.Value ? Convert.ToInt32(reader["GenderId"]) : (int?)null,
+                CitizenshipId = reader["CitizenshipId"] != DBNull.Value ? Convert.ToInt32(reader["CitizenshipId"]) : (int?)null,
+                Snils = reader["Snils"]?.ToString(),
+                Inn = reader["Inn"]?.ToString(),
+                BirthCountryId = reader["BirthCountryId"] != DBNull.Value ? Convert.ToInt32(reader["BirthCountryId"]) : (int?)null,
+                RegistrationCountryId = reader["RegistrationCountryId"] != DBNull.Value ? Convert.ToInt32(reader["RegistrationCountryId"]) : (int?)null,
+                RegistrationPostalCode = reader["RegistrationPostalCode"]?.ToString(),
+                RegistrationRegion = reader["RegistrationRegion"]?.ToString(),
+                RegistrationDistrict = reader["RegistrationDistrict"]?.ToString(),
+                RegistrationCity = reader["RegistrationCity"]?.ToString(),
+                RegistrationStreet = reader["RegistrationStreet"]?.ToString(),
+                RegistrationHouse = reader["RegistrationHouse"]?.ToString(),
+                RegistrationBuilding = reader["RegistrationBuilding"]?.ToString(),
+                RegistrationApartment = reader["RegistrationApartment"]?.ToString(),
+                ActualAddressSame = reader["ActualAddressSame"] != DBNull.Value ? Convert.ToBoolean(reader["ActualAddressSame"]) : (bool?)null,
+                ActualCountryId = reader["ActualCountryId"] != DBNull.Value ? Convert.ToInt32(reader["ActualCountryId"]) : (int?)null,
+                ActualPostalCode = reader["ActualPostalCode"]?.ToString(),
+                ActualRegion = reader["ActualRegion"]?.ToString(),
+                ActualDistrict = reader["ActualDistrict"]?.ToString(),
+                ActualCity = reader["ActualCity"]?.ToString(),
+                ActualStreet = reader["ActualStreet"]?.ToString(),
+                ActualHouse = reader["ActualHouse"]?.ToString(),
+                ActualBuilding = reader["ActualBuilding"]?.ToString(),
+                ActualApartment = reader["ActualApartment"]?.ToString(),
+                Phone = reader["Phone"]?.ToString(),
+                MobilePhone = reader["MobilePhone"]?.ToString(),
+                Fax = reader["Fax"]?.ToString(),
+                WorkPhone = reader["WorkPhone"]?.ToString(),
+                Email = reader["Email"]?.ToString(),
+                AdditionalEmail = reader["AdditionalEmail"]?.ToString(),
+                Website = reader["Website"]?.ToString(),
+                Telegram = reader["Telegram"]?.ToString(),
+                WhatsApp = reader["WhatsApp"]?.ToString(),
+                Viber = reader["Viber"]?.ToString(),
+                PreferredContactMethod = reader["PreferredContactMethod"]?.ToString(),
+                ContactComment = reader["ContactComment"]?.ToString(),
+                NeedsDormitory = reader["NeedsDormitory"] != DBNull.Value ? Convert.ToBoolean(reader["NeedsDormitory"]) : (bool?)null,
+                HasDormitoryBenefits = reader["HasDormitoryBenefits"] != DBNull.Value ? Convert.ToBoolean(reader["HasDormitoryBenefits"]) : (bool?)null,
+                HasSportsAchievements = reader["HasSportsAchievements"] != DBNull.Value ? Convert.ToBoolean(reader["HasSportsAchievements"]) : (bool?)null,
+                CompletedPreparatoryCourses = reader["CompletedPreparatoryCourses"] != DBNull.Value ? Convert.ToBoolean(reader["CompletedPreparatoryCourses"]) : (bool?)null,
+                CompletedPreparatoryDepartment = reader["CompletedPreparatoryDepartment"] != DBNull.Value ? Convert.ToBoolean(reader["CompletedPreparatoryDepartment"]) : (bool?)null,
+                CompletedMedicalEducation = reader["CompletedMedicalEducation"] != DBNull.Value ? Convert.ToBoolean(reader["CompletedMedicalEducation"]) : (bool?)null,
+                CurrentWorkPlace = reader["CurrentWorkPlace"]?.ToString(),
+                ServedInArmy = reader["ServedInArmy"] != DBNull.Value ? Convert.ToBoolean(reader["ServedInArmy"]) : (bool?)null,
+                ServiceStartDate = reader["ServiceStartDate"] != DBNull.Value ? Convert.ToDateTime(reader["ServiceStartDate"]) : (DateTime?)null,
+                ServiceEndDate = reader["ServiceEndDate"] != DBNull.Value ? Convert.ToDateTime(reader["ServiceEndDate"]) : (DateTime?)null,
+                ReserveYear = reader["ReserveYear"] != DBNull.Value ? Convert.ToInt32(reader["ReserveYear"]) : (int?)null,
+                ApplicationComment = reader["ApplicationComment"]?.ToString(),
+                CreatedAt = reader["CreatedAt"] != DBNull.Value ? (DateTime?)Convert.ToDateTime(reader["CreatedAt"]) : null,
+                UpdatedAt = reader["UpdatedAt"] != DBNull.Value ? (DateTime?)Convert.ToDateTime(reader["UpdatedAt"]) : null
+            };
+        }
+
+        public static Applicants GetApplicant(int id)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = "SELECT * FROM Applicants WHERE Id = @Id";
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@Id", id);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            return ReadApplicantFromReader(reader);
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
+        // ========== МЕТОДЫ ДЛЯ СПРАВОЧНИКОВ ==========
+
+        public static List<T> GetAll<T>() where T : new()
+        {
+            var result = new List<T>();
+            var tableName = typeof(T).Name;
+
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = $"SELECT * FROM {tableName}";
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            result.Add(ReadEntity<T>(reader));
+                        }
+                    }
+                }
+            }
+            return result;
+        }
+
+        public static List<T> GetByCondition<T>(string whereClause, params SQLiteParameter[] parameters) where T : new()
+        {
+            var result = new List<T>();
+            var tableName = typeof(T).Name;
+
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = $"SELECT * FROM {tableName} WHERE {whereClause}";
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddRange(parameters);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            result.Add(ReadEntity<T>(reader));
+                        }
+                    }
+                }
+            }
+            return result;
+        }
+
+        private static T ReadEntity<T>(SQLiteDataReader reader) where T : new()
+        {
+            var entity = new T();
+            var type = typeof(T);
+
+            foreach (var prop in type.GetProperties())
+            {
+                try
+                {
+                    if (reader[prop.Name] != DBNull.Value)
+                    {
+                        prop.SetValue(entity, Convert.ChangeType(reader[prop.Name], prop.PropertyType));
+                    }
+                }
+                catch
+                {
+                    // Пропускаем поля, которые не удалось прочитать
+                }
+            }
+
+            return entity;
+        }
+
+        // ========== МЕТОДЫ ДЛЯ ДОКУМЕНТОВ ==========
+
+        public static int CreateIdentityDocument(IdentityDocuments doc)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = @"INSERT INTO IdentityDocuments (
+                    ApplicantId, DocumentTypeId, Series, Number,
+                    IssuedBy, IssueDate, DepartmentCode, IsPrimary, AddedDate
+                ) VALUES (
+                    @ApplicantId, @DocumentTypeId, @Series, @Number,
+                    @IssuedBy, @IssueDate, @DepartmentCode, @IsPrimary, @AddedDate
+                ); SELECT last_insert_rowid();";
+
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    AddDocumentParameters(cmd, doc);
+                    var result = cmd.ExecuteScalar();
+                    return Convert.ToInt32(result);
+                }
+            }
+        }
+
+        public static void UpdateIdentityDocument(IdentityDocuments doc)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = @"UPDATE IdentityDocuments SET 
+                    DocumentTypeId = @DocumentTypeId,
+                    Series = @Series,
+                    Number = @Number,
+                    IssuedBy = @IssuedBy,
+                    IssueDate = @IssueDate,
+                    DepartmentCode = @DepartmentCode,
+                    IsPrimary = @IsPrimary
+                WHERE Id = @Id";
+
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@Id", doc.Id);
+                    AddDocumentParameters(cmd, doc);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public static List<IdentityDocuments> GetApplicantDocuments(int applicantId)
+        {
+            var docs = new List<IdentityDocuments>();
+
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = "SELECT * FROM IdentityDocuments WHERE ApplicantId = @ApplicantId";
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@ApplicantId", applicantId);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            docs.Add(ReadDocumentFromReader(reader));
+                        }
+                    }
+                }
+            }
+            return docs;
+        }
+
+        public static IdentityDocuments GetDocument(int id)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = "SELECT * FROM IdentityDocuments WHERE Id = @Id";
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@Id", id);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            return ReadDocumentFromReader(reader);
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
+        private static void AddDocumentParameters(SQLiteCommand cmd, IdentityDocuments doc)
+        {
+            cmd.Parameters.AddWithValue("@ApplicantId", doc.ApplicantId);
+            cmd.Parameters.AddWithValue("@DocumentTypeId", (object)doc.DocumentTypeId ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@Series", (object)doc.Series ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@Number", (object)doc.Number ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@IssuedBy", (object)doc.IssuedBy ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@IssueDate", (object)doc.IssueDate?.ToString("yyyy-MM-dd HH:mm:ss") ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@DepartmentCode", (object)doc.DepartmentCode ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@IsPrimary", (object)doc.IsPrimary ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@AddedDate", (object)doc.AddedDate?.ToString("yyyy-MM-dd HH:mm:ss") ?? (object)DBNull.Value);
+        }
+
+        private static IdentityDocuments ReadDocumentFromReader(SQLiteDataReader reader)
+        {
+            return new IdentityDocuments
+            {
+                Id = Convert.ToInt32(reader["Id"]),
+                ApplicantId = Convert.ToInt32(reader["ApplicantId"]),
+                DocumentTypeId = reader["DocumentTypeId"] != DBNull.Value ? Convert.ToInt32(reader["DocumentTypeId"]) : (int?)null,
+                Series = reader["Series"]?.ToString(),
+                Number = reader["Number"]?.ToString(),
+                IssuedBy = reader["IssuedBy"]?.ToString(),
+                IssueDate = reader["IssueDate"] != DBNull.Value ? Convert.ToDateTime(reader["IssueDate"]) : (DateTime?)null,
+                DepartmentCode = reader["DepartmentCode"]?.ToString(),
+                IsPrimary = reader["IsPrimary"] != DBNull.Value ? Convert.ToBoolean(reader["IsPrimary"]) : (bool?)null,
+                AddedDate = Convert.ToDateTime(reader["AddedDate"])
+            };
+        }
+
+        // ========== МЕТОДЫ ДЛЯ ЛОГИРОВАНИЯ ==========
+
+        public static void LogChange(string tableName, int recordId, string action)
+        {
+            try
+            {
+                using (var connection = DatabaseHelper.GetConnection())
+                {
+                    var query = @"INSERT INTO ChangeHistory (TableName, RecordId, Action, ChangedAt) 
+                                  VALUES (@TableName, @RecordId, @Action, @ChangedAt)";
+                    using (var cmd = new SQLiteCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@TableName", tableName);
+                        cmd.Parameters.AddWithValue("@RecordId", recordId);
+                        cmd.Parameters.AddWithValue("@Action", action);
+                        cmd.Parameters.AddWithValue("@ChangedAt", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch
+            {
+                // Игнорируем ошибки логирования
+            }
+        }
+
+        // ========== МЕТОДЫ ДЛЯ РОДСТВЕННИКОВ ==========
+
+        public static int CreateRelative(int applicantId, string inn, string relationDegree, string lastName, 
+                                          string firstName, string patronymic, DateTime? birthDate, string phone, 
+                                          string email, string workplace, string position)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = @"INSERT INTO Relatives (
+                    ApplicantId, Inn, RelationDegree, LastName, FirstName, Patronymic,
+                    BirthDate, Phone, Email, WorkPlace, Position, IsBlocked, BlockReason,
+                    CreatedAt, UpdatedAt
+                ) VALUES (
+                    @ApplicantId, @Inn, @RelationDegree, @LastName, @FirstName, @Patronymic,
+                    @BirthDate, @Phone, @Email, @WorkPlace, @Position, 0, NULL,
+                    @CreatedAt, @UpdatedAt
+                ); SELECT last_insert_rowid();";
+
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@ApplicantId", applicantId);
+                    cmd.Parameters.AddWithValue("@Inn", (object)inn ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@RelationDegree", (object)relationDegree ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@LastName", (object)lastName ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FirstName", (object)firstName ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@Patronymic", (object)patronymic ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@BirthDate", (object)birthDate?.ToString("yyyy-MM-dd") ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@Phone", (object)phone ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@Email", (object)email ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@WorkPlace", (object)workplace ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@Position", (object)position ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@CreatedAt", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                    cmd.Parameters.AddWithValue("@UpdatedAt", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+
+                    var result = cmd.ExecuteScalar();
+                    return Convert.ToInt32(result);
+                }
+            }
+        }
+
+        public static List<Relatives> GetApplicantRelatives(int applicantId)
+        {
+            var relatives = new List<Relatives>();
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = "SELECT * FROM Relatives WHERE ApplicantId = @ApplicantId ORDER BY Id";
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@ApplicantId", applicantId);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            relatives.Add(new Relatives
+                            {
+                                Id = Convert.ToInt32(reader["Id"]),
+                                ApplicantId = Convert.ToInt32(reader["ApplicantId"])
+                            });
+                        }
+                    }
+                }
+            }
+            return relatives;
+        }
+
+        public static void DeleteRelative(int relativeId)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = "DELETE FROM Relatives WHERE Id = @Id";
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@Id", relativeId);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public static void UpdateRelative(int id, int applicantId, string inn, string relationDegree, string lastName, 
+                                          string firstName, string patronymic, DateTime? birthDate, string phone, 
+                                          string email, string workplace, string position)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = @"UPDATE Relatives SET 
+                    ApplicantId = @ApplicantId,
+                    Inn = @Inn,
+                    RelationDegree = @RelationDegree,
+                    LastName = @LastName,
+                    FirstName = @FirstName,
+                    Patronymic = @Patronymic,
+                    BirthDate = @BirthDate,
+                    Phone = @Phone,
+                    Email = @Email,
+                    WorkPlace = @WorkPlace,
+                    Position = @Position,
+                    UpdatedAt = @UpdatedAt
+                WHERE Id = @Id";
+
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@Id", id);
+                    cmd.Parameters.AddWithValue("@ApplicantId", applicantId);
+                    cmd.Parameters.AddWithValue("@Inn", (object)inn ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@RelationDegree", (object)relationDegree ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@LastName", (object)lastName ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FirstName", (object)firstName ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@Patronymic", (object)patronymic ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@BirthDate", (object)birthDate?.ToString("yyyy-MM-dd") ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@Phone", (object)phone ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@Email", (object)email ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@WorkPlace", (object)workplace ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@Position", (object)position ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@UpdatedAt", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        // ========== МЕТОДЫ ДЛЯ ЯЗЫКОВ АБИТУРИЕНТА ==========
+
+        public static int CreateApplicantLanguage(int applicantId, int languageId, int languageLevelId, bool isPrimary = false)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = @"INSERT INTO ApplicantLanguages (
+                    ApplicantId, LanguageId, LanguageLevelId, IsPrimary, CreatedAt, UpdatedAt
+                ) VALUES (
+                    @ApplicantId, @LanguageId, @LanguageLevelId, @IsPrimary, @CreatedAt, @UpdatedAt
+                ); SELECT last_insert_rowid();";
+
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@ApplicantId", applicantId);
+                    cmd.Parameters.AddWithValue("@LanguageId", languageId);
+                    cmd.Parameters.AddWithValue("@LanguageLevelId", languageLevelId);
+                    cmd.Parameters.AddWithValue("@IsPrimary", isPrimary ? 1 : 0);
+                    cmd.Parameters.AddWithValue("@CreatedAt", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                    cmd.Parameters.AddWithValue("@UpdatedAt", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+
+                    var result = cmd.ExecuteScalar();
+                    return Convert.ToInt32(result);
+                }
+            }
+        }
+
+        public static List<ApplicantLanguages> GetApplicantLanguages(int applicantId)
+        {
+            var languages = new List<ApplicantLanguages>();
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = @"SELECT * FROM ApplicantLanguages WHERE ApplicantId = @ApplicantId ORDER BY Id";
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@ApplicantId", applicantId);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            languages.Add(new ApplicantLanguages
+                            {
+                                Id = Convert.ToInt32(reader["Id"]),
+                                ApplicantId = Convert.ToInt32(reader["ApplicantId"]),
+                                LanguageId = reader["LanguageId"] != DBNull.Value ? Convert.ToInt32(reader["LanguageId"]) : (int?)null,
+                                LanguageLevelId = reader["LanguageLevelId"] != DBNull.Value ? Convert.ToInt32(reader["LanguageLevelId"]) : (int?)null,
+                                IsPrimary = reader["IsPrimary"] != DBNull.Value ? Convert.ToBoolean(reader["IsPrimary"]) : (bool?)null
+                            });
+                        }
+                    }
+                }
+            }
+            return languages;
+        }
+
+        public static void DeleteApplicantLanguage(int languageId)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = "DELETE FROM ApplicantLanguages WHERE Id = @Id";
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@Id", languageId);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public static void UpdateApplicantLanguage(ApplicantLanguages language)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = @"UPDATE ApplicantLanguages SET 
+                    LanguageId = @LanguageId,
+                    LanguageLevelId = @LanguageLevelId,
+                    IsPrimary = @IsPrimary,
+                    UpdatedAt = @UpdatedAt
+                WHERE Id = @Id";
+
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@Id", language.Id);
+                    cmd.Parameters.AddWithValue("@LanguageId", (object)language.LanguageId ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@LanguageLevelId", (object)language.LanguageLevelId ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@IsPrimary", (object)language.IsPrimary ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@UpdatedAt", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        // ========== МЕТОДЫ ДЛЯ СПОРТИВНЫХ ДОСТИЖЕНИЙ ==========
+
+        public static int CreateSportAchievement(int applicantId, string sportType, string achievement, string rank, int? year)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = @"INSERT INTO SportAchievements (
+                    ApplicantId, SportType, Achievement, Rank, Year, CreatedAt, UpdatedAt
+                ) VALUES (
+                    @ApplicantId, @SportType, @Achievement, @Rank, @Year, @CreatedAt, @UpdatedAt
+                ); SELECT last_insert_rowid();";
+
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@ApplicantId", applicantId);
+                    cmd.Parameters.AddWithValue("@SportType", (object)sportType ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@Achievement", (object)achievement ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@Rank", (object)rank ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@Year", (object)year ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@CreatedAt", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                    cmd.Parameters.AddWithValue("@UpdatedAt", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+
+                    var result = cmd.ExecuteScalar();
+                    return Convert.ToInt32(result);
+                }
+            }
+        }
+
+        public static List<SportAchievements> GetApplicantSportAchievements(int applicantId)
+        {
+            var achievements = new List<SportAchievements>();
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = "SELECT * FROM SportAchievements WHERE ApplicantId = @ApplicantId ORDER BY Id";
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@ApplicantId", applicantId);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            achievements.Add(new SportAchievements
+                            {
+                                Id = Convert.ToInt32(reader["Id"]),
+                                ApplicantId = Convert.ToInt32(reader["ApplicantId"]),
+                                SportType = reader["SportType"]?.ToString(),
+                                Achievement = reader["Achievement"]?.ToString(),
+                                Rank = reader["Rank"]?.ToString(),
+                                Year = reader["Year"] != DBNull.Value ? Convert.ToInt32(reader["Year"]) : (int?)null
+                            });
+                        }
+                    }
+                }
+            }
+            return achievements;
+        }
+
+        public static void DeleteSportAchievement(int achievementId)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = "DELETE FROM SportAchievements WHERE Id = @Id";
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@Id", achievementId);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public static void UpdateSportAchievement(SportAchievements achievement)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = @"UPDATE SportAchievements SET 
+                    SportType = @SportType,
+                    Achievement = @Achievement,
+                    Rank = @Rank,
+                    Year = @Year,
+                    UpdatedAt = @UpdatedAt
+                WHERE Id = @Id";
+
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@Id", achievement.Id);
+                    cmd.Parameters.AddWithValue("@SportType", (object)achievement.SportType ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@Achievement", (object)achievement.Achievement ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@Rank", (object)achievement.Rank ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@Year", (object)achievement.Year ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@UpdatedAt", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        // ========== МЕТОДЫ ДЛЯ ИНДИВИДУАЛЬНЫХ ДОСТИЖЕНИЙ ==========
+
+        public static int CreateIndividualAchievement(int applicantId, string achievement)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = @"INSERT INTO IndividualAchievements (
+                    ApplicantId, Achievement, CreatedAt, UpdatedAt
+                ) VALUES (
+                    @ApplicantId, @Achievement, @CreatedAt, @UpdatedAt
+                ); SELECT last_insert_rowid();";
+
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@ApplicantId", applicantId);
+                    cmd.Parameters.AddWithValue("@Achievement", (object)achievement ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@CreatedAt", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                    cmd.Parameters.AddWithValue("@UpdatedAt", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+
+                    var result = cmd.ExecuteScalar();
+                    return Convert.ToInt32(result);
+                }
+            }
+        }
+
+        public static List<IndividualAchievements> GetApplicantIndividualAchievements(int applicantId)
+        {
+            var achievements = new List<IndividualAchievements>();
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = "SELECT * FROM IndividualAchievements WHERE ApplicantId = @ApplicantId ORDER BY Id";
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@ApplicantId", applicantId);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            achievements.Add(new IndividualAchievements
+                            {
+                                Id = Convert.ToInt32(reader["Id"]),
+                                ApplicantId = Convert.ToInt32(reader["ApplicantId"]),
+                                Achievement = reader["Achievement"]?.ToString()
+                            });
+                        }
+                    }
+                }
+            }
+            return achievements;
+        }
+
+        public static void DeleteIndividualAchievement(int achievementId)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = "DELETE FROM IndividualAchievements WHERE Id = @Id";
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@Id", achievementId);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public static void UpdateIndividualAchievement(IndividualAchievements achievement)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = @"UPDATE IndividualAchievements SET 
+                    Achievement = @Achievement,
+                    UpdatedAt = @UpdatedAt
+                WHERE Id = @Id";
+
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@Id", achievement.Id);
+                    cmd.Parameters.AddWithValue("@Achievement", (object)achievement.Achievement ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@UpdatedAt", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        // ========== МЕТОДЫ ДЛЯ ПРИОРИТЕТАХ ==========
+
+        public static int CreateApplicationPriority(int applicantId, int priorityOrder, string programCode, string programName,
+                                                   string studyForm, string educationBase, string department, 
+                                                   string admissionType, string branch)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = @"INSERT INTO ApplicationPriorities (
+                    ApplicantId, PriorityOrder, ProgramCode, ProgramName, StudyForm,
+                    EducationBase, Department, AdmissionType, Branch, IsSelected,
+                    CreatedAt, UpdatedAt
+                ) VALUES (
+                    @ApplicantId, @PriorityOrder, @ProgramCode, @ProgramName, @StudyForm,
+                    @EducationBase, @Department, @AdmissionType, @Branch, 0,
+                    @CreatedAt, @UpdatedAt
+                ); SELECT last_insert_rowid();";
+
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@ApplicantId", applicantId);
+                    cmd.Parameters.AddWithValue("@PriorityOrder", priorityOrder);
+                    cmd.Parameters.AddWithValue("@ProgramCode", (object)programCode ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@ProgramName", (object)programName ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@StudyForm", (object)studyForm ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@EducationBase", (object)educationBase ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@Department", (object)department ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@AdmissionType", (object)admissionType ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@Branch", (object)branch ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@CreatedAt", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                    cmd.Parameters.AddWithValue("@UpdatedAt", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+
+                    var result = cmd.ExecuteScalar();
+                    return Convert.ToInt32(result);
+                }
+            }
+        }
+
+        public static List<ApplicationPriorities> GetApplicantPriorities(int applicantId)
+        {
+            var priorities = new List<ApplicationPriorities>();
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = "SELECT * FROM ApplicationPriorities WHERE ApplicantId = @ApplicantId ORDER BY PriorityOrder";
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@ApplicantId", applicantId);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            priorities.Add(new ApplicationPriorities
+                            {
+                                Id = Convert.ToInt32(reader["Id"]),
+                                ApplicantId = Convert.ToInt32(reader["ApplicantId"]),
+                                PriorityOrder = Convert.ToInt32(reader["PriorityOrder"]),
+                                ProgramCode = reader["ProgramCode"]?.ToString(),
+                                ProgramName = reader["ProgramName"]?.ToString(),
+                                StudyForm = reader["StudyForm"]?.ToString(),
+                                EducationBase = reader["EducationBase"]?.ToString(),
+                                Department = reader["Department"]?.ToString(),
+                                AdmissionType = reader["AdmissionType"]?.ToString(),
+                                Branch = reader["Branch"]?.ToString(),
+                                IsSelected = reader["IsSelected"] != DBNull.Value ? Convert.ToBoolean(reader["IsSelected"]) : (bool?)null
+                            });
+                        }
+                    }
+                }
+            }
+            return priorities;
+        }
+
+        public static void DeleteApplicationPriority(int priorityId)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = "DELETE FROM ApplicationPriorities WHERE Id = @Id";
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@Id", priorityId);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        // ========== МЕТОДЫ ДЛЯ ПРИКРЕПЛЕННЫХ ДОКУМЕНТОВ ==========
+
+        public static int CreateAttachedDocument(int applicantId, string documentName, string documentType, 
+                                                string filePath, int fileSize)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = @"INSERT INTO AttachedDocuments (
+                    ApplicantId, DocumentName, DocumentType, FilePath, FileSize,
+                    UploadedAt, CreatedAt, UpdatedAt
+                ) VALUES (
+                    @ApplicantId, @DocumentName, @DocumentType, @FilePath, @FileSize,
+                    @UploadedAt, @CreatedAt, @UpdatedAt
+                ); SELECT last_insert_rowid();";
+
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@ApplicantId", applicantId);
+                    cmd.Parameters.AddWithValue("@DocumentName", (object)documentName ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@DocumentType", (object)documentType ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FilePath", (object)filePath ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FileSize", fileSize);
+                    cmd.Parameters.AddWithValue("@UploadedAt", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                    cmd.Parameters.AddWithValue("@CreatedAt", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                    cmd.Parameters.AddWithValue("@UpdatedAt", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+
+                    var result = cmd.ExecuteScalar();
+                    return Convert.ToInt32(result);
+                }
+            }
+        }
+
+        public static List<AttachedDocuments> GetApplicantAttachedDocuments(int applicantId)
+        {
+            var documents = new List<AttachedDocuments>();
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = "SELECT * FROM AttachedDocuments WHERE ApplicantId = @ApplicantId ORDER BY UploadedAt DESC";
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@ApplicantId", applicantId);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            documents.Add(new AttachedDocuments
+                            {
+                                Id = Convert.ToInt32(reader["Id"]),
+                                ApplicantId = Convert.ToInt32(reader["ApplicantId"]),
+                                DocumentName = reader["DocumentName"]?.ToString(),
+                                DocumentType = reader["DocumentType"]?.ToString(),
+                                FilePath = reader["FilePath"]?.ToString(),
+                                FileSize = Convert.ToInt32(reader["FileSize"]),
+                                UploadedAt = Convert.ToDateTime(reader["UploadedAt"])
+                            });
+                        }
+                    }
+                }
+            }
+            return documents;
+        }
+        // Добавьте эти методы в конец класса DataService.cs
+
+        // ========== МЕТОДЫ ДЛЯ ДОКУМЕНТОВ (IdentityDocuments) ==========
+
+        public static List<IdentityDocuments> GetAllIdentityDocuments(int applicantId)
+        {
+            var docs = new List<IdentityDocuments>();
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = "SELECT * FROM IdentityDocuments WHERE ApplicantId = @ApplicantId ORDER BY AddedDate DESC";
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@ApplicantId", applicantId);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            docs.Add(new IdentityDocuments
+                            {
+                                Id = Convert.ToInt32(reader["Id"]),
+                                ApplicantId = Convert.ToInt32(reader["ApplicantId"]),
+                                DocumentTypeId = reader["DocumentTypeId"] != DBNull.Value ? Convert.ToInt32(reader["DocumentTypeId"]) : (int?)null,
+                                Series = reader["Series"]?.ToString(),
+                                Number = reader["Number"]?.ToString(),
+                                IssuedBy = reader["IssuedBy"]?.ToString(),
+                                IssueDate = reader["IssueDate"] != DBNull.Value ? Convert.ToDateTime(reader["IssueDate"]) : (DateTime?)null,
+                                DepartmentCode = reader["DepartmentCode"]?.ToString(),
+                                IsPrimary = reader["IsPrimary"] != DBNull.Value && Convert.ToInt32(reader["IsPrimary"]) == 1,
+                                AddedDate = reader["AddedDate"] != DBNull.Value ? Convert.ToDateTime(reader["AddedDate"]) : DateTime.Now
+                            });
+                        }
+                    }
+                }
+            }
+            return docs;
+        }
+
+        // ========== МЕТОДЫ ДЛЯ ОБЩИХ ДОКУМЕНТОВ (Documents) ==========
+
+        public static int CreateGeneralDocument(Documents doc)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = @"INSERT INTO Documents (ApplicantId, DocumentTypeId, Series, Number, CreatedAt, UpdatedAt)
+                      VALUES (@ApplicantId, @DocumentTypeId, @Series, @Number, @CreatedAt, @UpdatedAt);
+                      SELECT last_insert_rowid();";
+
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@ApplicantId", doc.ApplicantId);
+                    cmd.Parameters.AddWithValue("@DocumentTypeId", (object)doc.DocumentTypeId ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@Series", (object)doc.Series ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@Number", (object)doc.Number ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@CreatedAt", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                    cmd.Parameters.AddWithValue("@UpdatedAt", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+
+                    var result = cmd.ExecuteScalar();
+                    return Convert.ToInt32(result);
+                }
+            }
+        }
+        // Добавьте эти методы в DataService.cs
+
+        public static List<PersonalDocumentTypes> GetAllPersonalDocumentTypes()
+        {
+            var result = new List<PersonalDocumentTypes>();
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = "SELECT * FROM PersonalDocumentTypes ORDER BY SortOrder";
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            result.Add(new PersonalDocumentTypes
+                            {
+                                Id = Convert.ToInt32(reader["Id"]),
+                                Name = reader["Name"]?.ToString(),
+                                SortOrder = reader["SortOrder"] != DBNull.Value ? Convert.ToInt32(reader["SortOrder"]) : 0,
+                                IsActive = reader["IsActive"] != DBNull.Value && Convert.ToInt32(reader["IsActive"]) == 1
+                            });
+                        }
+                    }
+                }
+            }
+            return result;
+        }
+        public static List<Documents> GetAllGeneralDocuments(int applicantId)
+        {
+            var docs = new List<Documents>();
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = "SELECT * FROM Documents WHERE ApplicantId = @ApplicantId ORDER BY CreatedAt DESC";
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@ApplicantId", applicantId);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            docs.Add(new Documents
+                            {
+                                Id = Convert.ToInt32(reader["Id"]),
+                                ApplicantId = Convert.ToInt32(reader["ApplicantId"]),
+                                DocumentTypeId = reader["DocumentTypeId"] != DBNull.Value ? Convert.ToInt32(reader["DocumentTypeId"]) : (int?)null,
+                                Series = reader["Series"]?.ToString(),
+                                Number = reader["Number"]?.ToString()
+                            });
+                        }
+                    }
+                }
+            }
+            return docs;    
+        }
+
+        public static void DeleteGeneralDocument(int id, int applicantId)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = "DELETE FROM Documents WHERE Id = @Id AND ApplicantId = @ApplicantId";
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@Id", id);
+                    cmd.Parameters.AddWithValue("@ApplicantId", applicantId);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+        public static void DeleteAttachedDocument(int documentId)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = "DELETE FROM AttachedDocuments WHERE Id = @Id";
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@Id", documentId);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        // ========== МЕТОДЫ ДЛЯ КОНКУРСОВ ==========
+
+        public static int CreateCompetitionPriority(int applicantId, string competitionName, int priorityOrder)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = @"INSERT INTO CompetitionPriorities (
+                    ApplicantId, CompetitionName, PriorityOrder, IsSelected,
+                    CreatedAt, UpdatedAt
+                ) VALUES (
+                    @ApplicantId, @CompetitionName, @PriorityOrder, 0,
+                    @CreatedAt, @UpdatedAt
+                ); SELECT last_insert_rowid();";
+
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@ApplicantId", applicantId);
+                    cmd.Parameters.AddWithValue("@CompetitionName", (object)competitionName ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@PriorityOrder", priorityOrder);
+                    cmd.Parameters.AddWithValue("@CreatedAt", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                    cmd.Parameters.AddWithValue("@UpdatedAt", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+
+                    var result = cmd.ExecuteScalar();
+                    return Convert.ToInt32(result);
+                }
+            }
+        }
+
+        public static List<CompetitionPriorities> GetApplicantCompetitions(int applicantId)
+        {
+            var competitions = new List<CompetitionPriorities>();
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = "SELECT * FROM CompetitionPriorities WHERE ApplicantId = @ApplicantId ORDER BY PriorityOrder";
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@ApplicantId", applicantId);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            competitions.Add(new CompetitionPriorities
+                            {
+                                Id = Convert.ToInt32(reader["Id"]),
+                                ApplicantId = Convert.ToInt32(reader["ApplicantId"]),
+                                CompetitionName = reader["CompetitionName"]?.ToString(),
+                                PriorityOrder = Convert.ToInt32(reader["PriorityOrder"]),
+                                IsSelected = reader["IsSelected"] != DBNull.Value ? Convert.ToBoolean(reader["IsSelected"]) : (bool?)null
+                            });
+                        }
+                    }
+                }
+            }
+            return competitions;
+        }
+
+        public static void DeleteCompetitionPriority(int competitionId)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = "DELETE FROM CompetitionPriorities WHERE Id = @Id";
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@Id", competitionId);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        // ========== МЕТОДЫ ДЛЯ РАБОТЫ С КОНТАКТАМИ ==========
+
+        public static int CreateContactInformation(int applicantId, string contactType, string contactValue, bool isPreferred = false)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = @"INSERT INTO ContactInformation (
+                    ApplicantId, ContactType, ContactValue, IsPreferred, CreatedAt, UpdatedAt
+                ) VALUES (
+                    @ApplicantId, @ContactType, @ContactValue, @IsPreferred, @CreatedAt, @UpdatedAt
+                ); SELECT last_insert_rowid();";
+
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@ApplicantId", applicantId);
+                    cmd.Parameters.AddWithValue("@ContactType", (object)contactType ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@ContactValue", (object)contactValue ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@IsPreferred", isPreferred ? 1 : 0);
+                    cmd.Parameters.AddWithValue("@CreatedAt", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                    cmd.Parameters.AddWithValue("@UpdatedAt", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+
+                    var result = cmd.ExecuteScalar();
+                    return Convert.ToInt32(result);
+                }
+            }
+        }
+
+        public static List<ContactInformation> GetApplicantContacts(int applicantId)
+        {
+            var contacts = new List<ContactInformation>();
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = "SELECT * FROM ContactInformation WHERE ApplicantId = @ApplicantId ORDER BY Id";
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@ApplicantId", applicantId);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            contacts.Add(new ContactInformation
+                            {
+                                Id = Convert.ToInt32(reader["Id"]),
+                                ApplicantId = Convert.ToInt32(reader["ApplicantId"]),
+                                ContactType = reader["ContactType"]?.ToString(),
+                                ContactValue = reader["ContactValue"]?.ToString(),
+                                IsPreferred = Convert.ToBoolean(reader["IsPreferred"])
+                            });
+                        }
+                    }
+                }
+            }
+            return contacts;
+        }
+
+        public static void DeleteContactInformation(int contactId)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = "DELETE FROM ContactInformation WHERE Id = @Id";
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@Id", contactId);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public static void UpdateContactInformation(ContactInformation contact)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = @"UPDATE ContactInformation SET 
+                    ContactType = @ContactType,
+                    ContactValue = @ContactValue,
+                    IsPreferred = @IsPreferred,
+                    UpdatedAt = @UpdatedAt
+                WHERE Id = @Id";
+
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@Id", contact.Id);
+                    cmd.Parameters.AddWithValue("@ContactType", (object)contact.ContactType ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@ContactValue", (object)contact.ContactValue ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@IsPreferred", contact.IsPreferred ? 1 : 0);
+                    cmd.Parameters.AddWithValue("@UpdatedAt", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        // ========== МЕТОДЫ ДЛЯ ОБНОВЛЕНИЯ ПРИОРИТЕТОВ И КОНКУРСОВ ==========
+
+        public static void UpdateApplicationPriority(ApplicationPriorities priority)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = @"UPDATE ApplicationPriorities SET 
+                    PriorityOrder = @PriorityOrder,
+                    ProgramCode = @ProgramCode,
+                    ProgramName = @ProgramName,
+                    StudyForm = @StudyForm,
+                    EducationBase = @EducationBase,
+                    Department = @Department,
+                    AdmissionType = @AdmissionType,
+                    Branch = @Branch,
+                    IsSelected = @IsSelected,
+                    UpdatedAt = @UpdatedAt
+                WHERE Id = @Id";
+
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@Id", priority.Id);
+                    cmd.Parameters.AddWithValue("@PriorityOrder", priority.PriorityOrder);
+                    cmd.Parameters.AddWithValue("@ProgramCode", (object)priority.ProgramCode ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@ProgramName", (object)priority.ProgramName ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@StudyForm", (object)priority.StudyForm ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@EducationBase", (object)priority.EducationBase ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@Department", (object)priority.Department ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@AdmissionType", (object)priority.AdmissionType ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@Branch", (object)priority.Branch ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@IsSelected", (object)priority.IsSelected ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@UpdatedAt", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public static void UpdateCompetitionPriority(CompetitionPriorities competition)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = @"UPDATE CompetitionPriorities SET 
+                    CompetitionName = @CompetitionName,
+                    PriorityOrder = @PriorityOrder,
+                    IsSelected = @IsSelected,
+                    UpdatedAt = @UpdatedAt
+                WHERE Id = @Id";
+
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@Id", competition.Id);
+                    cmd.Parameters.AddWithValue("@CompetitionName", (object)competition.CompetitionName ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@PriorityOrder", competition.PriorityOrder);
+                    cmd.Parameters.AddWithValue("@IsSelected", (object)competition.IsSelected ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@UpdatedAt", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public static void UpdateAttachedDocument(AttachedDocuments document)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = @"UPDATE AttachedDocuments SET 
+                    DocumentName = @DocumentName,
+                    DocumentType = @DocumentType,
+                    FilePath = @FilePath,
+                    FileSize = @FileSize,
+                    UpdatedAt = @UpdatedAt
+                WHERE Id = @Id";
+
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@Id", document.Id);
+                    cmd.Parameters.AddWithValue("@DocumentName", (object)document.DocumentName ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@DocumentType", (object)document.DocumentType ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FilePath", (object)document.FilePath ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FileSize", document.FileSize);
+                    cmd.Parameters.AddWithValue("@UpdatedAt", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public static AttachedDocuments GetAttachedDocument(int id)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = "SELECT * FROM AttachedDocuments WHERE Id = @Id";
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@Id", id);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            return new AttachedDocuments
+                            {
+                                Id = Convert.ToInt32(reader["Id"]),
+                                ApplicantId = Convert.ToInt32(reader["ApplicantId"]),
+                                DocumentName = reader["DocumentName"]?.ToString(),
+                                DocumentType = reader["DocumentType"]?.ToString(),
+                                FilePath = reader["FilePath"]?.ToString(),
+                                FileSize = Convert.ToInt32(reader["FileSize"]),
+                                UploadedAt = Convert.ToDateTime(reader["UploadedAt"]),
+                                CreatedAt = Convert.ToDateTime(reader["CreatedAt"]),
+                                UpdatedAt = Convert.ToDateTime(reader["UpdatedAt"])
+                            };
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
+        public static ApplicationPriorities GetApplicationPriority(int id)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = "SELECT * FROM ApplicationPriorities WHERE Id = @Id";
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@Id", id);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            return new ApplicationPriorities
+                            {
+                                Id = Convert.ToInt32(reader["Id"]),
+                                ApplicantId = Convert.ToInt32(reader["ApplicantId"]),
+                                PriorityOrder = Convert.ToInt32(reader["PriorityOrder"]),
+                                ProgramCode = reader["ProgramCode"]?.ToString(),
+                                ProgramName = reader["ProgramName"]?.ToString(),
+                                StudyForm = reader["StudyForm"]?.ToString(),
+                                EducationBase = reader["EducationBase"]?.ToString(),
+                                Department = reader["Department"]?.ToString(),
+                                AdmissionType = reader["AdmissionType"]?.ToString(),
+                                Branch = reader["Branch"]?.ToString(),
+                                IsSelected = reader["IsSelected"] != DBNull.Value ? Convert.ToBoolean(reader["IsSelected"]) : (bool?)null
+                            };
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
+        public static CompetitionPriorities GetCompetitionPriority(int id)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = "SELECT * FROM CompetitionPriorities WHERE Id = @Id";
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@Id", id);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            return new CompetitionPriorities
+                            {
+                                Id = Convert.ToInt32(reader["Id"]),
+                                ApplicantId = Convert.ToInt32(reader["ApplicantId"]),
+                                CompetitionName = reader["CompetitionName"]?.ToString(),
+                                PriorityOrder = Convert.ToInt32(reader["PriorityOrder"]),
+                                IsSelected = reader["IsSelected"] != DBNull.Value ? Convert.ToBoolean(reader["IsSelected"]) : (bool?)null
+                            };
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
+        // ========== ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ ==========
+
+        public static List<Applicants> GetAllApplicants()
+        {
+            var applicants = new List<Applicants>();
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = "SELECT * FROM Applicants ORDER BY LastName, FirstName";
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            applicants.Add(ReadApplicantFromReader(reader));
+                        }
+                    }
+                }
+            }
+            return applicants;
+        }
+
+        public static List<Applicants> SearchApplicants(string searchTerm)
+        {
+            var applicants = new List<Applicants>();
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = @"SELECT * FROM Applicants WHERE 
+                    LastName LIKE @SearchTerm OR 
+                    FirstName LIKE @SearchTerm OR 
+                    Patronymic LIKE @SearchTerm OR 
+                    Email LIKE @SearchTerm OR 
+                    MobilePhone LIKE @SearchTerm OR 
+                    Snils LIKE @SearchTerm
+                ORDER BY LastName, FirstName";
+
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@SearchTerm", $"%{searchTerm}%");
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            applicants.Add(ReadApplicantFromReader(reader));
+                        }
+                    }
+                }
+            }
+            return applicants;
+        }
+
+        public static int GetTotalApplicantsCount()
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = "SELECT COUNT(*) FROM Applicants";
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    var result = cmd.ExecuteScalar();
+                    return result != null ? Convert.ToInt32(result) : 0;
+                }
+            }
+        }
+
+        public static int GetApplicantsWithDocumentsCount()
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = @"SELECT COUNT(DISTINCT ApplicantId) FROM (
+                    SELECT ApplicantId FROM EducationDocuments
+                    UNION
+                    SELECT ApplicantId FROM IdentityDocuments
+                    UNION
+                    SELECT ApplicantId FROM AttachedDocuments
+                )";
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    var result = cmd.ExecuteScalar();
+                    return result != null ? Convert.ToInt32(result) : 0;
+                }
+            }
+        }
+
+        public static int GetApplicantsWithLanguagesCount()
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = "SELECT COUNT(DISTINCT ApplicantId) FROM ApplicantLanguages";
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    var result = cmd.ExecuteScalar();
+                    return result != null ? Convert.ToInt32(result) : 0;
+                }
+            }
+        }
+
+        public static int GetApplicantsWithAchievementsCount()
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = @"SELECT COUNT(DISTINCT ApplicantId) FROM (
+                    SELECT ApplicantId FROM SportAchievements
+                    UNION
+                    SELECT ApplicantId FROM IndividualAchievements
+                )";
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    var result = cmd.ExecuteScalar();
+                    return result != null ? Convert.ToInt32(result) : 0;
+                }
+            }
+        }
+
+        public static bool ApplicantExists(int applicantId)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = "SELECT COUNT(*) FROM Applicants WHERE Id = @Id";
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@Id", applicantId);
+                    var result = cmd.ExecuteScalar();
+                    return result != null && Convert.ToInt32(result) > 0;
+                }
+            }
+        }
+
+        public static List<T> SearchByField<T>(string fieldName, string searchValue) where T : new()
+        {
+            var result = new List<T>();
+            var tableName = typeof(T).Name;
+
+            try
+            {
+                using (var connection = DatabaseHelper.GetConnection())
+                {
+                    var query = $"SELECT * FROM {tableName} WHERE {fieldName} LIKE @SearchValue";
+                    using (var cmd = new SQLiteCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@SearchValue", $"%{searchValue}%");
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                result.Add(ReadEntity<T>(reader));
+                            }
+                        }
+                    }
+                }
+            }
+ catch
+            {
+                // Возвращаем пустой список при ошибке
+            }
+
+            return result;
+        }
+
+        public static int GetDuplicateApplicantsCount()
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = @"SELECT COUNT(*) FROM (
+                    SELECT LastName, FirstName, Patronymic, BirthDate
+                    FROM Applicants
+                    GROUP BY LastName, FirstName, Patronymic, BirthDate
+                    HAVING COUNT(*) > 1
+                )";
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    var result = cmd.ExecuteScalar();
+                    return result != null ? Convert.ToInt32(result) : 0;
+                }
+            }
+        }
+
+        public static DateTime? GetLastUpdateTime()
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = "SELECT MAX(UpdatedAt) FROM Applicants";
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    var result = cmd.ExecuteScalar();
+                    if (result != null && result != DBNull.Value)
+                    {
+                        return Convert.ToDateTime(result);
+                    }
+                }
+            }
+            return null;
+        }
+
+        public static void BackupDatabase(string backupPath)
+        {
+            try
+            {
+                string dbPath = DatabaseHelper.GetDatabasePath();
+                if (File.Exists(dbPath))
+                {
+                    File.Copy(dbPath, backupPath, true);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Ошибка при создании резервной копии: {ex.Message}");
+            }
+        }
+
+        public static void DeleteApplicant(int id)
+        {
+            try
+            {
+                using (var connection = DatabaseHelper.GetConnection())
+                {
+                    var deleteCommands = new string[]
+                    {
+                        "DELETE FROM IdentityDocuments WHERE ApplicantId = @Id",
+                        "DELETE FROM AttachedDocuments WHERE ApplicantId = @Id",
+                        "DELETE FROM ApplicantLanguages WHERE ApplicantId = @Id",
+                        "DELETE FROM SportAchievements WHERE ApplicantId = @Id",
+                        "DELETE FROM IndividualAchievements WHERE ApplicantId = @Id",
+                        "DELETE FROM Relatives WHERE ApplicantId = @Id",
+                        "DELETE FROM ApplicationPriorities WHERE ApplicantId = @Id",
+                        "DELETE FROM Documents WHERE ApplicantId = @Id",
+                        "DELETE FROM ContactInformation WHERE ApplicantId = @Id",
+                        "DELETE FROM Applicants WHERE Id = @Id"
+                    };
+
+                    foreach (var sql in deleteCommands)
+                    {
+                        using (var cmd = new SQLiteCommand(sql, connection))
+                        {
+                            cmd.Parameters.AddWithValue("@Id", id);
+                            cmd.ExecuteNonQuery();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Ошибка при удалении абитуриента: " + ex.Message, ex);
+            }
+        }
+    }
+}

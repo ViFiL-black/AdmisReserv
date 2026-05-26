@@ -4,15 +4,12 @@ using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
-using System.Windows.Media;
 using Admissions_Reserve.Model;
 
 namespace Admissions_Reserve.View
 {
     public partial class PrioritiesPage : Page
     {
-        // Модель приоритета
         public class PriorityItem : INotifyPropertyChanged
         {
             private int _priority;
@@ -71,7 +68,7 @@ namespace Admissions_Reserve.View
                 set { _isSelected = value; OnPropertyChanged(nameof(IsSelected)); }
             }
 
-            public string DisplayName => $"{ProgramCode} {ProgramName} / {StudyForm} форма, {EducationBase}, {Department} / {AdmissionType}";
+            public string DisplayName => $"{ProgramCode} {ProgramName} / {StudyForm}, {EducationBase}, {Department} / {AdmissionType}";
 
             public event PropertyChangedEventHandler PropertyChanged;
             protected void OnPropertyChanged(string name) =>
@@ -79,361 +76,191 @@ namespace Admissions_Reserve.View
         }
 
         private ObservableCollection<PriorityItem> _priorities;
-        private Point _dragStartPoint;
-        private PriorityItem _draggedItem;
-        private bool isInitialized = false;
+        private bool isSaving = false;
 
         public PrioritiesPage()
         {
             InitializeComponent();
-            InitializeData();
-            SetupDragDrop();
-            isInitialized = true;
-        }
-
-        private void InitializeData()
-        {
             _priorities = new ObservableCollection<PriorityItem>();
-
-            // Загрузка демонстрационных данных
-            LoadSamplePriorities();
-
             PrioritiesGrid.ItemsSource = _priorities;
+            Loaded += Page_Loaded;
         }
 
-        private void SetupDragDrop()
+        private void Page_Loaded(object sender, RoutedEventArgs e)
         {
-            PrioritiesGrid.PreviewMouseLeftButtonDown += PrioritiesGrid_PreviewMouseLeftButtonDown;
-            PrioritiesGrid.PreviewMouseMove += PrioritiesGrid_PreviewMouseMove;
-            PrioritiesGrid.Drop += PrioritiesGrid_Drop;
-            PrioritiesGrid.DragOver += PrioritiesGrid_DragOver;
+            LoadPrioritiesFromDatabase();
         }
 
-        private void LoadSamplePriorities()
-        {
-            var priorities = new[]
-            {
-                new PriorityItem
-                {
-                    Priority = 1,
-                    ProgramCode = "09.02.11",
-                    ProgramName = "Разработка и управление программным обеспечением",
-                    StudyForm = "очная",
-                    EducationBase = "Осн. общ.",
-                    Department = "Отделение автоматики и электромеханики",
-                    AdmissionType = "общий",
-                    Branch = "Головная орг.",
-                    IsSelected = true
-                },
-                new PriorityItem
-                {
-                    Priority = 2,
-                    ProgramCode = "08.02.09",
-                    ProgramName = "Монтаж, наладка и эксплуатация электрооборудования промышленных и гражданских зданий",
-                    StudyForm = "очная",
-                    EducationBase = "Осн. общ.",
-                    Department = "Отделение автоматики",
-                    AdmissionType = "общий",
-                    Branch = "Головная орг.",
-                    IsSelected = true
-                },
-                new PriorityItem
-                {
-                    Priority = 3,
-                    ProgramCode = "15.02.17",
-                    ProgramName = "Монтаж, техническое обслуживание, эксплуатация и ремонт промышленного оборудования",
-                    StudyForm = "очная",
-                    EducationBase = "Осн. общ.",
-                    Department = "Отделение автоматики и электромеханики",
-                    AdmissionType = "общий",
-                    Branch = "Головная орг.",
-                    IsSelected = false
-                },
-                new PriorityItem
-                {
-                    Priority = 4,
-                    ProgramCode = "27.02.04",
-                    ProgramName = "Автоматические системы управления",
-                    StudyForm = "очная",
-                    EducationBase = "Осн. общ.",
-                    Department = "Отделение автоматики и электромеханики (в том числе с применением автоматических систем управления)",
-                    AdmissionType = "общий",
-                    Branch = "Головная орг.",
-                    IsSelected = false
-                }
-            };
-
-            foreach (var item in priorities)
-            {
-                _priorities.Add(item);
-            }
-        }
-
-        // Перетаскивание строк
-        private void PrioritiesGrid_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            if (!isInitialized) return;
-            
-            _dragStartPoint = e.GetPosition(null);
-            var hit = VisualTreeHelper.HitTest(PrioritiesGrid, e.GetPosition(PrioritiesGrid));
-            var row = FindVisualParent<DataGridRow>(hit.VisualHit);
-
-            if (row != null)
-            {
-                _draggedItem = row.Item as PriorityItem;
-            }
-        }
-
-        private void PrioritiesGrid_PreviewMouseMove(object sender, MouseEventArgs e)
-        {
-            if (!isInitialized) return;
-            
-            if (e.LeftButton == MouseButtonState.Pressed && _draggedItem != null)
-            {
-                Point currentPoint = e.GetPosition(null);
-                Vector diff = _dragStartPoint - currentPoint;
-
-                if (Math.Abs(diff.X) > SystemParameters.MinimumHorizontalDragDistance ||
-                    Math.Abs(diff.Y) > SystemParameters.MinimumVerticalDragDistance)
-                {
-                    DataObject dragData = new DataObject("PriorityItem", _draggedItem);
-                    DragDrop.DoDragDrop(PrioritiesGrid, dragData, DragDropEffects.Move);
-                    _draggedItem = null;
-                }
-            }
-        }
-
-        private void PrioritiesGrid_DragOver(object sender, DragEventArgs e)
-        {
-            if (e.Data.GetDataPresent("PriorityItem"))
-            {
-                e.Effects = DragDropEffects.Move;
-            }
-            else
-            {
-                e.Effects = DragDropEffects.None;
-            }
-            e.Handled = true;
-        }
-
-        private void PrioritiesGrid_Drop(object sender, DragEventArgs e)
-        {
-            if (!isInitialized) return;
-            
-            var targetItem = GetItemAtDropPosition(e.GetPosition(PrioritiesGrid));
-            var draggedItem = e.Data.GetData("PriorityItem") as PriorityItem;
-
-            if (draggedItem != null && targetItem != null && draggedItem != targetItem)
-            {
-                int oldIndex = _priorities.IndexOf(draggedItem);
-                int newIndex = _priorities.IndexOf(targetItem);
-
-                if (oldIndex != newIndex)
-                {
-                    _priorities.Move(oldIndex, newIndex);
-                    RecalculatePriorities();
-                }
-            }
-        }
-
-        private PriorityItem GetItemAtDropPosition(Point dropPoint)
-        {
-            var hit = VisualTreeHelper.HitTest(PrioritiesGrid, dropPoint);
-            var row = FindVisualParent<DataGridRow>(hit.VisualHit);
-            return row?.Item as PriorityItem;
-        }
-
-        // Кнопка перемещения вверх
-        private void MoveUp_Click(object sender, RoutedEventArgs e)
-        {
-            if (!isInitialized) return;
-
-            var button = sender as Button;
-            var item = button?.Tag as PriorityItem;
-
-            if (item != null)
-            {
-                int currentIndex = _priorities.IndexOf(item);
-                if (currentIndex > 0)
-                {
-                    _priorities.Move(currentIndex, currentIndex - 1);
-                    RecalculatePriorities();
-                }
-            }
-        }
-
-        // Кнопка перемещения вниз
-        private void MoveDown_Click(object sender, RoutedEventArgs e)
-        {
-            if (!isInitialized) return;
-
-            var button = sender as Button;
-            var item = button?.Tag as PriorityItem;
-
-            if (item != null)
-            {
-                int currentIndex = _priorities.IndexOf(item);
-                if (currentIndex < _priorities.Count - 1)
-                {
-                    _priorities.Move(currentIndex, currentIndex + 1);
-                    RecalculatePriorities();
-                }
-            }
-        }
-
-        // Пересчет приоритетов
-        private void RecalculatePriorities()
-        {
-            for (int i = 0; i < _priorities.Count; i++)
-            {
-                _priorities[i].Priority = i + 1;
-            }
-            PrioritiesGrid.Items.Refresh();
-        }
-
-        // Вспомогательный метод для поиска родительского элемента
-        private static T FindVisualParent<T>(DependencyObject child) where T : DependencyObject
-        {
-            while (child != null)
-            {
-                if (child is T parent)
-                    return parent;
-                child = VisualTreeHelper.GetParent(child);
-            }
-            return null;
-        }
-
-        // Получение выбранных приоритетов
-        public ObservableCollection<PriorityItem> GetSelectedPriorities()
-        {
-            return new ObservableCollection<PriorityItem>(_priorities.Where(p => p.IsSelected));
-        }
-
-        // Сохранение приоритетов в БД
-        private bool SaveData()
+        private void LoadPrioritiesFromDatabase()
         {
             try
             {
-                if (SessionManager.CurrentApplicantId == null)
-                {
-                    MessageBox.Show("Ошибка: данные абитуриента не найдены", "Ошибка",
-                        MessageBoxButton.OK, MessageBoxImage.Error);
-                    return false;
-                }
+                if (SessionManager.CurrentApplicantId == null) return;
+                _priorities.Clear();
 
-                // Сохраняем приоритеты в базу данных
-                int priorityOrder = 1;
-                foreach (var priority in _priorities.Where(p => p.IsSelected))
-                {
-                    var existingPriority = DataService.GetApplicantPriorities(SessionManager.CurrentApplicantId.Value)
-                        .FirstOrDefault(p => p.ProgramCode == priority.ProgramCode);
+                // Загружаем выбранные конкурсы из CompetitionPriorities
+                var competitions = DataService.GetApplicantCompetitions(SessionManager.CurrentApplicantId.Value);
 
-                    if (existingPriority == null)
+                if (competitions.Any())
+                {
+                    int priority = 1;
+                    foreach (var comp in competitions.OrderBy(c => c.PriorityOrder))
                     {
-                        // Создаем новую запись
-                        DataService.CreateApplicationPriority(
-                            SessionManager.CurrentApplicantId.Value,
-                            priorityOrder,
-                            priority.ProgramCode ?? "",
-                            priority.ProgramName ?? "",
-                            priority.StudyForm ?? "",
-                            priority.EducationBase ?? "",
-                            priority.Department ?? "",
-                            priority.AdmissionType ?? "",
-                            priority.Branch ?? ""
-                        );
-                    }
-                    else
-                    {
-                        // Обновляем существующую запись
-                        existingPriority.PriorityOrder = priorityOrder;
-                        DataService.UpdateApplicationPriority(existingPriority);
-                    }
+                        string name = comp.CompetitionName ?? "";
+                        string code = "";
+                        string programName = name;
 
-                    priorityOrder++;
-                }
+                        // Получаем детали из Competitions
+                        var compDetails = DataService.GetByCondition<Competitions>("Name = @Name",
+                            new System.Data.SQLite.SQLiteParameter("@Name", name)).FirstOrDefault();
 
-                DataService.LogChange("ApplicationPriorities", SessionManager.CurrentApplicantId.Value, "UPDATE");
+                        // Пытаемся получить код программы
+                        var programs = DataService.GetAll<EducationPrograms>();
+                        var program = programs.FirstOrDefault(p => name.Contains(p.Name));
+                        if (program != null)
+                        {
+                            code = program.Code ?? "";
+                            programName = program.Name ?? name;
+                        }
 
-                MessageBox.Show("Приоритеты успешно сохранены!", "Успех",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка при сохранении данных: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-                return false;
-            }
-        }
-
-        // Кнопка ДАЛЕЕ - переход на страницу прикрепленных документов
-        private async void NextButton_Click(object sender, RoutedEventArgs e)
-        {
-            var button = sender as Button;
-            if (button != null)
-            {
-                button.IsEnabled = false;
-            }
-
-            try
-            {
-                if (SaveData())
-                {
-                    await System.Threading.Tasks.Task.Delay(100);
-                    NavigationService?.Navigate(new AttachedDocumentsPage());
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка при переходе: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-            finally
-            {
-                if (button != null)
-                {
-                    button.IsEnabled = true;
-                }
-            }
-        }
-
-        // Кнопка НАЗАД - возврат на страницу конкурсов
-        private void PrevButton_Click(object sender, RoutedEventArgs e)
-        {
-            SaveData();
-
-            if (NavigationService?.CanGoBack == true)
-                NavigationService.GoBack();
-        }
-
-        // Кнопка ОТМЕНИТЬ
-        private void CancelButton_Click(object sender, RoutedEventArgs e)
-        {
-            var result = MessageBox.Show("Вы уверены, что хотите отменить ввод данных?\nВсе несохраненные данные будут потеряны.",
-                "Подтверждение", MessageBoxButton.YesNo, MessageBoxImage.Question);
-
-            if (result == MessageBoxResult.Yes)
-            {
-                SessionManager.Clear();
-
-                var mainWindow = Application.Current.MainWindow as MainWindow;
-                if (mainWindow != null)
-                {
-                    mainWindow.MainFrame.Navigate(new WelcomePage());
-                }
-                else if (NavigationService?.CanGoBack == true)
-                {
-                    while (NavigationService.CanGoBack)
-                    {
-                        NavigationService.GoBack();
+                        _priorities.Add(new PriorityItem
+                        {
+                            Priority = priority++,
+                            ProgramCode = code,
+                            ProgramName = programName,
+                            StudyForm = compDetails?.StudyForm ?? "",
+                            EducationBase = compDetails?.EducationBase ?? "",
+                            Department = compDetails?.Department ?? "",
+                            AdmissionType = compDetails?.AdmissionType ?? "",
+                            Branch = compDetails?.Branch ?? "",
+                            IsSelected = comp.IsSelected ?? true
+                        });
                     }
                 }
                 else
                 {
-                    Application.Current.Shutdown();
+                    LoadSamplePriorities();
                 }
+
+                PrioritiesGrid.Items.Refresh();
+            }
+            catch
+            {
+                LoadSamplePriorities();
+            }
+        }
+
+        private void LoadSamplePriorities()
+        {
+            _priorities.Clear();
+            var sample = new[]
+            {
+                new PriorityItem { Priority = 1, ProgramCode = "09.02.11", ProgramName = "Разработка и управление ПО", StudyForm = "очная", EducationBase = "Осн. общ.", Department = "Отделение ИТ", AdmissionType = "общий", Branch = "Головная орг.", IsSelected = true },
+                new PriorityItem { Priority = 2, ProgramCode = "08.02.09", ProgramName = "Монтаж электрооборудования", StudyForm = "очная", EducationBase = "Осн. общ.", Department = "Отделение автоматики", AdmissionType = "общий", Branch = "Головная орг.", IsSelected = true },
+                new PriorityItem { Priority = 3, ProgramCode = "15.02.17", ProgramName = "Монтаж оборудования", StudyForm = "очная", EducationBase = "Осн. общ.", Department = "Отделение автоматики", AdmissionType = "общий", Branch = "Головная орг.", IsSelected = false }
+            };
+            foreach (var item in sample) _priorities.Add(item);
+            PrioritiesGrid.Items.Refresh();
+        }
+
+        private void MoveUp_Click(object sender, RoutedEventArgs e)
+        {
+            if ((sender as Button)?.Tag is PriorityItem item)
+            {
+                int idx = _priorities.IndexOf(item);
+                if (idx > 0)
+                {
+                    _priorities.Move(idx, idx - 1);
+                    RecalculatePriorities();
+                }
+            }
+        }
+
+        private void MoveDown_Click(object sender, RoutedEventArgs e)
+        {
+            if ((sender as Button)?.Tag is PriorityItem item)
+            {
+                int idx = _priorities.IndexOf(item);
+                if (idx < _priorities.Count - 1)
+                {
+                    _priorities.Move(idx, idx + 1);
+                    RecalculatePriorities();
+                }
+            }
+        }
+
+        private void RecalculatePriorities()
+        {
+            for (int i = 0; i < _priorities.Count; i++)
+                _priorities[i].Priority = i + 1;
+            PrioritiesGrid.Items.Refresh();
+        }
+
+        private bool SaveData()
+        {
+            if (isSaving) return false;
+            try
+            {
+                isSaving = true;
+                if (SessionManager.CurrentApplicantId == null) return false;
+
+                // Удаляем старые приоритеты
+                var existing = DataService.GetApplicantPriorities(SessionManager.CurrentApplicantId.Value);
+                foreach (var p in existing)
+                    DataService.DeleteApplicationPriority(p.Id);
+
+                // Сохраняем новые приоритеты
+                foreach (var item in _priorities)
+                {
+                    DataService.CreateApplicationPriority(
+                        SessionManager.CurrentApplicantId.Value,
+                        item.Priority,
+                        item.ProgramCode ?? "",
+                        item.ProgramName ?? "",
+                        item.StudyForm ?? "",
+                        item.EducationBase ?? "",
+                        item.Department ?? "",
+                        item.AdmissionType ?? "",
+                        item.Branch ?? ""
+                    );
+                }
+
+                DataService.LogChange("ApplicationPriorities", SessionManager.CurrentApplicantId.Value, "UPDATE");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка сохранения: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
+            }
+            finally { isSaving = false; }
+        }
+
+        private void PrevButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (NavigationService?.CanGoBack == true)
+                NavigationService.GoBack();
+        }
+
+        private void NextButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (SaveData())
+            {
+                MessageBox.Show("Приоритеты сохранены!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                NavigationService?.Navigate(new AttachedDocumentsPage());
+            }
+        }
+
+        private void CancelButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (MessageBox.Show("Отменить изменения?", "Подтверждение",
+                MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+            {
+                SessionManager.Clear();
+                if (NavigationService?.CanGoBack == true)
+                    while (NavigationService.CanGoBack) NavigationService.GoBack();
+                else
+                    Application.Current.Shutdown();
             }
         }
     }

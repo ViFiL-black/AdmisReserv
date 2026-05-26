@@ -11,53 +11,16 @@ namespace Admissions_Reserve.View
 {
     public partial class IndividualAchievementsPage : Page
     {
-        // Модель индивидуального достижения
         public class IndividualAchievement : INotifyPropertyChanged
         {
             public int Id { get; set; }
-            private int _number;
-            private string _category;
-            private string _achievementName;
-            private string _year;
-            private int _points;
-            private string _documentName;
-            private string _documentPath;
-
-            public int Number
-            {
-                get => _number;
-                set { _number = value; OnPropertyChanged(nameof(Number)); }
-            }
-            public string Category
-            {
-                get => _category;
-                set { _category = value; OnPropertyChanged(nameof(Category)); }
-            }
-            public string AchievementName
-            {
-                get => _achievementName;
-                set { _achievementName = value; OnPropertyChanged(nameof(AchievementName)); }
-            }
-            public string Year
-            {
-                get => _year;
-                set { _year = value; OnPropertyChanged(nameof(Year)); }
-            }
-            public int Points
-            {
-                get => _points;
-                set { _points = value; OnPropertyChanged(nameof(Points)); }
-            }
-            public string DocumentName
-            {
-                get => _documentName;
-                set { _documentName = value; OnPropertyChanged(nameof(DocumentName)); }
-            }
-            public string DocumentPath
-            {
-                get => _documentPath;
-                set { _documentPath = value; OnPropertyChanged(nameof(DocumentPath)); }
-            }
+            public int Number { get; set; }
+            public string Category { get; set; }
+            public string AchievementName { get; set; }
+            public string Year { get; set; }
+            public int Points { get; set; }
+            public string DocumentName { get; set; }
+            public string DocumentPath { get; set; }
 
             public event PropertyChangedEventHandler PropertyChanged;
             protected void OnPropertyChanged(string name) =>
@@ -67,50 +30,46 @@ namespace Admissions_Reserve.View
         private ObservableCollection<IndividualAchievement> _achievements;
         private string _uploadedFilePath;
         private int _nextNumber = 1;
-
-        // Словарь для хранения баллов по категориям (по умолчанию)
-        private readonly System.Collections.Generic.Dictionary<string, int> _defaultPoints =
-            new System.Collections.Generic.Dictionary<string, int>
-        {
-            { "Победитель всероссийской олимпиады школьников", 10 },
-            { "Призер всероссийской олимпиады школьников", 8 },
-            { "Победитель олимпиады школьников из перечня Минобрнауки", 7 },
-            { "Призер олимпиады школьников из перечня Минобрнауки", 5 },
-            { "Значок ГТО (золотой)", 5 },
-            { "Значок ГТО (серебряный)", 3 },
-            { "Аттестат с отличием (золотая медаль)", 10 },
-            { "Аттестат с отличием (серебряная медаль)", 7 },
-            { "Диплом СПО с отличием", 10 },
-            { "Волонтерская деятельность", 3 },
-            { "Участие в творческих конкурсах", 2 },
-            { "Спортивные достижения", 3 },
-            { "Наличие статуса победителя чемпионата «Профессионалы»", 8 },
-            { "Наличие статуса призера чемпионата «Профессионалы»", 5 },
-            { "Наличие статуса победителя чемпионата «Абилимпикс»", 8 },
-            { "Наличие статуса призера чемпионата «Абилимпикс»", 5 },
-            { "Иное", 0 }
-        };
-
-        private bool isInitialized = false;
+        private bool isSaving = false;
 
         public IndividualAchievementsPage()
         {
             InitializeComponent();
-            InitializeData();
-            isInitialized = true;
+            _achievements = new ObservableCollection<IndividualAchievement>();
+            AchievementsGrid.ItemsSource = _achievements;
+            Loaded += Page_Loaded;
         }
 
-        private void InitializeData()
+        private void Page_Loaded(object sender, RoutedEventArgs e)
         {
-            _achievements = new ObservableCollection<IndividualAchievement>();
+            LoadAchievementTypes();
+            LoadAchievementsFromDatabase();
+        }
 
-            // Загружаем данные из БД если есть абитуриент
-            if (SessionManager.CurrentApplicant != null)
+        private void LoadAchievementTypes()
+        {
+            try
             {
-                LoadAchievementsFromDatabase();
+                var types = DataService.GetAll<IndividualAchievementTypes>();
+                CategoryCombo.Items.Clear();
+                foreach (var type in types)
+                {
+                    CategoryCombo.Items.Add(new ComboBoxItem
+                    {
+                        Content = type.Name,
+                        Tag = type.DefaultPoints
+                    });
+                }
+                if (CategoryCombo.Items.Count > 0) CategoryCombo.SelectedIndex = 0;
             }
-
-            AchievementsGrid.ItemsSource = _achievements;
+            catch
+            {
+                // Если таблицы нет, используем значения по умолчанию
+                var defaults = new[] { "Победитель всероссийской олимпиады школьников", "Призер всероссийской олимпиады школьников", "Значок ГТО (золотой)", "Аттестат с отличием" };
+                foreach (var d in defaults)
+                    CategoryCombo.Items.Add(new ComboBoxItem { Content = d });
+                if (CategoryCombo.Items.Count > 0) CategoryCombo.SelectedIndex = 0;
+            }
         }
 
         private void LoadAchievementsFromDatabase()
@@ -118,139 +77,79 @@ namespace Admissions_Reserve.View
             try
             {
                 if (SessionManager.CurrentApplicantId == null) return;
-
-                // Для демонстрации используем пустой список
-                // В реальной реализации здесь будет загрузка из БД
+                _achievements.Clear();
+                // Use DatabasePersistenceHelper which returns detailed records
+                var achievements = DatabasePersistenceHelper.LoadIndividualAchievements(SessionManager.CurrentApplicantId.Value);
+                _nextNumber = 1;
+                foreach (var ach in achievements)
+                {
+                    _achievements.Add(new IndividualAchievement
+                    {
+                        Id = ach.Id,
+                        Number = _nextNumber++,
+                        Category = ach.Category ?? "",
+                        AchievementName = ach.AchievementName ?? ach.Category ?? "",
+                        Year = ach.Year ?? "",
+                        Points = ach.Points,
+                        DocumentName = string.IsNullOrWhiteSpace(ach.DocumentName) ? "Не загружен" : ach.DocumentName,
+                        DocumentPath = ach.DocumentPath
+                    });
+                }
+                UpdateTotalPoints();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка загрузки данных: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Ошибка загрузки: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
 
         private void CategoryCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (CategoryCombo.SelectedItem is ComboBoxItem selectedItem)
+            if (CategoryCombo.SelectedItem is ComboBoxItem item && item.Tag is int points)
             {
-                string category = selectedItem.Content.ToString();
-                if (_defaultPoints.ContainsKey(category))
-                {
-                    PointsTextBox.Text = _defaultPoints[category].ToString();
-                }
+                PointsTextBox.Text = points.ToString();
+                if (item.Content.ToString() != "Иное")
+                    AchievementNameTextBox.Text = item.Content.ToString();
                 else
-                {
-                    PointsTextBox.Text = "0";
-                }
-
-                // Автоматическое заполнение наименования
-                if (category != "Иное")
-                {
-                    AchievementNameTextBox.Text = category;
-                }
-                else
-                {
                     AchievementNameTextBox.Text = "";
-                }
             }
         }
 
         private void UploadFileButton_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog
+            var dialog = new OpenFileDialog { Title = "Выберите файл", Filter = "Все файлы (*.*)|*.*" };
+            if (dialog.ShowDialog() == true)
             {
-                Title = "Выберите файл, подтверждающий достижение",
-                Filter = "PDF файлы (*.pdf)|*.pdf|Изображения (*.jpg;*.png)|*.jpg;*.png|Все файлы (*.*)|*.*"
-            };
-
-            if (openFileDialog.ShowDialog() == true)
-            {
-                _uploadedFilePath = openFileDialog.FileName;
-                string fileName = System.IO.Path.GetFileName(_uploadedFilePath);
-                DocumentInfoTextBox.Text = fileName;
+                _uploadedFilePath = dialog.FileName;
+                DocumentInfoTextBox.Text = System.IO.Path.GetFileName(_uploadedFilePath);
             }
         }
 
         private void AddAchievementButton_Click(object sender, RoutedEventArgs e)
         {
-            // Проверка обязательных полей
             if (CategoryCombo.SelectedItem == null)
-            {
-                MessageBox.Show("Пожалуйста, выберите категорию достижения", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            // Проверка корректности баллов
+            { MessageBox.Show("Выберите категорию", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning); return; }
             if (!int.TryParse(PointsTextBox.Text, out int points) || points < 0)
-            {
-                MessageBox.Show("Пожалуйста, укажите корректное количество баллов", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
-                PointsTextBox.Focus();
-                return;
-            }
-
-            // Проверка максимальной суммы баллов
-            int currentTotal = _achievements.Sum(a => a.Points);
-            int maxPoints = 20;
-            if (currentTotal + points > maxPoints)
-            {
-                MessageBox.Show($"Сумма баллов за индивидуальные достижения не может превышать {maxPoints}. " +
-                               $"Текущая сумма: {currentTotal}. Добавляемый балл: {points}",
-                    "Превышение лимита", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
+            { MessageBox.Show("Укажите баллы", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning); return; }
 
             string category = (CategoryCombo.SelectedItem as ComboBoxItem)?.Content.ToString();
-            string achievementName = AchievementNameTextBox.Text;
+            string name = string.IsNullOrWhiteSpace(AchievementNameTextBox.Text) ? category : AchievementNameTextBox.Text;
             string year = (YearCombo.SelectedItem as ComboBoxItem)?.Content.ToString();
-            string documentName = DocumentInfoTextBox.Text;
+            string doc = string.IsNullOrWhiteSpace(DocumentInfoTextBox.Text) ? "Не загружен" : DocumentInfoTextBox.Text;
 
-            if (string.IsNullOrWhiteSpace(achievementName))
+            _achievements.Add(new IndividualAchievement
             {
-                achievementName = category;
-            }
+                Number = _nextNumber++,
+                Category = category,
+                AchievementName = name,
+                Year = year,
+                Points = points,
+                DocumentName = doc,
+                DocumentPath = _uploadedFilePath
+            });
 
-            try
-            {
-                int achievementId = 0;
-                if (SessionManager.CurrentApplicant != null)
-                {
-                    achievementId = DatabasePersistenceHelper.SaveIndividualAchievement(
-                        SessionManager.CurrentApplicantId.Value,
-                        category,
-                        achievementName,
-                        year,
-                        points,
-                        string.IsNullOrEmpty(documentName) ? "Не загружен" : documentName,
-                        _uploadedFilePath
-                    );
-                    DataService.LogChange("IndividualAchievements", achievementId, "INSERT");
-                }
-
-                _achievements.Add(new IndividualAchievement
-                {
-                    Id = achievementId,
-                    Number = _nextNumber++,
-                    Category = category,
-                    AchievementName = achievementName,
-                    Year = year,
-                    Points = points,
-                    DocumentName = string.IsNullOrEmpty(documentName) ? "Не загружен" : documentName,
-                    DocumentPath = _uploadedFilePath
-                });
-
-                ClearForm();
-                UpdateTotalPoints();
-
-                MessageBox.Show("Достижение успешно добавлено", "Успех",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка при сохранении достижения: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            ClearForm();
+            UpdateTotalPoints();
         }
 
         private void ClearForm()
@@ -263,170 +162,64 @@ namespace Admissions_Reserve.View
             _uploadedFilePath = null;
         }
 
-        private void CancelAddButton_Click(object sender, RoutedEventArgs e)
-        {
-            ClearForm();
-        }
+        private void CancelAddButton_Click(object sender, RoutedEventArgs e) => ClearForm();
 
         private void DeleteAchievement_Click(object sender, RoutedEventArgs e)
         {
-            var button = sender as Button;
-            var item = button?.Tag as IndividualAchievement;
-
-            if (item != null)
+            if ((sender as Button)?.Tag is IndividualAchievement item)
             {
-                var result = MessageBox.Show($"Удалить достижение \"{item.AchievementName}\"?",
-                    "Подтверждение удаления", MessageBoxButton.YesNo, MessageBoxImage.Question);
-
-                if (result == MessageBoxResult.Yes)
-                {
-                    try
-                    {
-                        if (item.Id > 0 && SessionManager.CurrentApplicant != null)
-                        {
-                            DatabasePersistenceHelper.DeleteIndividualAchievement(item.Id, SessionManager.CurrentApplicantId.Value);
-                            DataService.LogChange("IndividualAchievements", item.Id, "DELETE");
-                        }
-
-                        _achievements.Remove(item);
-                        RenumberAchievements();
-                        UpdateTotalPoints();
-
-                        MessageBox.Show("Достижение удалено", "Успех",
-                            MessageBoxButton.OK, MessageBoxImage.Information);
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"Ошибка при удалении: {ex.Message}", "Ошибка",
-                            MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                }
+                if (MessageBox.Show($"Удалить \"{item.AchievementName}\"?", "Подтверждение", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                { _achievements.Remove(item); RenumberAchievements(); UpdateTotalPoints(); }
             }
         }
 
-        private void RenumberAchievements()
-        {
-            int number = 1;
-            foreach (var achievement in _achievements)
-            {
-                achievement.Number = number++;
-            }
-            _nextNumber = number;
-        }
+        private void RenumberAchievements() { int n = 1; foreach (var a in _achievements) a.Number = n++; _nextNumber = n; }
 
-        private void UpdateTotalPoints()
-        {
-            int totalPoints = _achievements.Sum(a => a.Points);
-            TotalPointsTextBlock.Text = totalPoints.ToString();
+        private void UpdateTotalPoints() => TotalPointsTextBlock.Text = _achievements.Sum(a => a.Points).ToString();
 
-            if (totalPoints >= 20)
-            {
-                TotalPointsTextBlock.Background = System.Windows.Media.Brushes.Green;
-                TotalPointsTextBlock.Foreground = System.Windows.Media.Brushes.White;
-            }
-            else if (totalPoints >= 15)
-            {
-                TotalPointsTextBlock.Background = System.Windows.Media.Brushes.Orange;
-            }
-            else
-            {
-                TotalPointsTextBlock.Background = System.Windows.Media.Brushes.Gray;
-            }
-        }
-
-        // Сохранение данных в БД
         private bool SaveData()
         {
+            if (isSaving) return false;
             try
             {
-                if (SessionManager.CurrentApplicantId == null)
+                isSaving = true;
+                if (SessionManager.CurrentApplicantId == null) return false;
+
+                int applicantId = SessionManager.CurrentApplicantId.Value;
+
+                // Delete existing achievements for this applicant
+                try
                 {
-                    MessageBox.Show("Ошибка: данные абитуриента не найдены", "Ошибка",
-                        MessageBoxButton.OK, MessageBoxImage.Error);
-                    return false;
+                    var existing = DatabasePersistenceHelper.LoadIndividualAchievements(applicantId);
+                    foreach (var exAch in existing)
+                    {
+                        DatabasePersistenceHelper.DeleteIndividualAchievement(exAch.Id, applicantId);
+                    }
+                }
+                catch { /* Ignore if table missing or other issues */ }
+
+                // Save current collection
+                foreach (var ach in _achievements)
+                {
+                    DatabasePersistenceHelper.SaveIndividualAchievement(applicantId,
+                        ach.Category, ach.AchievementName, ach.Year, ach.Points, ach.DocumentName, ach.DocumentPath);
                 }
 
-                // Данные сохраняются при добавлении каждого достижения
-                MessageBox.Show("Данные об индивидуальных достижениях уже сохранены!", "Успех",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
-
+                // Log change
+                DataService.LogChange("IndividualAchievements", applicantId, "UPDATE");
                 return true;
             }
             catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка при сохранении данных: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-                return false;
-            }
+            { MessageBox.Show($"Ошибка: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); return false; }
+            finally { isSaving = false; }
         }
 
-        // Кнопка ДАЛЕЕ - переход на страницу приоритетов
-        private async void NextButton_Click(object sender, RoutedEventArgs e)
-        {
-            var button = sender as Button;
-            if (button != null)
-            {
-                button.IsEnabled = false;
-            }
-
-            try
-            {
-                if (SaveData())
-                {
-                    await System.Threading.Tasks.Task.Delay(100);
-                    NavigationService?.Navigate(new PrioritiesPage());
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка при переходе: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-            finally
-            {
-                if (button != null)
-                {
-                    button.IsEnabled = true;
-                }
-            }
-        }
-
-        // Кнопка НАЗАД - возврат на страницу конкурсов
-        private void PrevButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (NavigationService?.CanGoBack == true)
-                NavigationService.GoBack();
-        }
-
-        // Кнопка ОТМЕНИТЬ
+        private void PrevButton_Click(object sender, RoutedEventArgs e) { if (NavigationService?.CanGoBack == true) NavigationService.GoBack(); }
+        private void NextButton_Click(object sender, RoutedEventArgs e) { if (SaveData()) MessageBox.Show("Сохранено!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information); }
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
-            var result = MessageBox.Show("Вы уверены, что хотите отменить ввод данных?\nВсе несохраненные данные будут потеряны.",
-                "Подтверждение", MessageBoxButton.YesNo, MessageBoxImage.Question);
-
-            if (result == MessageBoxResult.Yes)
-            {
-                SessionManager.Clear();
-
-                var mainWindow = Application.Current.MainWindow as MainWindow;
-                if (mainWindow != null)
-                {
-                    mainWindow.MainFrame.Navigate(new WelcomePage());
-                }
-                else if (NavigationService?.CanGoBack == true)
-                {
-                    while (NavigationService.CanGoBack)
-                    {
-                        NavigationService.GoBack();
-                    }
-                }
-                else
-                {
-                    Application.Current.Shutdown();
-                }
-            }
+            if (MessageBox.Show("Отменить?", "Подтверждение", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+            { SessionManager.Clear(); if (NavigationService?.CanGoBack == true) while (NavigationService.CanGoBack) NavigationService.GoBack(); else Application.Current.Shutdown(); }
         }
-
-
     }
 }

@@ -1,0 +1,62 @@
+﻿using System;
+using System.Data.SQLite;
+using System.IO;
+using Admissions_Reserve.Model;
+
+namespace Admissions_Reserve
+{
+    /// <summary>
+    /// Verification script to check if Competitions table is populated correctly
+    /// </summary>
+    class VerifyCompetitionsData
+    {
+        static void Main(string[] args)
+        {
+            try
+            {
+                Console.WriteLine("Initializing database...");
+                // This will trigger DatabaseHelper initialization and seeding
+                var connectionString = DatabaseHelper.GetConnectionString();
+
+                Console.WriteLine("Checking Competitions table...");
+                using (var connection = new SQLiteConnection(connectionString))
+                {
+                    connection.Open();
+
+                    // Count records in Competitions table
+                    using (var cmd = new SQLiteCommand("SELECT COUNT(*) FROM Competitions", connection))
+                    {
+                        long count = (long)cmd.ExecuteScalar();
+                        Console.WriteLine($"Total Competitions records: {count}");
+
+                        if (count == 0)
+                        {
+                            Console.WriteLine("ERROR: Competitions table is empty!");
+                            return;
+                        }
+                    }
+
+                    // Display all competitions
+                    Console.WriteLine("\nCompetitions in database:");
+                    using (var cmd = new SQLiteCommand("SELECT Id, Name, EducationBase, StudyForm, AdmissionType, Department FROM Competitions ORDER BY Id", connection))
+                    {
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                Console.WriteLine($"  ID: {reader[0]}, Name: {reader[1]}, Base: {reader[2]}, Form: {reader[3]}, Type: {reader[4]}, Dept: {reader[5]}");
+                            }
+                        }
+                    }
+
+                    Console.WriteLine("\nSUCCESS: Competitions table is properly populated!");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"ERROR: {ex.Message}");
+                Console.WriteLine(ex.StackTrace);
+            }
+        }
+    }
+}

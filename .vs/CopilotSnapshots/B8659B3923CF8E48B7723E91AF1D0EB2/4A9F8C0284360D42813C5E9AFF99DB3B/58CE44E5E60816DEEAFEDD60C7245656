@@ -1,0 +1,658 @@
+﻿// DatabaseHelper.cs
+using System;
+using System.Collections.Generic;
+using System.Data.SQLite;
+using System.IO;
+using System.Windows;
+
+namespace Admissions_Reserve.Model
+{
+    public static class DatabaseHelper
+    {
+        private static string connectionString;
+        private static readonly object lockObject = new object();
+
+        static DatabaseHelper()
+        {
+            InitializeDatabase();
+        }
+
+        private static void InitializeDatabase()
+        {
+            lock (lockObject)
+            {
+                string dbDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "App_Data");
+
+                // Создаем директорию если её нет
+                if (!Directory.Exists(dbDirectory))
+                {
+                    Directory.CreateDirectory(dbDirectory);
+                }
+
+                string dbPath = Path.Combine(dbDirectory, "AdmissionsReserve.db");
+
+                // Проверяем, существует ли файл БД
+                bool dbExists = File.Exists(dbPath);
+
+                if (!dbExists)
+                {
+                    // Создаем новый файл БД
+                    SQLiteConnection.CreateFile(dbPath);
+                }
+
+                connectionString = $"Data Source={dbPath};Version=3;Foreign Keys=True;";
+
+                // Создаем или обновляем таблицы
+                using (var connection = new SQLiteConnection(connectionString))
+                {
+                    connection.Open();
+
+                    // Включаем поддержку внешних ключей
+                    using (var cmd = new SQLiteCommand("PRAGMA foreign_keys = ON;", connection))
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+
+                    // Создаем все таблицы (если их нет)
+                    CreateAllTablesIfNotExist(connection);
+
+                    // Заполняем справочные данные (если их нет)
+                    SeedDataIfEmpty(connection);
+                }
+            }
+        }
+
+        private static void CreateAllTablesIfNotExist(SQLiteConnection connection)
+        {
+            string[] tableCommands = new string[]
+            {
+                // Таблицы справочников
+                @"CREATE TABLE IF NOT EXISTS Countries (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    Name TEXT NOT NULL,
+                    IsActive INTEGER DEFAULT 1
+                )",
+                // В методе CreateAllTablesIfNotExist добавьте эту таблицу в массив tableCommands:
+
+@"CREATE TABLE IF NOT EXISTS PersonalDocumentTypes (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    Name TEXT NOT NULL,
+    SortOrder INTEGER DEFAULT 0,
+    IsActive INTEGER DEFAULT 1
+)",
+
+                @"CREATE TABLE IF NOT EXISTS Genders (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    Name TEXT NOT NULL
+                )",
+
+                @"CREATE TABLE IF NOT EXISTS Citizenships (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    Name TEXT NOT NULL
+                )",
+
+                @"CREATE TABLE IF NOT EXISTS IdentityDocumentTypes (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    Name TEXT NOT NULL
+                )",
+
+                @"CREATE TABLE IF NOT EXISTS ApplicationTypes (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    Name TEXT NOT NULL
+                )",
+
+                @"CREATE TABLE IF NOT EXISTS EducationDocumentTypes (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    Name TEXT NOT NULL
+                )",
+
+                @"CREATE TABLE IF NOT EXISTS EducationLevels (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    Name TEXT NOT NULL
+                )",
+
+                @"CREATE TABLE IF NOT EXISTS DocumentForms (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    Name TEXT NOT NULL
+                )",
+                
+                // Основные таблицы
+                @"CREATE TABLE IF NOT EXISTS Applicants (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    LastName TEXT,
+                    FirstName TEXT,
+                    Patronymic TEXT,
+                    BirthDate TEXT,
+                    BirthPlace TEXT,
+                    GenderId INTEGER,
+                    CitizenshipId INTEGER,
+                    Snils TEXT,
+                    RegistrationCountryId INTEGER,
+                    RegistrationPostalCode TEXT,
+                    RegistrationRegion TEXT,
+                    RegistrationDistrict TEXT,
+                    RegistrationCity TEXT,
+                    RegistrationStreet TEXT,
+                    RegistrationHouse TEXT,
+                    RegistrationBuilding TEXT,
+                    RegistrationApartment TEXT,
+                    ActualAddressSame INTEGER,
+                    ActualCountryId INTEGER,
+                    ActualPostalCode TEXT,
+                    ActualRegion TEXT,
+                    ActualDistrict TEXT,
+                    ActualCity TEXT,
+                    ActualStreet TEXT,
+                    ActualHouse TEXT,
+                    ActualBuilding TEXT,
+                    ActualApartment TEXT,
+                    Phone TEXT,
+                    MobilePhone TEXT,
+                    Fax TEXT,
+                    WorkPhone TEXT,
+                    Email TEXT,
+                    AdditionalEmail TEXT,
+                    Website TEXT,
+                    Telegram TEXT,
+                    WhatsApp TEXT,
+                    Viber TEXT,
+                    PreferredContactMethod TEXT,
+                    ContactComment TEXT,
+                    CreatedAt TEXT NOT NULL,
+                    UpdatedAt TEXT NOT NULL
+                )",
+
+                @"CREATE TABLE IF NOT EXISTS IdentityDocuments (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    ApplicantId INTEGER NOT NULL,
+                    DocumentTypeId INTEGER,
+                    Series TEXT,
+                    Number TEXT,
+                    IssuedBy TEXT,
+                    IssueDate TEXT,
+                    DepartmentCode TEXT,
+                    IsPrimary INTEGER,
+                    AddedDate TEXT NOT NULL
+                )",
+
+                @"CREATE TABLE IF NOT EXISTS EducationDocuments (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    ApplicantId INTEGER NOT NULL,
+                    ApplicationTypeId INTEGER,
+                    FirstTimeEducation INTEGER DEFAULT 0,
+                    CountryId INTEGER,
+                    City TEXT,
+                    EducationalOrg TEXT,
+                    DocumentTypeId INTEGER,
+                    EducationLevelId INTEGER,
+                    DocumentEducationLevelId INTEGER,
+                    Series TEXT,
+                    Number TEXT,
+                    IssueDate TEXT,
+                    GraduationYear TEXT,
+                    SatisfactoryCount INTEGER DEFAULT 0,
+                    GoodCount INTEGER DEFAULT 0,
+                    ExcellentCount INTEGER DEFAULT 0,
+                    AverageScore REAL DEFAULT 0,
+                    FrdoVerified INTEGER DEFAULT 0,
+                    ScanFilePath TEXT,
+                    DocumentFormId INTEGER,
+                    OriginalOrganization TEXT,
+                    CreatedAt TEXT NOT NULL,
+                    UpdatedAt TEXT NOT NULL
+                )",
+
+                @"CREATE TABLE IF NOT EXISTS ChangeHistory (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    TableName TEXT,
+                    RecordId INTEGER,
+                    Action TEXT,
+                    ChangedAt TEXT NOT NULL
+                )",
+
+                // ========== НОВЫЕ ТАБЛИЦЫ ==========
+
+                @"CREATE TABLE IF NOT EXISTS Relatives (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    ApplicantId INTEGER NOT NULL,
+                    Inn TEXT,
+                    RelationDegree TEXT,
+                    LastName TEXT,
+                    FirstName TEXT,
+                    Patronymic TEXT,
+                    BirthDate TEXT,
+                    Phone TEXT,
+                    Email TEXT,
+                    WorkPlace TEXT,
+                    Position TEXT,
+                    IsBlocked INTEGER DEFAULT 0,
+                    BlockReason TEXT,
+                    CreatedAt TEXT NOT NULL,
+                    UpdatedAt TEXT NOT NULL,
+                    FOREIGN KEY (ApplicantId) REFERENCES Applicants(Id) ON DELETE CASCADE
+                )",
+
+                @"CREATE TABLE IF NOT EXISTS Languages (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    Name TEXT NOT NULL
+                )",
+
+                @"CREATE TABLE IF NOT EXISTS LanguageLevels (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    Name TEXT NOT NULL,
+                    SortOrder INTEGER DEFAULT 0
+                )",
+
+                @"CREATE TABLE IF NOT EXISTS ApplicantLanguages (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    ApplicantId INTEGER NOT NULL,
+                    LanguageId INTEGER,
+                    LanguageLevelId INTEGER,
+                    IsPrimary INTEGER DEFAULT 0,
+                    CreatedAt TEXT NOT NULL,
+                    UpdatedAt TEXT NOT NULL,
+                    FOREIGN KEY (ApplicantId) REFERENCES Applicants(Id) ON DELETE CASCADE,
+                    FOREIGN KEY (LanguageId) REFERENCES Languages(Id),
+                    FOREIGN KEY (LanguageLevelId) REFERENCES LanguageLevels(Id)
+                )",
+
+                @"CREATE TABLE IF NOT EXISTS SportAchievements (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    ApplicantId INTEGER NOT NULL,
+                    SportType TEXT,
+                    Achievement TEXT,
+                    Rank TEXT,
+                    Year INTEGER,
+                    CreatedAt TEXT NOT NULL,
+                    UpdatedAt TEXT NOT NULL,
+                    FOREIGN KEY (ApplicantId) REFERENCES Applicants(Id) ON DELETE CASCADE
+                )",
+
+                @"CREATE TABLE IF NOT EXISTS IndividualAchievements (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    ApplicantId INTEGER NOT NULL,
+                    Achievement TEXT,
+                    CreatedAt TEXT NOT NULL,
+                    UpdatedAt TEXT NOT NULL,
+                    FOREIGN KEY (ApplicantId) REFERENCES Applicants(Id) ON DELETE CASCADE
+                )",
+
+                @"CREATE TABLE IF NOT EXISTS ApplicationPriorities (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    ApplicantId INTEGER NOT NULL,
+                    PriorityOrder INTEGER,
+                    ProgramCode TEXT,
+                    ProgramName TEXT,
+                    StudyForm TEXT,
+                    EducationBase TEXT,
+                    Department TEXT,
+                    AdmissionType TEXT,
+                    Branch TEXT,
+                    IsSelected INTEGER DEFAULT 0,
+                    CreatedAt TEXT NOT NULL,
+                    UpdatedAt TEXT NOT NULL,
+                    FOREIGN KEY (ApplicantId) REFERENCES Applicants(Id) ON DELETE CASCADE
+                )",
+
+                @"CREATE TABLE IF NOT EXISTS AttachedDocuments (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    ApplicantId INTEGER NOT NULL,
+                    DocumentName TEXT,
+                    DocumentType TEXT,
+                    FilePath TEXT,
+                    FileSize INTEGER,
+                    UploadedAt TEXT NOT NULL,
+                    CreatedAt TEXT NOT NULL,
+                    UpdatedAt TEXT NOT NULL,
+                    FOREIGN KEY (ApplicantId) REFERENCES Applicants(Id) ON DELETE CASCADE
+                )",
+
+                @"CREATE TABLE IF NOT EXISTS ContactInformation (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    ApplicantId INTEGER NOT NULL,
+                    ContactType TEXT,
+                    ContactValue TEXT,
+                    IsPreferred INTEGER DEFAULT 0,
+                    CreatedAt TEXT NOT NULL,
+                    UpdatedAt TEXT NOT NULL,
+                    FOREIGN KEY (ApplicantId) REFERENCES Applicants(Id) ON DELETE CASCADE
+                )",
+                @"CREATE TABLE IF NOT EXISTS Documents (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    ApplicantId INTEGER NOT NULL,
+                    DocumentTypeId INTEGER,
+                    Series TEXT,
+                    Number TEXT,
+                    CreatedAt TEXT NOT NULL,
+                    UpdatedAt TEXT NOT NULL,
+                    FOREIGN KEY (ApplicantId) REFERENCES Applicants(Id) ON DELETE CASCADE
+                )",
+                @"CREATE TABLE IF NOT EXISTS RelativeDocuments (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    ApplicantId INTEGER NOT NULL,
+    RelativeTypeId INTEGER,
+    LastName TEXT,
+    FirstName TEXT,
+    Patronymic TEXT,
+    BirthDate TEXT,
+    BirthPlace TEXT,
+    GenderId INTEGER,
+    DocumentTypeId INTEGER,
+    Series TEXT,
+    Number TEXT,
+    IssuedBy TEXT,
+    IssueDate TEXT,
+    DepartmentCode TEXT,
+    Snils TEXT,
+    Inn TEXT,
+    Phone TEXT,
+    Email TEXT,
+    RegistrationAddress TEXT,
+    ActualAddress TEXT,
+    Workplace TEXT,
+    Position TEXT,
+    IsGuardian INTEGER DEFAULT 0,
+    CreatedAt TEXT NOT NULL,
+    UpdatedAt TEXT NOT NULL
+)",
+
+@"CREATE TABLE IF NOT EXISTS RelativeTypes (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    Name TEXT NOT NULL
+)",
+
+                @"CREATE TABLE IF NOT EXISTS CompetitionPriorities (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    ApplicantId INTEGER NOT NULL,
+                    CompetitionName TEXT,
+                    PriorityOrder INTEGER,
+                    IsSelected INTEGER DEFAULT 0,
+                    CreatedAt TEXT NOT NULL,
+                    UpdatedAt TEXT NOT NULL,
+                    FOREIGN KEY (ApplicantId) REFERENCES Applicants(Id) ON DELETE CASCADE
+                )"
+            };
+
+            foreach (string sql in tableCommands)
+            {
+                using (var cmd = new SQLiteCommand(sql, connection))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        private static void SeedDataIfEmpty(SQLiteConnection connection)
+        {
+            // Проверяем, есть ли данные в таблице Genders
+            using (var cmd = new SQLiteCommand("SELECT COUNT(*) FROM Genders", connection))
+            {
+                if ((long)cmd.ExecuteScalar() > 0)
+                {
+                    // Данные уже есть, проверяем новые таблицы
+                    SeedNewTablesIfEmpty(connection);
+                    return;
+                }
+            }
+
+            // Заполняем все справочные данные
+            string[] allSeedData = new string[]
+            {
+                // Пол
+                "INSERT OR IGNORE INTO Genders (Name) VALUES ('Мужской')",
+                "INSERT OR IGNORE INTO Genders (Name) VALUES ('Женский')",
+                
+                // Добавьте в массив allSeedData после LanguageLevels:
+                // Типы родственников
+"INSERT OR IGNORE INTO RelativeTypes (Name) VALUES ('Отец')",
+"INSERT OR IGNORE INTO RelativeTypes (Name) VALUES ('Мать')",
+"INSERT OR IGNORE INTO RelativeTypes (Name) VALUES ('Брат')",
+"INSERT OR IGNORE INTO RelativeTypes (Name) VALUES ('Сестра')",
+"INSERT OR IGNORE INTO RelativeTypes (Name) VALUES ('Муж')",
+"INSERT OR IGNORE INTO RelativeTypes (Name) VALUES ('Жена')",
+"INSERT OR IGNORE INTO RelativeTypes (Name) VALUES ('Опекун')",
+"INSERT OR IGNORE INTO RelativeTypes (Name) VALUES ('Попечитель')",
+// ========== ТИПЫ ПЕРСОНАЛЬНЫХ ДОКУМЕНТОВ ==========
+"INSERT OR IGNORE INTO PersonalDocumentTypes (Name, SortOrder) VALUES ('Медицинская справка 086у', 1)",
+"INSERT OR IGNORE INTO PersonalDocumentTypes (Name, SortOrder) VALUES ('Полис ОМС', 2)",
+"INSERT OR IGNORE INTO PersonalDocumentTypes (Name, SortOrder) VALUES ('СНИЛС', 3)",
+"INSERT OR IGNORE INTO PersonalDocumentTypes (Name, SortOrder) VALUES ('ИНН', 4)",
+"INSERT OR IGNORE INTO PersonalDocumentTypes (Name, SortOrder) VALUES ('Фото 3x4', 5)",
+"INSERT OR IGNORE INTO PersonalDocumentTypes (Name, SortOrder) VALUES ('Признанный сертификат', 6)",
+"INSERT OR IGNORE INTO PersonalDocumentTypes (Name, SortOrder) VALUES ('Справка об инвалидности', 7)",
+"INSERT OR IGNORE INTO PersonalDocumentTypes (Name, SortOrder) VALUES ('Свидетельство о браке', 8)",
+"INSERT OR IGNORE INTO PersonalDocumentTypes (Name, SortOrder) VALUES ('Свидетельство о рождении', 9)",
+"INSERT OR IGNORE INTO PersonalDocumentTypes (Name, SortOrder) VALUES ('Военный билет', 10)",
+"INSERT OR IGNORE INTO PersonalDocumentTypes (Name, SortOrder) VALUES ('Водительское удостоверение', 11)",
+"INSERT OR IGNORE INTO PersonalDocumentTypes (Name, SortOrder) VALUES ('Загранпаспорт', 12)",
+                // Гражданство
+                "INSERT OR IGNORE INTO Citizenships (Name) VALUES ('Российская Федерация')",
+                "INSERT OR IGNORE INTO Citizenships (Name) VALUES ('Республика Беларусь')",
+                "INSERT OR IGNORE INTO Citizenships (Name) VALUES ('Республика Казахстан')",
+                "INSERT OR IGNORE INTO Citizenships (Name) VALUES ('Другое')",
+                
+                // Страны
+                "INSERT OR IGNORE INTO Countries (Name, IsActive) VALUES ('Россия', 1)",
+                "INSERT OR IGNORE INTO Countries (Name, IsActive) VALUES ('Беларусь', 1)",
+                "INSERT OR IGNORE INTO Countries (Name, IsActive) VALUES ('Казахстан', 1)",
+                "INSERT OR IGNORE INTO Countries (Name, IsActive) VALUES ('Украина', 1)",
+                "INSERT OR IGNORE INTO Countries (Name, IsActive) VALUES ('Другая страна', 1)",
+                
+                // Типы удостоверений
+                "INSERT OR IGNORE INTO IdentityDocumentTypes (Name) VALUES ('Паспорт гражданина РФ')",
+                "INSERT OR IGNORE INTO IdentityDocumentTypes (Name) VALUES ('Загранпаспорт')",
+                "INSERT OR IGNORE INTO IdentityDocumentTypes (Name) VALUES ('Свидетельство о рождении')",
+                "INSERT OR IGNORE INTO IdentityDocumentTypes (Name) VALUES ('Водительское удостоверение')",
+                "INSERT OR IGNORE INTO IdentityDocumentTypes (Name) VALUES ('Военный билет')",
+                
+                // Типы заявлений
+                "INSERT OR IGNORE INTO ApplicationTypes (Name) VALUES ('Среднее профессиональное образование')",
+                "INSERT OR IGNORE INTO ApplicationTypes (Name) VALUES ('Высшее образование - бакалавриат')",
+                "INSERT OR IGNORE INTO ApplicationTypes (Name) VALUES ('Высшее образование - магистратура')",
+                "INSERT OR IGNORE INTO ApplicationTypes (Name) VALUES ('Высшее образование - аспирантура')",
+                "INSERT OR IGNORE INTO ApplicationTypes (Name) VALUES ('Высшее образование - ординатура')",
+                
+                // Типы документов об образовании
+                "INSERT OR IGNORE INTO EducationDocumentTypes (Name) VALUES ('Аттестат')",
+                "INSERT OR IGNORE INTO EducationDocumentTypes (Name) VALUES ('Диплом')",
+                "INSERT OR IGNORE INTO EducationDocumentTypes (Name) VALUES ('Свидетельство')",
+                "INSERT OR IGNORE INTO EducationDocumentTypes (Name) VALUES ('Справка об обучении')",
+                
+                // Уровни образования
+                "INSERT OR IGNORE INTO EducationLevels (Name) VALUES ('Среднее общее')",
+                "INSERT OR IGNORE INTO EducationLevels (Name) VALUES ('Среднее профессиональное')",
+                "INSERT OR IGNORE INTO EducationLevels (Name) VALUES ('Высшее - бакалавриат')",
+                "INSERT OR IGNORE INTO EducationLevels (Name) VALUES ('Высшее - магистратура')",
+                "INSERT OR IGNORE INTO EducationLevels (Name) VALUES ('Высшее - специалитет')",
+                
+                // Формы получения документа
+                "INSERT OR IGNORE INTO DocumentForms (Name) VALUES ('Копия')",
+                "INSERT OR IGNORE INTO DocumentForms (Name) VALUES ('Оригинал')",
+                "INSERT OR IGNORE INTO DocumentForms (Name) VALUES ('Заверенная копия')",
+                "INSERT OR IGNORE INTO DocumentForms (Name) VALUES ('Электронная копия')",
+
+                // ========== ЯЗЫКИ ==========
+                "INSERT OR IGNORE INTO Languages (Name) VALUES ('Русский')",
+                "INSERT OR IGNORE INTO Languages (Name) VALUES ('Английский')",
+                "INSERT OR IGNORE INTO Languages (Name) VALUES ('Немецкий')",
+                "INSERT OR IGNORE INTO Languages (Name) VALUES ('Французский')",
+                "INSERT OR IGNORE INTO Languages (Name) VALUES ('Испанский')",
+                "INSERT OR IGNORE INTO Languages (Name) VALUES ('Китайский')",
+                "INSERT OR IGNORE INTO Languages (Name) VALUES ('Японский')",
+                "INSERT OR IGNORE INTO Languages (Name) VALUES ('Корейский')",
+
+                // ========== УРОВНИ ВЛАДЕНИЯ ЯЗЫКОМ ==========
+                "INSERT OR IGNORE INTO LanguageLevels (Name, SortOrder) VALUES ('Элементарный', 1)",
+                "INSERT OR IGNORE INTO LanguageLevels (Name, SortOrder) VALUES ('Базовый', 2)",
+                "INSERT OR IGNORE INTO LanguageLevels (Name, SortOrder) VALUES ('Средний', 3)",
+                "INSERT OR IGNORE INTO LanguageLevels (Name, SortOrder) VALUES ('Выше среднего', 4)",
+                "INSERT OR IGNORE INTO LanguageLevels (Name, SortOrder) VALUES ('Продвинутый', 5)",
+                "INSERT OR IGNORE INTO LanguageLevels (Name, SortOrder) VALUES ('Беглый', 6)"
+            };
+
+            foreach (string sql in allSeedData)
+            {
+                using (var cmd = new SQLiteCommand(sql, connection))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        private static void SeedNewTablesIfEmpty(SQLiteConnection connection)
+        {
+            // Проверяем и заполняем новые таблицы, если они пустые
+            var newTablesSeed = new Dictionary<string, string[]>
+            {
+                {
+                    "ApplicationTypes",
+                    new string[]
+                    {
+                        "INSERT INTO ApplicationTypes (Name) SELECT 'Среднее профессиональное образование' WHERE NOT EXISTS (SELECT 1 FROM ApplicationTypes)",
+                        "INSERT INTO ApplicationTypes (Name) SELECT 'Высшее образование - бакалавриат' WHERE NOT EXISTS (SELECT 1 FROM ApplicationTypes LIMIT 1 OFFSET 1)",
+                        "INSERT INTO ApplicationTypes (Name) SELECT 'Высшее образование - магистратура' WHERE NOT EXISTS (SELECT 1 FROM ApplicationTypes LIMIT 1 OFFSET 2)",
+                        "INSERT INTO ApplicationTypes (Name) SELECT 'Высшее образование - аспирантура' WHERE NOT EXISTS (SELECT 1 FROM ApplicationTypes LIMIT 1 OFFSET 3)",
+                        "INSERT INTO ApplicationTypes (Name) SELECT 'Высшее образование - ординатура' WHERE NOT EXISTS (SELECT 1 FROM ApplicationTypes LIMIT 1 OFFSET 4)"
+                    }
+                },
+                {
+                    "EducationDocumentTypes",
+                    new string[]
+                    {
+                        "INSERT INTO EducationDocumentTypes (Name) SELECT 'Аттестат' WHERE NOT EXISTS (SELECT 1 FROM EducationDocumentTypes)",
+                        "INSERT INTO EducationDocumentTypes (Name) SELECT 'Диплом' WHERE NOT EXISTS (SELECT 1 FROM EducationDocumentTypes LIMIT 1 OFFSET 1)",
+                        "INSERT INTO EducationDocumentTypes (Name) SELECT 'Свидетельство' WHERE NOT EXISTS (SELECT 1 FROM EducationDocumentTypes LIMIT 1 OFFSET 2)",
+                        "INSERT INTO EducationDocumentTypes (Name) SELECT 'Справка об обучении' WHERE NOT EXISTS (SELECT 1 FROM EducationDocumentTypes LIMIT 1 OFFSET 3)"
+                    }
+                },
+                {
+                    "EducationLevels",
+                    new string[]
+                    {
+                        "INSERT INTO EducationLevels (Name) SELECT 'Среднее общее' WHERE NOT EXISTS (SELECT 1 FROM EducationLevels)",
+                        "INSERT INTO EducationLevels (Name) SELECT 'Среднее профессиональное' WHERE NOT EXISTS (SELECT 1 FROM EducationLevels LIMIT 1 OFFSET 1)",
+                        "INSERT INTO EducationLevels (Name) SELECT 'Высшее - бакалавриат' WHERE NOT EXISTS (SELECT 1 FROM EducationLevels LIMIT 1 OFFSET 2)",
+                        "INSERT INTO EducationLevels (Name) SELECT 'Высшее - магистратура' WHERE NOT EXISTS (SELECT 1 FROM EducationLevels LIMIT 1 OFFSET 3)",
+                        "INSERT INTO EducationLevels (Name) SELECT 'Высшее - специалитет' WHERE NOT EXISTS (SELECT 1 FROM EducationLevels LIMIT 1 OFFSET 4)"
+                    }
+                },
+                {
+                    "DocumentForms",
+                    new string[]
+                    {
+                        "INSERT INTO DocumentForms (Name) SELECT 'Копия' WHERE NOT EXISTS (SELECT 1 FROM DocumentForms)",
+                        "INSERT INTO DocumentForms (Name) SELECT 'Оригинал' WHERE NOT EXISTS (SELECT 1 FROM DocumentForms LIMIT 1 OFFSET 1)",
+                        "INSERT INTO DocumentForms (Name) SELECT 'Заверенная копия' WHERE NOT EXISTS (SELECT 1 FROM DocumentForms LIMIT 1 OFFSET 2)",
+                        "INSERT INTO DocumentForms (Name) SELECT 'Электронная копия' WHERE NOT EXISTS (SELECT 1 FROM DocumentForms LIMIT 1 OFFSET 3)"
+                    }
+                }
+            };
+
+            foreach (var table in newTablesSeed)
+            {
+                // Проверяем, пустая ли таблица
+                using (var cmd = new SQLiteCommand($"SELECT COUNT(*) FROM {table.Key}", connection))
+                {
+                    if ((long)cmd.ExecuteScalar() == 0)
+                    {
+                        // Заполняем таблицу
+                        foreach (string sql in table.Value)
+                        {
+                            try
+                            {
+                                using (var insertCmd = new SQLiteCommand(sql, connection))
+                                {
+                                    insertCmd.ExecuteNonQuery();
+                                }
+                            }
+                            catch { }
+                        }
+                    }
+                }
+            }
+
+            // Добавляем новые справочные данные для языков и уровней владения
+            var newSeedData = new Dictionary<string, string[]>
+            {
+                {
+                    "Languages",
+                    new string[]
+                    {
+                        "INSERT OR IGNORE INTO Languages (Name) VALUES ('Русский')",
+                        "INSERT OR IGNORE INTO Languages (Name) VALUES ('Английский')",
+                        "INSERT OR IGNORE INTO Languages (Name) VALUES ('Немецкий')",
+                        "INSERT OR IGNORE INTO Languages (Name) VALUES ('Французский')",
+                        "INSERT OR IGNORE INTO Languages (Name) VALUES ('Испанский')",
+                        "INSERT OR IGNORE INTO Languages (Name) VALUES ('Китайский')",
+                        "INSERT OR IGNORE INTO Languages (Name) VALUES ('Японский')",
+                        "INSERT OR IGNORE INTO Languages (Name) VALUES ('Корейский')"
+                    }
+                },
+                {
+                    "LanguageLevels",
+                    new string[]
+                    {
+                        "INSERT OR IGNORE INTO LanguageLevels (Name, SortOrder) VALUES ('Элементарный', 1)",
+                        "INSERT OR IGNORE INTO LanguageLevels (Name, SortOrder) VALUES ('Базовый', 2)",
+                        "INSERT OR IGNORE INTO LanguageLevels (Name, SortOrder) VALUES ('Средний', 3)",
+                        "INSERT OR IGNORE INTO LanguageLevels (Name, SortOrder) VALUES ('Выше среднего', 4)",
+                        "INSERT OR IGNORE INTO LanguageLevels (Name, SortOrder) VALUES ('Продвинутый', 5)",
+                        "INSERT OR IGNORE INTO LanguageLevels (Name, SortOrder) VALUES ('Беглый', 6)"
+                    }
+                }
+            };
+
+            foreach (var table in newSeedData)
+            {
+                // Проверяем, пустая ли таблица
+                try
+                {
+                    using (var cmd = new SQLiteCommand($"SELECT COUNT(*) FROM {table.Key}", connection))
+                    {
+                        if ((long)cmd.ExecuteScalar() == 0)
+                        {
+                            // Заполняем таблицу
+                            foreach (string sql in table.Value)
+                            {
+                                using (var insertCmd = new SQLiteCommand(sql, connection))
+                                {
+                                    insertCmd.ExecuteNonQuery();
+                                }
+                            }
+                        }
+                    }
+                }
+                catch { }
+            }
+        }
+        // DatabaseHelper.cs - добавьте этот метод
+
+        public static string GetConnectionString()
+        {
+            string dbDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "App_Data");
+            if (!Directory.Exists(dbDirectory))
+            {
+                Directory.CreateDirectory(dbDirectory);
+            }
+            string dbPath = Path.Combine(dbDirectory, "AdmissionsReserve.db");
+            return $"Data Source={dbPath};Version=3;Foreign Keys=True;";
+        }
+        public static string GetDatabasePath()
+        {
+            return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "App_Data", "AdmissionsReserve.db");
+        }
+
+        public static SQLiteConnection GetConnection()
+        {
+            var connection = new SQLiteConnection(connectionString);
+            connection.Open();
+
+            using (var cmd = new SQLiteCommand("PRAGMA foreign_keys = ON;", connection))
+            {
+                cmd.ExecuteNonQuery();
+            }
+
+            return connection;
+        }
+    }
+}

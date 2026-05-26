@@ -285,8 +285,9 @@ namespace Admissions_Reserve.View
                 int relativeId = 0;
                 if (SessionManager.CurrentApplicant != null)
                 {
-                    relativeId = DatabasePersistenceHelper.SaveRelativeDocument(
+                    relativeId = DataService.CreateRelative(
                         SessionManager.CurrentApplicantId.Value,
+                        InnTextBox.Text?.Trim(),
                         (RelationDegreeCombo.SelectedItem as ComboBoxItem)?.Content.ToString(),
                         LastNameTextBox.Text?.Trim(),
                         FirstNameTextBox.Text?.Trim(),
@@ -295,11 +296,9 @@ namespace Admissions_Reserve.View
                         PhoneTextBox.Text?.Trim(),
                         EmailTextBox.Text?.Trim(),
                         WorkPlaceTextBox.Text?.Trim(),
-                        PositionTextBox.Text?.Trim(),
-                        "",
-                        false
+                        PositionTextBox.Text?.Trim()
                     );
-                    DataService.LogChange("RelativeDocuments", relativeId, "INSERT");
+                    DataService.LogChange("Relatives", relativeId, "INSERT");
                 }
 
                 var newRelative = new RelativeItem

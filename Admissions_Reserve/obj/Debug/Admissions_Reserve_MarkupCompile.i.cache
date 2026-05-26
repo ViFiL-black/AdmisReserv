@@ -4,16 +4,16 @@
 winexe
 C#
 .cs
-C:\Users\ViFiL\source\repos\Admissions Reserve\Admissions Reserve\obj\Debug\
+C:\Users\ViFiL\source\repos\Admissions_Reserve\Admissions_Reserve\obj\Debug\
 Admissions_Reserve
 none
 false
 DEBUG;TRACE
-C:\Users\ViFiL\source\repos\Admissions Reserve\Admissions Reserve\App.xaml
+C:\Users\ViFiL\source\repos\Admissions_Reserve\Admissions_Reserve\App.xaml
 14276352515
 
-34-792382550
-134-1324483803
+32-1438746828
+134-1241029415
 View\AdditionalInfoPage.xaml;View\ApplicantWizardPage.xaml;View\ApplicationCompetitionsPage.xaml;View\ApplicationTypeAndEducationPage.xaml;View\AttachedDocumentsPage.xaml;View\ContactsPage.xaml;View\DocumentsPage.xaml;View\IdentityPage.xaml;View\IndividualAchievementsPage.xaml;View\LoginWindow.xaml;MainWindow.xaml;View\PrioritiesPage.xaml;View\RelativesPage.xaml;View\WelcomePage.xaml;
 
 False

@@ -1,0 +1,42 @@
+// Вставить эти методы в DataService.cs после метода GetApplicantIndividualAchievements
+// и перед комментарием "========== МЕТОДЫ ДЛЯ ПРИОРИТЕТАХ =========="
+
+public static void DeleteIndividualAchievement(int id)
+{
+    using (var connection = DatabaseHelper.GetConnection())
+    {
+        var query = "DELETE FROM IndividualAchievements WHERE Id = @Id";
+        using (var cmd = new SQLiteCommand(query, connection))
+        {
+            cmd.Parameters.AddWithValue("@Id", id);
+            cmd.ExecuteNonQuery();
+        }
+    }
+}
+
+public static void UpdateIndividualAchievement(IndividualAchievements achievement)
+{
+    using (var connection = DatabaseHelper.GetConnection())
+    {
+        var query = @"UPDATE IndividualAchievements SET 
+            AchievementTypeId = @AchievementTypeId,
+            AchievementName = @AchievementName,
+            Year = @Year,
+            Points = @Points,
+            DocumentName = @DocumentName,
+            DocumentPath = @DocumentPath,
+            UpdatedAt = @UpdatedAt WHERE Id = @Id";
+        using (var cmd = new SQLiteCommand(query, connection))
+        {
+            cmd.Parameters.AddWithValue("@Id", achievement.Id);
+            cmd.Parameters.AddWithValue("@AchievementTypeId", (object)achievement.AchievementTypeId ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@AchievementName", (object)achievement.AchievementName ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@Year", (object)achievement.Year ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@Points", achievement.Points);
+            cmd.Parameters.AddWithValue("@DocumentName", (object)achievement.DocumentName ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@DocumentPath", (object)achievement.DocumentPath ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@UpdatedAt", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+            cmd.ExecuteNonQuery();
+        }
+    }
+}

@@ -181,7 +181,7 @@ namespace Admissions_Reserve.Model
             {
                 var query = @"INSERT INTO Applicants (
                     LastName, FirstName, Patronymic, BirthDate, BirthPlace,
-                    GenderId, CitizenshipId, Snils,
+                    GenderId, CitizenshipId, Snils, Inn, BirthCountryId,
                     RegistrationCountryId, RegistrationPostalCode, RegistrationRegion,
                     RegistrationDistrict, RegistrationCity, RegistrationStreet,
                     RegistrationHouse, RegistrationBuilding, RegistrationApartment,
@@ -191,10 +191,14 @@ namespace Admissions_Reserve.Model
                     Phone, MobilePhone, Fax, WorkPhone, Email, AdditionalEmail,
                     Website, Telegram, WhatsApp, Viber,
                     PreferredContactMethod, ContactComment,
+                    NeedsDormitory, HasDormitoryBenefits, HasSportsAchievements,
+                    CompletedPreparatoryCourses, CompletedPreparatoryDepartment, CompletedMedicalEducation,
+                    CurrentWorkPlace, ServedInArmy, ServiceStartDate, ServiceEndDate, ReserveYear,
+                    ApplicationComment,
                     CreatedAt, UpdatedAt
                 ) VALUES (
                     @LastName, @FirstName, @Patronymic, @BirthDate, @BirthPlace,
-                    @GenderId, @CitizenshipId, @Snils,
+                    @GenderId, @CitizenshipId, @Snils, @Inn, @BirthCountryId,
                     @RegistrationCountryId, @RegistrationPostalCode, @RegistrationRegion,
                     @RegistrationDistrict, @RegistrationCity, @RegistrationStreet,
                     @RegistrationHouse, @RegistrationBuilding, @RegistrationApartment,
@@ -204,6 +208,10 @@ namespace Admissions_Reserve.Model
                     @Phone, @MobilePhone, @Fax, @WorkPhone, @Email, @AdditionalEmail,
                     @Website, @Telegram, @WhatsApp, @Viber,
                     @PreferredContactMethod, @ContactComment,
+                    @NeedsDormitory, @HasDormitoryBenefits, @HasSportsAchievements,
+                    @CompletedPreparatoryCourses, @CompletedPreparatoryDepartment, @CompletedMedicalEducation,
+                    @CurrentWorkPlace, @ServedInArmy, @ServiceStartDate, @ServiceEndDate, @ReserveYear,
+                    @ApplicationComment,
                     @CreatedAt, @UpdatedAt
                 ); SELECT last_insert_rowid();";
 
@@ -224,6 +232,7 @@ namespace Admissions_Reserve.Model
                     LastName = @LastName, FirstName = @FirstName, Patronymic = @Patronymic,
                     BirthDate = @BirthDate, BirthPlace = @BirthPlace,
                     GenderId = @GenderId, CitizenshipId = @CitizenshipId, Snils = @Snils,
+                    Inn = @Inn, BirthCountryId = @BirthCountryId,
                     RegistrationCountryId = @RegistrationCountryId,
                     RegistrationPostalCode = @RegistrationPostalCode,
                     RegistrationRegion = @RegistrationRegion,
@@ -247,55 +256,26 @@ namespace Admissions_Reserve.Model
                     WorkPhone = @WorkPhone, Email = @Email, AdditionalEmail = @AdditionalEmail,
                     Website = @Website, Telegram = @Telegram, WhatsApp = @WhatsApp,
                     Viber = @Viber, PreferredContactMethod = @PreferredContactMethod,
-                    ContactComment = @ContactComment, UpdatedAt = @UpdatedAt
+                    ContactComment = @ContactComment,
+                    NeedsDormitory = @NeedsDormitory,
+                    HasDormitoryBenefits = @HasDormitoryBenefits,
+                    HasSportsAchievements = @HasSportsAchievements,
+                    CompletedPreparatoryCourses = @CompletedPreparatoryCourses,
+                    CompletedPreparatoryDepartment = @CompletedPreparatoryDepartment,
+                    CompletedMedicalEducation = @CompletedMedicalEducation,
+                    CurrentWorkPlace = @CurrentWorkPlace,
+                    ServedInArmy = @ServedInArmy,
+                    ServiceStartDate = @ServiceStartDate,
+                    ServiceEndDate = @ServiceEndDate,
+                    ReserveYear = @ReserveYear,
+                    ApplicationComment = @ApplicationComment,
+                    UpdatedAt = @UpdatedAt
                 WHERE Id = @Id";
 
                 using (var cmd = new SQLiteCommand(query, connection))
                 {
                     cmd.Parameters.AddWithValue("@Id", applicant.Id);
                     AddApplicantParameters(cmd, applicant);
-                    cmd.ExecuteNonQuery();
-                }
-            }
-        }
-
-        public static Applicants GetApplicant(int id)
-        {
-            using (var connection = DatabaseHelper.GetConnection())
-            {
-                var query = "SELECT * FROM Applicants WHERE Id = @Id";
-                using (var cmd = new SQLiteCommand(query, connection))
-                {
-                    cmd.Parameters.AddWithValue("@Id", id);
-                    using (var reader = cmd.ExecuteReader())
-                    {
-                        if (reader.Read())
-                        {
-                            return ReadApplicantFromReader(reader);
-                        }
-                    }
-                }
-            }
-            return null;
-        }
-
-        public static void DeleteApplicant(int id)
-        {
-            using (var connection = DatabaseHelper.GetConnection())
-            {
-                // Сначала удаляем связанные документы
-                var deleteDocs = "DELETE FROM IdentityDocuments WHERE ApplicantId = @Id";
-                using (var cmd = new SQLiteCommand(deleteDocs, connection))
-                {
-                    cmd.Parameters.AddWithValue("@Id", id);
-                    cmd.ExecuteNonQuery();
-                }
-
-                // Затем удаляем абитуриента
-                var deleteApplicant = "DELETE FROM Applicants WHERE Id = @Id";
-                using (var cmd = new SQLiteCommand(deleteApplicant, connection))
-                {
-                    cmd.Parameters.AddWithValue("@Id", id);
                     cmd.ExecuteNonQuery();
                 }
             }
@@ -311,6 +291,8 @@ namespace Admissions_Reserve.Model
             cmd.Parameters.AddWithValue("@GenderId", (object)applicant.GenderId ?? DBNull.Value);
             cmd.Parameters.AddWithValue("@CitizenshipId", (object)applicant.CitizenshipId ?? DBNull.Value);
             cmd.Parameters.AddWithValue("@Snils", (object)applicant.Snils ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@Inn", (object)applicant.Inn ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@BirthCountryId", (object)applicant.BirthCountryId ?? DBNull.Value);
             cmd.Parameters.AddWithValue("@RegistrationCountryId", (object)applicant.RegistrationCountryId ?? DBNull.Value);
             cmd.Parameters.AddWithValue("@RegistrationPostalCode", (object)applicant.RegistrationPostalCode ?? DBNull.Value);
             cmd.Parameters.AddWithValue("@RegistrationRegion", (object)applicant.RegistrationRegion ?? DBNull.Value);
@@ -342,6 +324,18 @@ namespace Admissions_Reserve.Model
             cmd.Parameters.AddWithValue("@Viber", (object)applicant.Viber ?? DBNull.Value);
             cmd.Parameters.AddWithValue("@PreferredContactMethod", (object)applicant.PreferredContactMethod ?? DBNull.Value);
             cmd.Parameters.AddWithValue("@ContactComment", (object)applicant.ContactComment ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@NeedsDormitory", (object)(applicant.NeedsDormitory ?? false ? 1 : 0));
+            cmd.Parameters.AddWithValue("@HasDormitoryBenefits", (object)(applicant.HasDormitoryBenefits ?? false ? 1 : 0));
+            cmd.Parameters.AddWithValue("@HasSportsAchievements", (object)(applicant.HasSportsAchievements ?? false ? 1 : 0));
+            cmd.Parameters.AddWithValue("@CompletedPreparatoryCourses", (object)(applicant.CompletedPreparatoryCourses ?? false ? 1 : 0));
+            cmd.Parameters.AddWithValue("@CompletedPreparatoryDepartment", (object)(applicant.CompletedPreparatoryDepartment ?? false ? 1 : 0));
+            cmd.Parameters.AddWithValue("@CompletedMedicalEducation", (object)(applicant.CompletedMedicalEducation ?? false ? 1 : 0));
+            cmd.Parameters.AddWithValue("@CurrentWorkPlace", (object)applicant.CurrentWorkPlace ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@ServedInArmy", (object)(applicant.ServedInArmy ?? false ? 1 : 0));
+            cmd.Parameters.AddWithValue("@ServiceStartDate", (object)applicant.ServiceStartDate?.ToString("yyyy-MM-dd") ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@ServiceEndDate", (object)applicant.ServiceEndDate?.ToString("yyyy-MM-dd") ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@ReserveYear", (object)applicant.ReserveYear ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@ApplicationComment", (object)applicant.ApplicationComment ?? DBNull.Value);
             cmd.Parameters.AddWithValue("@CreatedAt", (object)applicant.CreatedAt?.ToString("yyyy-MM-dd HH:mm:ss") ?? (object)DBNull.Value);
             cmd.Parameters.AddWithValue("@UpdatedAt", (object)applicant.UpdatedAt?.ToString("yyyy-MM-dd HH:mm:ss") ?? (object)DBNull.Value);
         }
@@ -359,6 +353,8 @@ namespace Admissions_Reserve.Model
                 GenderId = reader["GenderId"] != DBNull.Value ? Convert.ToInt32(reader["GenderId"]) : (int?)null,
                 CitizenshipId = reader["CitizenshipId"] != DBNull.Value ? Convert.ToInt32(reader["CitizenshipId"]) : (int?)null,
                 Snils = reader["Snils"]?.ToString(),
+                Inn = reader["Inn"]?.ToString(),
+                BirthCountryId = reader["BirthCountryId"] != DBNull.Value ? Convert.ToInt32(reader["BirthCountryId"]) : (int?)null,
                 RegistrationCountryId = reader["RegistrationCountryId"] != DBNull.Value ? Convert.ToInt32(reader["RegistrationCountryId"]) : (int?)null,
                 RegistrationPostalCode = reader["RegistrationPostalCode"]?.ToString(),
                 RegistrationRegion = reader["RegistrationRegion"]?.ToString(),
@@ -390,9 +386,41 @@ namespace Admissions_Reserve.Model
                 Viber = reader["Viber"]?.ToString(),
                 PreferredContactMethod = reader["PreferredContactMethod"]?.ToString(),
                 ContactComment = reader["ContactComment"]?.ToString(),
+                NeedsDormitory = reader["NeedsDormitory"] != DBNull.Value ? Convert.ToBoolean(reader["NeedsDormitory"]) : (bool?)null,
+                HasDormitoryBenefits = reader["HasDormitoryBenefits"] != DBNull.Value ? Convert.ToBoolean(reader["HasDormitoryBenefits"]) : (bool?)null,
+                HasSportsAchievements = reader["HasSportsAchievements"] != DBNull.Value ? Convert.ToBoolean(reader["HasSportsAchievements"]) : (bool?)null,
+                CompletedPreparatoryCourses = reader["CompletedPreparatoryCourses"] != DBNull.Value ? Convert.ToBoolean(reader["CompletedPreparatoryCourses"]) : (bool?)null,
+                CompletedPreparatoryDepartment = reader["CompletedPreparatoryDepartment"] != DBNull.Value ? Convert.ToBoolean(reader["CompletedPreparatoryDepartment"]) : (bool?)null,
+                CompletedMedicalEducation = reader["CompletedMedicalEducation"] != DBNull.Value ? Convert.ToBoolean(reader["CompletedMedicalEducation"]) : (bool?)null,
+                CurrentWorkPlace = reader["CurrentWorkPlace"]?.ToString(),
+                ServedInArmy = reader["ServedInArmy"] != DBNull.Value ? Convert.ToBoolean(reader["ServedInArmy"]) : (bool?)null,
+                ServiceStartDate = reader["ServiceStartDate"] != DBNull.Value ? Convert.ToDateTime(reader["ServiceStartDate"]) : (DateTime?)null,
+                ServiceEndDate = reader["ServiceEndDate"] != DBNull.Value ? Convert.ToDateTime(reader["ServiceEndDate"]) : (DateTime?)null,
+                ReserveYear = reader["ReserveYear"] != DBNull.Value ? Convert.ToInt32(reader["ReserveYear"]) : (int?)null,
+                ApplicationComment = reader["ApplicationComment"]?.ToString(),
                 CreatedAt = reader["CreatedAt"] != DBNull.Value ? (DateTime?)Convert.ToDateTime(reader["CreatedAt"]) : null,
                 UpdatedAt = reader["UpdatedAt"] != DBNull.Value ? (DateTime?)Convert.ToDateTime(reader["UpdatedAt"]) : null
             };
+        }
+
+        public static Applicants GetApplicant(int id)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = "SELECT * FROM Applicants WHERE Id = @Id";
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@Id", id);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            return ReadApplicantFromReader(reader);
+                        }
+                    }
+                }
+            }
+            return null;
         }
 
         // ========== МЕТОДЫ ДЛЯ СПРАВОЧНИКОВ ==========
@@ -1772,7 +1800,7 @@ namespace Admissions_Reserve.Model
                     }
                 }
             }
-            catch
+ catch
             {
                 // Возвращаем пустой список при ошибке
             }
@@ -1828,6 +1856,85 @@ namespace Admissions_Reserve.Model
             catch (Exception ex)
             {
                 throw new Exception($"Ошибка при создании резервной копии: {ex.Message}");
+            }
+        }
+        // DataService.cs - добавьте этот метод в класс DataService
+
+        public static int CreateIndividualAchievementFull(int applicantId, string typeName, string name, string year, int points, string docName, string docPath)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                // Получаем ID типа достижения
+                int typeId = 0;
+                try
+                {
+                    using (var typeCmd = new SQLiteCommand(
+                        "SELECT Id FROM IndividualAchievementTypes WHERE Name = @TypeName LIMIT 1", connection))
+                    {
+                        typeCmd.Parameters.AddWithValue("@TypeName", typeName);
+                        var result = typeCmd.ExecuteScalar();
+                        if (result != null && result != DBNull.Value)
+                            typeId = Convert.ToInt32(result);
+                    }
+                }
+                catch { }
+
+                var query = @"INSERT INTO IndividualAchievements 
+            (ApplicantId, AchievementTypeId, Achievement, AchievementName, Year, Points, DocumentName, DocumentPath, CreatedAt, UpdatedAt) 
+            VALUES (@ApplicantId, @TypeId, @Achievement, @Name, @Year, @Points, @DocName, @DocPath, @CreatedAt, @UpdatedAt); 
+            SELECT last_insert_rowid();";
+
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@ApplicantId", applicantId);
+                    cmd.Parameters.AddWithValue("@TypeId", typeId);
+                    cmd.Parameters.AddWithValue("@Achievement", (object)name ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@Name", (object)name ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@Year", (object)year ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@Points", points);
+                    cmd.Parameters.AddWithValue("@DocName", (object)docName ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@DocPath", (object)docPath ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@CreatedAt", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                    cmd.Parameters.AddWithValue("@UpdatedAt", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+
+                    var result = cmd.ExecuteScalar();
+                    return Convert.ToInt32(result);
+                }
+            }
+        }
+        public static void DeleteApplicant(int id)
+        {
+            try
+            {
+                using (var connection = DatabaseHelper.GetConnection())
+                {
+                    var deleteCommands = new string[]
+                    {
+                        "DELETE FROM IdentityDocuments WHERE ApplicantId = @Id",
+                        "DELETE FROM AttachedDocuments WHERE ApplicantId = @Id",
+                        "DELETE FROM ApplicantLanguages WHERE ApplicantId = @Id",
+                        "DELETE FROM SportAchievements WHERE ApplicantId = @Id",
+                        "DELETE FROM IndividualAchievements WHERE ApplicantId = @Id",
+                        "DELETE FROM Relatives WHERE ApplicantId = @Id",
+                        "DELETE FROM ApplicationPriorities WHERE ApplicantId = @Id",
+                        "DELETE FROM Documents WHERE ApplicantId = @Id",
+                        "DELETE FROM ContactInformation WHERE ApplicantId = @Id",
+                        "DELETE FROM Applicants WHERE Id = @Id"
+                    };
+
+                    foreach (var sql in deleteCommands)
+                    {
+                        using (var cmd = new SQLiteCommand(sql, connection))
+                        {
+                            cmd.Parameters.AddWithValue("@Id", id);
+                            cmd.ExecuteNonQuery();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Ошибка при удалении абитуриента: " + ex.Message, ex);
             }
         }
     }
