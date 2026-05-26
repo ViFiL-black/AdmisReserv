@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -153,18 +153,9 @@ namespace Admissions_Reserve.View
                     {
                         Id = relative.Id,
                         Number = _nextNumber++,
-                        Inn = relative.Inn,
-                        RelationDegree = relative.RelationDegree,
                         LastName = relative.LastName,
                         FirstName = relative.FirstName,
-                        Patronymic = relative.Patronymic,
-                        BirthDate = relative.BirthDate,
-                        Phone = relative.Phone,
-                        Email = relative.Email,
-                        WorkPlace = relative.WorkPlace,
-                        Position = relative.Position,
-                        IsBlocked = relative.IsBlocked ?? false,
-                        BlockReason = relative.BlockReason
+                        Patronymic = relative.Patronymic
                     };
                     _regularRelatives.Add(item);
                 }

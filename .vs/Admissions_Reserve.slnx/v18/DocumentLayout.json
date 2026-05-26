@@ -320,9 +320,10 @@
               "RelativeDocumentMoniker": "Admissions_Reserve\\Model\\Models.cs",
               "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\Model\\Models.cs",
               "RelativeToolTip": "Admissions_Reserve\\Model\\Models.cs",
-              "ViewState": "AgIAANMBAAAAAAAAAAAywOIBAAAjAAAAAAAAAA==",
+              "ViewState": "AgIAAOgBAAAAAAAAAMBbwOwBAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-26T05:21:26.635Z"
+              "WhenOpened": "2026-05-26T05:21:26.635Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -341,11 +342,12 @@
               "Title": "DataService.cs",
               "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\Model\\DataService.cs",
               "RelativeDocumentMoniker": "Admissions_Reserve\\Model\\DataService.cs",
-              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\Model\\DataService.cs*",
-              "RelativeToolTip": "Admissions_Reserve\\Model\\DataService.cs*",
-              "ViewState": "AgIAAD0HAAAAAAAAAAAmwG8HAAAJAAAAAAAAAA==",
+              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\Model\\DataService.cs",
+              "RelativeToolTip": "Admissions_Reserve\\Model\\DataService.cs",
+              "ViewState": "AgIAAKAHAAAAAAAAAEBVwKQHAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-26T05:52:46.313Z"
+              "WhenOpened": "2026-05-26T05:52:46.313Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -426,7 +428,15 @@
               "RelativeDocumentMoniker": "Admissions_Reserve\\View\\RelativesPage.xaml.cs",
               "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\RelativesPage.xaml.cs",
               "RelativeToolTip": "Admissions_Reserve\\View\\RelativesPage.xaml.cs",
+<<<<<<< HEAD
+<<<<<<< HEAD
+              "ViewState": "AgIAANcCAAAAAAAAAEBVwNoBAAAAAAAAAAAAAA==",
+=======
               "ViewState": "AgIAAM0CAAAAAAAAAIBZwNoBAAAAAAAAAAAAAA==",
+>>>>>>> 2bf46b19c2a934a9e43f193b3716e74d94d072d8
+=======
+              "ViewState": "AgIAAM0CAAAAAAAAAIBZwNoBAAAAAAAAAAAAAA==",
+>>>>>>> 2bf46b19c2a934a9e43f193b3716e74d94d072d8
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-05-26T07:52:20.659Z",
               "EditorCaption": ""

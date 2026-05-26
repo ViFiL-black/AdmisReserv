@@ -693,21 +693,7 @@ namespace Admissions_Reserve.Model
                             relatives.Add(new Relatives
                             {
                                 Id = Convert.ToInt32(reader["Id"]),
-                                ApplicantId = reader["ApplicantId"] != DBNull.Value ? Convert.ToInt32(reader["ApplicantId"]) : (int?)null,
-                                Inn = reader["Inn"]?.ToString(),
-                                RelationDegree = reader["RelationDegree"]?.ToString(),
-                                LastName = reader["LastName"]?.ToString(),
-                                FirstName = reader["FirstName"]?.ToString(),
-                                Patronymic = reader["Patronymic"]?.ToString(),
-                                BirthDate = reader["BirthDate"] != DBNull.Value ? (DateTime?)Convert.ToDateTime(reader["BirthDate"]) : (DateTime?)null,
-                                Phone = reader["Phone"]?.ToString(),
-                                Email = reader["Email"]?.ToString(),
-                                WorkPlace = reader["WorkPlace"]?.ToString(),
-                                Position = reader["Position"]?.ToString(),
-                                IsBlocked = reader["IsBlocked"] != DBNull.Value && Convert.ToInt32(reader["IsBlocked"]) == 1,
-                                BlockReason = reader["BlockReason"]?.ToString(),
-                                CreatedAt = reader["CreatedAt"] != DBNull.Value ? (DateTime?)Convert.ToDateTime(reader["CreatedAt"]) : (DateTime?)null,
-                                UpdatedAt = reader["UpdatedAt"] != DBNull.Value ? (DateTime?)Convert.ToDateTime(reader["UpdatedAt"]) : (DateTime?)null
+                                ApplicantId = Convert.ToInt32(reader["ApplicantId"])
                             });
                         }
                     }
@@ -1178,9 +1164,7 @@ namespace Admissions_Reserve.Model
                                 DocumentType = reader["DocumentType"]?.ToString(),
                                 FilePath = reader["FilePath"]?.ToString(),
                                 FileSize = Convert.ToInt32(reader["FileSize"]),
-                                UploadedAt = Convert.ToDateTime(reader["UploadedAt"]),
-                                CreatedAt = Convert.ToDateTime(reader["CreatedAt"]),
-                                UpdatedAt = Convert.ToDateTime(reader["UpdatedAt"])
+                                UploadedAt = Convert.ToDateTime(reader["UploadedAt"])
                             });
                         }
                     }
