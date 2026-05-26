@@ -135,7 +135,7 @@
       "RelativeMoniker": "D:0:0:{0D8992C2-2F8C-4598-A145-5CB497CD9F6E}|Admissions_Reserve\\Admissions_Reserve.csproj|solutionrelative:admissions_reserve\\view\\inputvalidators.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{0D8992C2-2F8C-4598-A145-5CB497CD9F6E}|Admissions_Reserve\\Admissions_Reserve.csproj|c:\\users\\vifil\\source\\repos\\admissions_reserve\\admissions_reserve\\model\\inputvalidationhelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{0D8992C2-2F8C-4598-A145-5CB497CD9F6E}|Admissions_Reserve\\Admissions_Reserve.csproj|C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\admissions_reserve\\model\\inputvalidationhelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{0D8992C2-2F8C-4598-A145-5CB497CD9F6E}|Admissions_Reserve\\Admissions_Reserve.csproj|solutionrelative:admissions_reserve\\model\\inputvalidationhelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
@@ -178,8 +178,7 @@
               "RelativeToolTip": "Admissions_Reserve\\Model\\InputValidationHelper.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAD0AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-26T15:43:41.325Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-05-26T15:43:41.325Z"
             },
             {
               "$type": "Document",
@@ -191,8 +190,7 @@
               "RelativeToolTip": "Admissions_Reserve\\View\\InputValidators.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAHkAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-26T15:21:10.602Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-05-26T15:21:10.602Z"
             },
             {
               "$type": "Document",
@@ -309,9 +307,10 @@
               "RelativeDocumentMoniker": "Admissions_Reserve\\View\\PrioritiesPage.xaml.cs",
               "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\PrioritiesPage.xaml.cs",
               "RelativeToolTip": "Admissions_Reserve\\View\\PrioritiesPage.xaml.cs",
-              "ViewState": "AgIAANoAAAAAAAAAAAAYwP8AAAABAAAAAAAAAA==",
+              "ViewState": "AgIAABMBAAAAAAAAAABRwBYBAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-26T13:50:21.254Z"
+              "WhenOpened": "2026-05-26T13:50:21.254Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -368,9 +367,10 @@
               "RelativeDocumentMoniker": "Admissions_Reserve\\View\\IndividualAchievementsPage.xaml.cs",
               "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\IndividualAchievementsPage.xaml.cs",
               "RelativeToolTip": "Admissions_Reserve\\View\\IndividualAchievementsPage.xaml.cs",
-              "ViewState": "AgIAAMYAAAAAAAAAAAAkwMcAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAPsAAAAAAAAAAEBVwP8AAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-26T11:25:15.749Z"
+              "WhenOpened": "2026-05-26T11:25:15.749Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -426,9 +426,10 @@
               "RelativeDocumentMoniker": "Admissions_Reserve\\View\\RelativesPage.xaml.cs",
               "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\RelativesPage.xaml.cs",
               "RelativeToolTip": "Admissions_Reserve\\View\\RelativesPage.xaml.cs",
-              "ViewState": "AgIAALgCAAAAAAAAAEBVwNIBAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAM0CAAAAAAAAAIBZwNoBAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-26T07:52:20.659Z"
+              "WhenOpened": "2026-05-26T07:52:20.659Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -438,9 +439,10 @@
               "RelativeDocumentMoniker": "Admissions_Reserve\\View\\ApplicationCompetitionsPage.xaml.cs",
               "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\ApplicationCompetitionsPage.xaml.cs",
               "RelativeToolTip": "Admissions_Reserve\\View\\ApplicationCompetitionsPage.xaml.cs",
-              "ViewState": "AgIAAKQAAAAAAAAAAAAwwLUAAAAQAAAAAAAAAA==",
+              "ViewState": "AgIAALEBAAAAAAAAAIBZwLUAAAAQAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-26T09:51:18.158Z"
+              "WhenOpened": "2026-05-26T09:51:18.158Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -450,9 +452,10 @@
               "RelativeDocumentMoniker": "Admissions_Reserve\\View\\AdditionalInfoPage.xaml.cs",
               "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\AdditionalInfoPage.xaml.cs",
               "RelativeToolTip": "Admissions_Reserve\\View\\AdditionalInfoPage.xaml.cs",
-              "ViewState": "AgIAAEMCAAAAAAAAAEBVwAgAAAAfAAAAAAAAAA==",
+              "ViewState": "AgIAAGoCAAAAAAAAAABRwAgAAAAfAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-26T07:29:17.705Z"
+              "WhenOpened": "2026-05-26T07:29:17.705Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -485,9 +488,10 @@
               "RelativeDocumentMoniker": "Admissions_Reserve\\View\\ContactsPage.xaml.cs",
               "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\ContactsPage.xaml.cs",
               "RelativeToolTip": "Admissions_Reserve\\View\\ContactsPage.xaml.cs",
-              "ViewState": "AgIAAFUBAAAAAAAAAIBZwFoBAAABAAAAAAAAAA==",
+              "ViewState": "AgIAAFMBAAAAAAAAAEBVwFcBAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-26T06:00:18.781Z"
+              "WhenOpened": "2026-05-26T06:00:18.781Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
