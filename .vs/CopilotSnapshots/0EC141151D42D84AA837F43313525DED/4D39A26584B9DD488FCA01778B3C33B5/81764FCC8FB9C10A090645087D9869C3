@@ -1,0 +1,13 @@
+﻿<Window x:Class="Admissions_Reserve.LoginWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Авторизация" Height="200" Width="360" WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
+    <Grid>
+        <Label Content="Логин:" Margin="20,20,0,0" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+        <TextBox x:Name="txtUser" Width="220" Height="24" Margin="100,20,0,0" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+        <Label Content="Пароль:" Margin="20,60,0,0" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+        <PasswordBox x:Name="txtPassword" Width="220" Height="24" Margin="100,60,0,0" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+        <Button Content="ОК" Width="90" Height="30" Margin="100,110,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Click="BtnOk_Click"/>
+        <Button Content="Отмена" Width="90" Height="30" Margin="210,110,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Click="BtnCancel_Click"/>
+    </Grid>
+</Window>

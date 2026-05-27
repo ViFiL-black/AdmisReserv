@@ -1,0 +1,30 @@
+﻿<Window x:Class="Admissions_Reserve.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Admissions_Reserve"
+        mc:Ignorable="d"
+        Title="Admissions Reserve" WindowStartupLocation="CenterScreen"
+        WindowState="Maximized" WindowStyle="SingleBorderWindow"
+        MinWidth="1024" MinHeight="768">
+
+    <DockPanel>
+        <!-- Верхняя панель навигации -->
+        <DockPanel DockPanel.Dock="Top" LastChildFill="False" Height="64" Style="{StaticResource NavBarStyle}">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="12,0,0,0">
+                <TextBlock Text="Колледж - Приемная комиссия" Foreground="White" FontSize="18" FontWeight="Bold" VerticalAlignment="Center"/>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,12,0">
+                <Button x:Name="BtnHomeTop" Content="Главная" Click="BtnHomeTop_Click" Style="{StaticResource NavButtonStyle}" Background="Transparent"/>
+                <Button x:Name="BtnSearchTop" Content="Поиск" Click="BtnSearchTop_Click" Style="{StaticResource NavButtonStyle}"/>
+                <Button x:Name="BtnWizardTop" Content="Заявления" Click="BtnWizardTop_Click" Style="{StaticResource NavButtonStyle}"/>
+                <Button x:Name="BtnAboutTop" Content="О программе" Click="BtnAboutTop_Click" Style="{StaticResource NavButtonStyle}"/>
+            </StackPanel>
+        </DockPanel>
+
+        <!-- Содержимое страницы -->
+        <Frame x:Name="MainFrame" NavigationUIVisibility="Hidden" Margin="16" />
+    </DockPanel>
+</Window>

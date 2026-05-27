@@ -63,3 +63,5 @@ C:\Users\ViFiL\source\repos\Admissions_Reserve\Admissions_Reserve\obj\Debug\Admi
 C:\Users\ViFiL\source\repos\Admissions_Reserve\Admissions_Reserve\obj\Debug\Admissions_Reserve.exe
 C:\Users\ViFiL\source\repos\Admissions_Reserve\Admissions_Reserve\obj\Debug\View\ApplicantSearchPage.g.cs
 C:\Users\ViFiL\source\repos\Admissions_Reserve\Admissions_Reserve\obj\Debug\View\ApplicantSearchPage.baml
+C:\Users\ViFiL\source\repos\Admissions_Reserve\Admissions_Reserve\obj\Debug\Themes\CollegeTheme.baml
+C:\Users\ViFiL\source\repos\Admissions_Reserve\Admissions_Reserve\obj\Debug\App.baml
