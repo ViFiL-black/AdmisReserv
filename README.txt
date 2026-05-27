@@ -1,2 +1,2 @@
-логин user
-пароль qwerty
+логин testuser
+пароль testpassword
