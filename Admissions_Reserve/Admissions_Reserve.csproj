@@ -104,6 +104,7 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CHANGES_EDIT_DELETE_APPLICANTS.cs" />
     <Compile Include="CreateDb.cs" />
     <Compile Include="Model\Applicants.cs" />
     <Compile Include="Model\DatabaseHelper.cs" />
@@ -118,6 +119,9 @@
     <Compile Include="Model\ValidationHelper.cs" />
     <Compile Include="View\AdditionalInfoPage.xaml.cs">
       <DependentUpon>AdditionalInfoPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\ApplicantSearchPage.xaml.cs">
+      <DependentUpon>ApplicantSearchPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\ApplicantWizardPage.xaml.cs">
       <DependentUpon>ApplicantWizardPage.xaml</DependentUpon>
@@ -160,6 +164,9 @@
     </Compile>
     <Page Include="View\AdditionalInfoPage.xaml">
       <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\ApplicantSearchPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\ApplicantWizardPage.xaml">

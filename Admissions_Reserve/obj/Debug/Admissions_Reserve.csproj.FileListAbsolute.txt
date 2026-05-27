@@ -61,3 +61,5 @@ C:\Users\ViFiL\source\repos\Admissions_Reserve\Admissions_Reserve\bin\Debug\Syst
 C:\Users\ViFiL\source\repos\Admissions_Reserve\Admissions_Reserve\bin\Debug\System.Runtime.CompilerServices.Unsafe.xml
 C:\Users\ViFiL\source\repos\Admissions_Reserve\Admissions_Reserve\obj\Debug\Admissio.EFEBECFD.Up2Date
 C:\Users\ViFiL\source\repos\Admissions_Reserve\Admissions_Reserve\obj\Debug\Admissions_Reserve.exe
+C:\Users\ViFiL\source\repos\Admissions_Reserve\Admissions_Reserve\obj\Debug\View\ApplicantSearchPage.g.cs
+C:\Users\ViFiL\source\repos\Admissions_Reserve\Admissions_Reserve\obj\Debug\View\ApplicantSearchPage.baml

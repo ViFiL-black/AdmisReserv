@@ -1,0 +1,198 @@
+﻿using System;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Linq;
+using System.Windows;
+using System.Windows.Controls;
+using Admissions_Reserve.Model;
+
+namespace Admissions_Reserve.View
+{
+    public partial class ApplicantSearchPage : Page
+    {
+        private ObservableCollection<Applicants> searchResults;
+        private Applicants selectedApplicant;
+
+        public ApplicantSearchPage()
+        {
+            InitializeComponent();
+            searchResults = new ObservableCollection<Applicants>();
+            SearchResultsGrid.ItemsSource = searchResults;
+        }
+
+        private void SearchButton_Click(object sender, RoutedEventArgs e)
+        {
+            PerformSearch();
+        }
+
+        private void PerformSearch()
+        {
+            try
+            {
+                // Получаем значения из полей поиска
+                string lastName = LastNameSearchBox.Text?.Trim() ?? "";
+                string firstName = FirstNameSearchBox.Text?.Trim() ?? "";
+                string patronymic = PatronymicSearchBox.Text?.Trim() ?? "";
+
+                // Проверяем, что введено хотя бы одно поле
+                if (string.IsNullOrWhiteSpace(lastName) && string.IsNullOrWhiteSpace(firstName) && string.IsNullOrWhiteSpace(patronymic))
+                {
+                    MessageBox.Show("Пожалуйста, введите хотя бы одно поле для поиска (Фамилию, Имя или Отчество)",
+                        "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    SearchStatusText.Text = "Введите ФИО для поиска";
+                    searchResults.Clear();
+                    return;
+                }
+
+                // Получаем всех абитуриентов
+                var allApplicants = DataService.GetAll<Applicants>();
+
+                // Выполняем поиск с использованием похожести строк
+                var results = allApplicants.Where(a =>
+                {
+                    bool matches = true;
+
+                    // Проверяем фамилию
+                    if (!string.IsNullOrWhiteSpace(lastName))
+                    {
+                        if (string.IsNullOrWhiteSpace(a.LastName) || 
+                            a.LastName.IndexOf(lastName, StringComparison.OrdinalIgnoreCase) < 0)
+                            matches = false;
+                    }
+
+                    // Проверяем имя
+                    if (matches && !string.IsNullOrWhiteSpace(firstName))
+                    {
+                        if (string.IsNullOrWhiteSpace(a.FirstName) || 
+                            a.FirstName.IndexOf(firstName, StringComparison.OrdinalIgnoreCase) < 0)
+                            matches = false;
+                    }
+
+                    // Проверяем отчество
+                    if (matches && !string.IsNullOrWhiteSpace(patronymic))
+                    {
+                        if (string.IsNullOrWhiteSpace(a.Patronymic) || 
+                            a.Patronymic.IndexOf(patronymic, StringComparison.OrdinalIgnoreCase) < 0)
+                            matches = false;
+                    }
+
+                    return matches;
+                }).OrderBy(a => a.LastName).ThenBy(a => a.FirstName).ToList();
+
+                // Обновляем результаты поиска
+                searchResults.Clear();
+                foreach (var applicant in results)
+                {
+                    searchResults.Add(applicant);
+                }
+
+                // Обновляем статус
+                if (results.Count == 0)
+                {
+                    SearchStatusText.Text = "Похожих абитуриентов не найдено";
+                }
+                else if (results.Count == 1)
+                {
+                    SearchStatusText.Text = "Найден 1 абитуриент";
+                }
+                else
+                {
+                    SearchStatusText.Text = $"Найдено {results.Count} абитуриентов";
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при поиске: {ex.Message}", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+                SearchStatusText.Text = "Ошибка при поиске";
+            }
+        }
+
+        private void ClearSearchButton_Click(object sender, RoutedEventArgs e)
+        {
+            LastNameSearchBox.Text = "";
+            FirstNameSearchBox.Text = "";
+            PatronymicSearchBox.Text = "";
+            searchResults.Clear();
+            SearchStatusText.Text = "Введите ФИО для поиска";
+            LastNameSearchBox.Focus();
+        }
+
+        private void SearchResultsGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            selectedApplicant = SearchResultsGrid.SelectedItem as Applicants;
+        }
+
+        private void SearchResultsGrid_DoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (selectedApplicant != null)
+            {
+                OpenApplicant(selectedApplicant, editMode: false);
+            }
+        }
+
+        private void OpenButton_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            var applicant = button?.Tag as Applicants;
+
+            if (applicant != null)
+            {
+                OpenApplicant(applicant, editMode: false);
+            }
+        }
+
+        private void EditButton_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            var applicant = button?.Tag as Applicants;
+
+            if (applicant != null)
+            {
+                OpenApplicant(applicant, editMode: true);
+            }
+        }
+
+        private void OpenApplicant(Applicants applicant, bool editMode)
+        {
+            try
+            {
+                // Загружаем абитуриента в SessionManager
+                SessionManager.CurrentApplicant = applicant;
+
+                // Переходим на первую страницу ввода данных (IdentityPage)
+                var identityPage = new IdentityPage();
+                NavigationService?.Navigate(identityPage);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при открытии профиля: {ex.Message}", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void BackButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (NavigationService?.CanGoBack == true)
+                NavigationService.GoBack();
+        }
+
+        private void NewApplicantButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // Очищаем SessionManager для создания нового абитуриента
+                SessionManager.Clear();
+                
+                // Переходим на первую страницу ввода данных
+                var identityPage = new IdentityPage();
+                NavigationService?.Navigate(identityPage);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при создании нового абитуриента: {ex.Message}", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+    }
+}

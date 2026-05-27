@@ -342,10 +342,10 @@
 
                 <!-- ========== КНОПКИ НАВИГАЦИИ ========== -->
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,10">
-                    <Button x:Name="PrevButton" Content="Назад" Width="90" Height="32" Margin="0,0,10,0" FontSize="11" Background="#F0F0F0"/>
-                    <Button x:Name="NextButton" Content="Далее" Width="90" Height="32" Margin="0,0,10,0" FontSize="11" Background="#007ACC" Foreground="White"/>
-                    <Button x:Name="SaveButton" Content="Сохранить" Width="90" Height="32" Margin="0,0,10,0" FontSize="11" Background="#4CAF50" Foreground="White"/>
-                    <Button x:Name="CancelButton" Content="Отменить" Width="90" Height="32" FontSize="11" Background="#F0F0F0"/>
+                    <Button x:Name="PrevButton" Content="Назад" Width="90" Height="32" Margin="0,0,10,0" FontSize="11" Background="#F0F0F0" Click="PrevButton_Click"/>
+                    <Button x:Name="NextButton" Content="Далее" Width="90" Height="32" Margin="0,0,10,0" FontSize="11" Background="#007ACC" Foreground="White" Click="NextButton_Click"/>
+                    <Button x:Name="SaveButton" Content="Сохранить" Width="90" Height="32" Margin="0,0,10,0" FontSize="11" Background="#4CAF50" Foreground="White" Click="SaveButton_Click"/>
+                    <Button x:Name="CancelButton" Content="Отменить" Width="90" Height="32" FontSize="11" Background="#F0F0F0" Click="CancelButton_Click"/>
                 </StackPanel>
 
             </StackPanel>

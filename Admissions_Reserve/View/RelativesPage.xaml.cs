@@ -28,6 +28,18 @@ namespace Admissions_Reserve.View
             private string _position;
             private string _blockReason;
             private bool _isBlocked;
+            private string _birthPlace;
+            private string _idNumber;
+            private DateTime? _issueDate;
+            private string _issuedBy;
+            private string _departmentCode;
+            private string _okpo;
+            private string _personalAccount;
+            private string _bankName;
+            private string _fiasAddress;
+            private string _apartment;
+            private bool _pravda;
+            private bool _defact;
 
             public int Number
             {
@@ -94,6 +106,66 @@ namespace Admissions_Reserve.View
                 get => _isBlocked;
                 set { _isBlocked = value; OnPropertyChanged(nameof(IsBlocked)); }
             }
+            public string BirthPlace
+            {
+                get => _birthPlace;
+                set { _birthPlace = value; OnPropertyChanged(nameof(BirthPlace)); }
+            }
+            public string IdNumber
+            {
+                get => _idNumber;
+                set { _idNumber = value; OnPropertyChanged(nameof(IdNumber)); }
+            }
+            public DateTime? IssueDate
+            {
+                get => _issueDate;
+                set { _issueDate = value; OnPropertyChanged(nameof(IssueDate)); }
+            }
+            public string IssuedBy
+            {
+                get => _issuedBy;
+                set { _issuedBy = value; OnPropertyChanged(nameof(IssuedBy)); }
+            }
+            public string DepartmentCode
+            {
+                get => _departmentCode;
+                set { _departmentCode = value; OnPropertyChanged(nameof(DepartmentCode)); }
+            }
+            public string Okpo
+            {
+                get => _okpo;
+                set { _okpo = value; OnPropertyChanged(nameof(Okpo)); }
+            }
+            public string PersonalAccount
+            {
+                get => _personalAccount;
+                set { _personalAccount = value; OnPropertyChanged(nameof(PersonalAccount)); }
+            }
+            public string BankName
+            {
+                get => _bankName;
+                set { _bankName = value; OnPropertyChanged(nameof(BankName)); }
+            }
+            public string FiasAddress
+            {
+                get => _fiasAddress;
+                set { _fiasAddress = value; OnPropertyChanged(nameof(FiasAddress)); }
+            }
+            public string Apartment
+            {
+                get => _apartment;
+                set { _apartment = value; OnPropertyChanged(nameof(Apartment)); }
+            }
+            public bool Pravda
+            {
+                get => _pravda;
+                set { _pravda = value; OnPropertyChanged(nameof(Pravda)); }
+            }
+            public bool Defact
+            {
+                get => _defact;
+                set { _defact = value; OnPropertyChanged(nameof(Defact)); }
+            }
 
             public event PropertyChangedEventHandler PropertyChanged;
             protected void OnPropertyChanged(string name) =>
@@ -159,6 +231,7 @@ namespace Admissions_Reserve.View
                         FirstName = relative.FirstName,
                         Patronymic = relative.Patronymic,
                         BirthDate = relative.BirthDate,
+                        BirthPlace = relative.BirthPlace,
                         Phone = relative.Phone,
                         Email = relative.Email,
                         WorkPlace = relative.WorkPlace,
@@ -166,7 +239,11 @@ namespace Admissions_Reserve.View
                         IsBlocked = relative.IsBlocked ?? false,
                         BlockReason = relative.BlockReason
                     };
-                    _regularRelatives.Add(item);
+                    
+                    if (item.IsBlocked)
+                        _blockedRelatives.Add(item);
+                    else
+                        _regularRelatives.Add(item);
                 }
             }
             catch (Exception ex)
@@ -330,7 +407,8 @@ namespace Admissions_Reserve.View
                         PhoneTextBox.Text?.Trim(),
                         EmailTextBox.Text?.Trim(),
                         WorkPlaceTextBox.Text?.Trim(),
-                        PositionTextBox.Text?.Trim()
+                        PositionTextBox.Text?.Trim(),
+                        BirthPlaceTextBox.Text?.Trim()
                     );
                     DataService.LogChange("Relatives", relativeId, "INSERT");
                 }
@@ -345,6 +423,7 @@ namespace Admissions_Reserve.View
                     FirstName = FirstNameTextBox.Text,
                     Patronymic = PatronymicTextBox.Text,
                     BirthDate = BirthDatePicker.SelectedDate,
+                    BirthPlace = BirthPlaceTextBox.Text,
                     Phone = PhoneTextBox.Text,
                     Email = EmailTextBox.Text,
                     WorkPlace = WorkPlaceTextBox.Text,
@@ -383,6 +462,20 @@ namespace Admissions_Reserve.View
                 InnTextBox.Text = item.Inn;
                 WorkPlaceTextBox.Text = item.WorkPlace;
                 PositionTextBox.Text = item.Position;
+                BirthPlaceTextBox.Text = item.BirthPlace;
+                IdTypeCombo.SelectedIndex = 0;
+                IdNumberTextBox.Text = item.IdNumber;
+                IssueDatePicker.SelectedDate = item.IssueDate;
+                IssuedByTextBox.Text = item.IssuedBy;
+                DepartmentCodeTextBox.Text = item.DepartmentCode;
+                OkpoTextBox.Text = item.Okpo;
+                PersonalAccountTextBox.Text = item.PersonalAccount;
+                BankNameTextBox.Text = item.BankName;
+                CountryCombo.SelectedIndex = 0;
+                FiasAddressTextBox.Text = item.FiasAddress;
+                ApartmentTextBox.Text = item.Apartment;
+                PravdaCheckBox.IsChecked = item.Pravda;
+                DefactCheckBox.IsChecked = item.Defact;
 
                 // Удаляем старую запись
                 _regularRelatives.Remove(item);
@@ -423,6 +516,12 @@ namespace Admissions_Reserve.View
         private void CancelAddButton_Click(object sender, RoutedEventArgs e)
         {
             ClearForm();
+        }
+
+        // Обработчик кнопки Сохранить (сохранить и остаться на странице)
+        private void SaveButton_Click(object sender, RoutedEventArgs e)
+        {
+            SaveData();
         }
 
         private void DeleteRegularRelative_Click(object sender, RoutedEventArgs e)
@@ -578,7 +677,8 @@ namespace Admissions_Reserve.View
                             relative.Phone ?? "",
                             relative.Email ?? "",
                             relative.WorkPlace ?? "",
-                            relative.Position ?? ""
+                            relative.Position ?? "",
+                            relative.BirthPlace ?? ""
                         );
                         DataService.LogChange("Relatives", relative.Id, "UPDATE");
                     }
