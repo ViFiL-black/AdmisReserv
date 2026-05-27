@@ -80,7 +80,7 @@
 
 						<Grid Margin="0,0,0,10">
 							<Grid.ColumnDefinitions>
-								<ColumnDefinition Width="140"/>
+								<ColumnDefinition Width="250"/>
 								<ColumnDefinition Width="*"/>
 							</Grid.ColumnDefinitions>
 							<TextBlock Grid.Column="0" Text="Документ, подтверждающий достижение" FontSize="11" VerticalAlignment="Center"/>

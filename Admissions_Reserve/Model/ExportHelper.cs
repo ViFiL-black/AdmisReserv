@@ -45,7 +45,7 @@ namespace Admissions_Reserve.Model
                             applicant.LastName ?? "",
                             applicant.FirstName ?? "",
                             applicant.Patronymic ?? "",
-                            applicant.BirthDate != DateTime.MinValue ? applicant.BirthDate.ToString("dd.MM.yyyy") : "",
+                            applicant.BirthDate.HasValue ? applicant.BirthDate.Value.ToString("dd.MM.yyyy") : "",
                             applicant.BirthPlace ?? "",
                             applicant.Snils ?? "",
                             applicant.Email ?? "",

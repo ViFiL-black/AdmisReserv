@@ -69,9 +69,6 @@
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
                                             <StackPanel Orientation="Horizontal">
-                                                <Button Content="Открыть" FontSize="10" Width="60" Height="22" Margin="2"
-                                                        Background="#2196F3" Foreground="White" ToolTip="Открыть профиль"
-                                                        Click="OpenButton_Click" Tag="{Binding}"/>
                                                 <Button Content="Изм." FontSize="10" Width="45" Height="22" Margin="2"
                                                         Background="#FF9800" Foreground="White" ToolTip="Изменить"
                                                         Click="EditButton_Click" Tag="{Binding}"/>

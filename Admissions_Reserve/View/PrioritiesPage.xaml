@@ -49,7 +49,7 @@
                                     </DataGridCheckBoxColumn.ElementStyle>
                                 </DataGridCheckBoxColumn>
 
-                                <DataGridTextColumn Header="Название" Width="*" Binding="{Binding DisplayName}">
+                                <DataGridTextColumn Header="Название" Width="200" Binding="{Binding DisplayName}">
                                     <DataGridTextColumn.ElementStyle>
                                         <Style TargetType="TextBlock">
                                             <Setter Property="TextWrapping" Value="Wrap"/>

@@ -1,0 +1,494 @@
+﻿// Models.cs - полный код (замените полностью)
+using System;
+using System.Collections.Generic;
+
+namespace Admissions_Reserve.Model
+{
+    public partial class Applicants
+    {
+        public int Id { get; set; }
+        public string LastName { get; set; }
+        public string FirstName { get; set; }
+        public string Patronymic { get; set; }
+        public DateTime? BirthDate { get; set; }
+        public string BirthPlace { get; set; }
+        public int? GenderId { get; set; }
+        public int? CitizenshipId { get; set; }
+        public string Snils { get; set; }
+        public string Inn { get; set; }
+        public int? BirthCountryId { get; set; }
+        public string Email { get; set; }
+        public string AdditionalEmail { get; set; }
+        public string Phone { get; set; }
+        public string MobilePhone { get; set; }
+        public string WorkPhone { get; set; }
+        public string Fax { get; set; }
+        public string Website { get; set; }
+        public string Telegram { get; set; }
+        public string WhatsApp { get; set; }
+        public string Viber { get; set; }
+        public string PreferredContactMethod { get; set; }
+        public string ContactComment { get; set; }
+        public int? RegistrationCountryId { get; set; }
+        public string RegistrationPostalCode { get; set; }
+        public string RegistrationRegion { get; set; }
+        public string RegistrationDistrict { get; set; }
+        public string RegistrationCity { get; set; }
+        public string RegistrationStreet { get; set; }
+        public string RegistrationHouse { get; set; }
+        public string RegistrationBuilding { get; set; }
+        public string RegistrationApartment { get; set; }
+        public bool? ActualAddressSame { get; set; }
+        public int? ActualCountryId { get; set; }
+        public string ActualPostalCode { get; set; }
+        public string ActualRegion { get; set; }
+        public string ActualDistrict { get; set; }
+        public string ActualCity { get; set; }
+        public string ActualStreet { get; set; }
+        public string ActualHouse { get; set; }
+        public string ActualBuilding { get; set; }
+        public string ActualApartment { get; set; }
+        public bool? NeedsDormitory { get; set; }
+        public bool? HasDormitoryBenefits { get; set; }
+        public bool? HasSportsAchievements { get; set; }
+        public bool? CompletedPreparatoryCourses { get; set; }
+        public bool? CompletedPreparatoryDepartment { get; set; }
+        public bool? CompletedMedicalEducation { get; set; }
+        public string CurrentWorkPlace { get; set; }
+        public bool? ServedInArmy { get; set; }
+        public DateTime? ServiceStartDate { get; set; }
+        public DateTime? ServiceEndDate { get; set; }
+        public int? ReserveYear { get; set; }
+        public string ApplicationComment { get; set; }
+        public DateTime? CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
+        public int? CreatedByUserId { get; set; }
+        public virtual ICollection<ApplicantLanguages> ApplicantLanguages { get; set; }
+        public virtual ICollection<Applications> Applications { get; set; }
+        public virtual ICollection<Documents> Documents { get; set; }
+        public virtual ICollection<IdentityDocuments> IdentityDocuments { get; set; }
+        public virtual ICollection<IndividualAchievements> IndividualAchievements { get; set; }
+        public virtual ICollection<Relatives> Relatives { get; set; }
+        public virtual ICollection<SportAchievements> SportAchievements { get; set; }
+        public virtual Countries Countries { get; set; }
+        public virtual Citizenships Citizenships { get; set; }
+        public virtual Genders Genders { get; set; }
+    }
+
+    public partial class IdentityDocuments
+    {
+        public int Id { get; set; }
+        public int? ApplicantId { get; set; }
+        public int? DocumentTypeId { get; set; }
+        public string Series { get; set; }
+        public string Number { get; set; }
+        public string IssuedBy { get; set; }
+        public DateTime? IssueDate { get; set; }
+        public string DepartmentCode { get; set; }
+        public bool? IsPrimary { get; set; }
+        public DateTime? AddedDate { get; set; }
+        public virtual Applicants Applicants { get; set; }
+        public virtual IdentityDocumentTypes IdentityDocumentTypes { get; set; }
+    }
+
+    public partial class IdentityDocumentTypes
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
+    public partial class Citizenships
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
+    public partial class Countries
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public bool IsActive { get; set; }
+    }
+
+    public partial class Genders
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
+    public partial class ChangeHistory
+    {
+        public int Id { get; set; }
+        public string TableName { get; set; }
+        public int RecordId { get; set; }
+        public string Action { get; set; }
+        public DateTime ChangedAt { get; set; }
+    }
+
+    public partial class Languages
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
+    public partial class LanguageLevels
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public int SortOrder { get; set; }
+    }
+
+    public partial class ApplicantLanguages
+    {
+        public int Id { get; set; }
+        public int? ApplicantId { get; set; }
+        public int? LanguageId { get; set; }
+        public int? LanguageLevelId { get; set; }
+        public bool? IsPrimary { get; set; }
+        public string LanguageName { get; set; }
+        public string LevelName { get; set; }
+    }
+
+    public partial class Documents
+    {
+        public int Id { get; set; }
+        public int? ApplicantId { get; set; }
+        public int? DocumentTypeId { get; set; }
+        public string Series { get; set; }
+        public string Number { get; set; }
+    }
+
+    public partial class DocumentTypes
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
+    public partial class Applications
+    {
+        public int Id { get; set; }
+        public int? ApplicantId { get; set; }
+        public string ApplicationNumber { get; set; }
+        public DateTime? CreatedAt { get; set; }
+    }
+
+    public partial class SportAchievements
+    {
+        public int Id { get; set; }
+        public int? ApplicantId { get; set; }
+        public string Achievement { get; set; }
+        public string SportType { get; set; }
+        public string Rank { get; set; }
+        public int? Year { get; set; }
+    }
+
+    // Models.cs - замените класс IndividualAchievements
+    public partial class IndividualAchievements
+    {
+        public int Id { get; set; }
+        public int? ApplicantId { get; set; }
+        public int? AchievementTypeId { get; set; }
+        public string Achievement { get; set; }
+        public string AchievementName { get; set; }
+        public string Year { get; set; }
+        public int Points { get; set; }
+        public string DocumentName { get; set; }
+        public string DocumentPath { get; set; }
+        public DateTime? CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
+    }
+    // Models.cs - добавьте в конец файла
+    public partial class IndividualAchievementTypes
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public int DefaultPoints { get; set; }
+    }
+    public partial class Relatives
+    {
+        public int Id { get; set; }
+        public int? ApplicantId { get; set; }
+        public string Inn { get; set; }
+        public string RelationDegree { get; set; }
+        public string LastName { get; set; }
+        public string FirstName { get; set; }
+        public string Patronymic { get; set; }
+        public DateTime? BirthDate { get; set; }
+        public string BirthPlace { get; set; }
+        public string Phone { get; set; }
+        public string Email { get; set; }
+        public string WorkPlace { get; set; }
+        public string Position { get; set; }
+        public string BlockReason { get; set; }
+        public bool? IsBlocked { get; set; }
+        public DateTime? CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
+    }
+
+    public partial class AchievementCategories
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
+    public partial class AdmissionStages
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
+    public partial class AdmissionTypes
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
+    public partial class ApplicationCompetitions
+    {
+        public int Id { get; set; }
+        public int? ApplicationId { get; set; }
+    }
+
+    public partial class ApplicationEducationDocuments
+    {
+        public int Id { get; set; }
+        public int? ApplicationId { get; set; }
+    }
+
+    public partial class ApplicationPrivileges
+    {
+        public int Id { get; set; }
+        public int? ApplicationId { get; set; }
+    }
+
+    public partial class BaseEducationLevels
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
+    public partial class Branches
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
+    // ========== ИСПРАВЛЕННЫЙ КЛАСС COMPETITIONS ==========
+    public partial class Competitions
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string EducationBase { get; set; }
+        public string StudyForm { get; set; }
+        public string AdmissionType { get; set; }
+        public string Department { get; set; }
+        public string Branch { get; set; }
+        public bool IsActive { get; set; }
+    }
+
+    public partial class CostReimbursementTypes
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
+    public partial class Departments
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
+    public partial class DocumentCategories
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
+    public partial class DocumentReceiptForms
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
+    public partial class EducationalOrganizations
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
+    public partial class EducationDocuments
+    {
+        public int Id { get; set; }
+        public int ApplicantId { get; set; }
+        public int? ApplicationTypeId { get; set; }
+        public bool FirstTimeEducation { get; set; }
+        public int? CountryId { get; set; }
+        public string City { get; set; }
+        public string EducationalOrg { get; set; }
+        public int? DocumentTypeId { get; set; }
+        public int? EducationLevelId { get; set; }
+        public int? DocumentEducationLevelId { get; set; }
+        public string Series { get; set; }
+        public string Number { get; set; }
+        public DateTime? IssueDate { get; set; }
+        public DateTime? GraduationYear { get; set; }
+        public int SatisfactoryCount { get; set; }
+        public int GoodCount { get; set; }
+        public int ExcellentCount { get; set; }
+        public double AverageScore { get; set; }
+        public bool FrdoVerified { get; set; }
+        public string ScanFilePath { get; set; }
+        public int? DocumentFormId { get; set; }
+        public string OriginalOrganization { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+    }
+
+    public partial class ApplicationTypes
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
+    public partial class EducationDocumentTypes
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
+    public partial class EducationLevels
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
+    public partial class DocumentForms
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
+    public partial class ApplicationPriorities
+    {
+        public int Id { get; set; }
+        public int ApplicantId { get; set; }
+        public int PriorityOrder { get; set; }
+        public string ProgramCode { get; set; }
+        public string ProgramName { get; set; }
+        public string StudyForm { get; set; }
+        public string EducationBase { get; set; }
+        public string Department { get; set; }
+        public string AdmissionType { get; set; }
+        public string Branch { get; set; }
+        public bool? IsSelected { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+    }
+
+    public partial class AttachedDocuments
+    {
+        public int Id { get; set; }
+        public int ApplicantId { get; set; }
+        public string DocumentName { get; set; }
+        public string DocumentType { get; set; }
+        public string FilePath { get; set; }
+        public int FileSize { get; set; }
+        public DateTime UploadedAt { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+    }
+
+    public partial class CompetitionPriorities
+    {
+        public int Id { get; set; }
+        public int ApplicantId { get; set; }
+        public string CompetitionName { get; set; }
+        public int PriorityOrder { get; set; }
+        public bool? IsSelected { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+    }
+
+    public partial class ContactInformation
+    {
+        public int Id { get; set; }
+        public int ApplicantId { get; set; }
+        public string ContactType { get; set; }
+        public string ContactValue { get; set; }
+        public bool IsPreferred { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+    }
+
+    public partial class EducationPrograms
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Code { get; set; }
+    }
+
+    public partial class PersonalDocumentTypes
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public int SortOrder { get; set; }
+        public bool IsActive { get; set; }
+    }
+
+    public partial class RelationDegrees
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
+    public class RelativeTypes
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
+    public class RelativeDocuments
+    {
+        public int Id { get; set; }
+        public int ApplicantId { get; set; }
+        public int? RelativeTypeId { get; set; }
+        public string LastName { get; set; }
+        public string FirstName { get; set; }
+        public string Patronymic { get; set; }
+        public DateTime? BirthDate { get; set; }
+        public string BirthPlace { get; set; }
+        public int? GenderId { get; set; }
+        public int? DocumentTypeId { get; set; }
+        public string Series { get; set; }
+        public string Number { get; set; }
+        public string IssuedBy { get; set; }
+        public DateTime? IssueDate { get; set; }
+        public string DepartmentCode { get; set; }
+        public string Snils { get; set; }
+        public string Inn { get; set; }
+        public string Phone { get; set; }
+        public string Email { get; set; }
+        public string RegistrationAddress { get; set; }
+        public string ActualAddress { get; set; }
+        public string Workplace { get; set; }
+        public string Position { get; set; }
+        public bool IsGuardian { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+        public string RelativeTypeName { get; set; }
+        public string GenderName { get; set; }
+        public string DocumentTypeName { get; set; }
+    }
+
+    public partial class StudyForms
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
+    public partial class TargetAdmissionTypes
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+}

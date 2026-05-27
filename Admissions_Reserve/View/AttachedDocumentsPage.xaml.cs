@@ -27,7 +27,6 @@ namespace Admissions_Reserve.View
 
         private ObservableCollection<AttachedDocument> _documents;
         private int _nextNumber = 1;
-        private bool isSaving = false;
 
         public AttachedDocumentsPage()
         {
@@ -39,24 +38,8 @@ namespace Admissions_Reserve.View
 
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
-            LoadReferenceData();
             LoadMainDocuments();
             LoadAttachedDocumentsFromDB();
-        }
-
-        private void LoadReferenceData()
-        {
-            try
-            {
-                var docTypes = DataService.GetAll<PersonalDocumentTypes>().Where(d => d.IsActive).ToList();
-                DocumentTypeCombo.ItemsSource = docTypes;
-                DocumentTypeCombo.DisplayMemberPath = "Name";
-
-                var categories = new[] { "Абитуриент", "Родитель", "Опекун", "Супруг(а)" };
-                CategoryCombo.ItemsSource = categories;
-                if (categories.Any()) CategoryCombo.SelectedIndex = 0;
-            }
-            catch { }
         }
 
         private void LoadMainDocuments()
@@ -70,7 +53,7 @@ namespace Admissions_Reserve.View
                 var eduDoc = eduDocs.FirstOrDefault();
                 if (eduDoc != null)
                 {
-                    EduDocType.Text = eduDoc.DocumentTypeId?.ToString() ?? "Документ об образовании";
+                    EduDocType.Text = GetDocumentTypeName(eduDoc.DocumentTypeId) ?? "Документ об образовании";
                     EduDocDate.Text = eduDoc.IssueDate?.ToString("dd.MM.yyyy") ?? "-";
                     EduDocSeriesNumber.Text = $"{eduDoc.Series} {eduDoc.Number}".Trim();
                     EduDocOrg.Text = eduDoc.EducationalOrg ?? "-";
@@ -90,6 +73,17 @@ namespace Admissions_Reserve.View
                 }
             }
             catch { }
+        }
+
+        private string GetDocumentTypeName(int? documentTypeId)
+        {
+            if (documentTypeId == null) return null;
+            try
+            {
+                var types = DataService.GetAll<EducationDocumentTypes>();
+                return types.FirstOrDefault(t => t.Id == documentTypeId)?.Name;
+            }
+            catch { return null; }
         }
 
         private void LoadAttachedDocumentsFromDB()
@@ -118,66 +112,6 @@ namespace Admissions_Reserve.View
             }
             catch { }
         }
-
-        private void AddDocumentButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (string.IsNullOrWhiteSpace(DocumentTypeCombo.Text))
-            {
-                MessageBox.Show("Укажите название документа", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            // Проверяем, что хотя бы что-то заполнено
-            if (string.IsNullOrWhiteSpace(SeriesNumberTextBox.Text) &&
-                string.IsNullOrWhiteSpace(DocumentInfoTextBox.Text))
-            {
-                MessageBox.Show("Укажите серию, номер или информацию о документе", "Ошибка", 
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            try
-            {
-                if (SessionManager.CurrentApplicantId == null) return;
-
-                DataService.CreateAttachedDocument(
-                    SessionManager.CurrentApplicantId.Value,
-                    DocumentTypeCombo.Text,
-                    "Прочий документ",
-                    "",
-                    0
-                );
-
-                _documents.Add(new AttachedDocument
-                {
-                    Number = _nextNumber++,
-                    DocumentType = DocumentTypeCombo.Text,
-                    SeriesNumber = SeriesNumberTextBox.Text?.Trim(),
-                    Category = CategoryCombo.SelectedItem?.ToString(),
-                    IssueDate = IssueDatePicker.SelectedDate,
-                    DocumentInfo = DocumentInfoTextBox.Text?.Trim()
-                });
-
-                ClearForm();
-                DocumentsGrid.Items.Refresh();
-                MessageBox.Show("Документ успешно добавлен", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        private void ClearForm()
-        {
-            DocumentTypeCombo.SelectedIndex = -1;
-            SeriesNumberTextBox.Text = "";
-            CategoryCombo.SelectedIndex = 0;
-            IssueDatePicker.SelectedDate = null;
-            DocumentInfoTextBox.Text = "";
-        }
-
-        private void CancelAddButton_Click(object sender, RoutedEventArgs e) => ClearForm();
 
         private void DeleteDocument_Click(object sender, RoutedEventArgs e)
         {
@@ -210,27 +144,79 @@ namespace Admissions_Reserve.View
 
         private void CompleteButton_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Заявление успешно заполнено! Все данные сохранены.", "Успех",
-                MessageBoxButton.OK, MessageBoxImage.Information);
+            try
+            {
+                // Сохраняем все данные перед завершением
+                if (SessionManager.CurrentApplicantId != null)
+                {
+                    var applicant = DataService.GetApplicant(SessionManager.CurrentApplicantId.Value);
+                    if (applicant != null)
+                    {
+                        applicant.UpdatedAt = DateTime.Now;
+                        DataService.UpdateApplicant(applicant);
+                    }
+                    DataService.LogChange("Applicants", SessionManager.CurrentApplicantId.Value, "COMPLETE");
+                }
 
-            SessionManager.Clear();
+                MessageBox.Show("Заявление успешно заполнено! Все данные сохранены.\nВы будете перенаправлены на страницу поиска абитуриентов.",
+                    "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
 
-            if (NavigationService?.CanGoBack == true)
-                while (NavigationService.CanGoBack) NavigationService.GoBack();
-            else
-                Application.Current.Shutdown();
+                SessionManager.Clear();
+
+                // Переход на страницу поиска абитуриентов (без выхода из аккаунта)
+                NavigationService?.Navigate(new ApplicantSearchPage());
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при завершении: {ex.Message}", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
-            if (MessageBox.Show("Отменить?", "Подтверждение",
-                MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+            var result = MessageBox.Show(
+                "Вы уверены, что хотите отменить ввод данных?\n\n" +
+                "ВНИМАНИЕ: Все данные абитуриента будут безвозвратно удалены из базы данных!\n\n" +
+                "Это действие нельзя отменить.",
+                "Подтверждение удаления",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (result == MessageBoxResult.Yes)
             {
-                SessionManager.Clear();
-                if (NavigationService?.CanGoBack == true)
-                    while (NavigationService.CanGoBack) NavigationService.GoBack();
-                else
-                    Application.Current.Shutdown();
+                // Двойное подтверждение
+                var confirmResult = MessageBox.Show(
+                    "Вы действительно хотите удалить все данные этого абитуриента?",
+                    "Подтвердите удаление",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question);
+
+                if (confirmResult == MessageBoxResult.Yes)
+                {
+                    try
+                    {
+                        // Удаляем все данные абитуриента из БД
+                        if (SessionManager.CurrentApplicantId != null)
+                        {
+                            DataService.DeleteApplicant(SessionManager.CurrentApplicantId.Value);
+                            DataService.LogChange("Applicants", SessionManager.CurrentApplicantId.Value, "DELETE_ALL");
+                        }
+
+                        SessionManager.Clear();
+
+                        MessageBox.Show("Все данные абитуриента удалены.\nВы будете перенаправлены на страницу поиска.",
+                            "Удалено", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                        // Переход на страницу поиска абитуриентов
+                        NavigationService?.Navigate(new ApplicantSearchPage());
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Ошибка при удалении данных: {ex.Message}", "Ошибка",
+                            MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
             }
         }
     }

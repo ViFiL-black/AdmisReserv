@@ -176,6 +176,7 @@ namespace Admissions_Reserve.View
         private ObservableCollection<RelativeItem> _blockedRelatives;
         private int _nextNumber = 1;
         private RelativeItem _selectedRelative;
+        private int _editingRelativeId = 0; // ID редактируемого родственника
         private bool isInitialized = false;
 
         public RelativesPage()
@@ -211,7 +212,6 @@ namespace Admissions_Reserve.View
             LoadRelativesFromDatabase();
 
             RegularRelativesGrid.ItemsSource = _regularRelatives;
-            BlockedRelativesGrid.ItemsSource = _blockedRelatives;
         }
 
         private void LoadRelativesFromDatabase()
@@ -338,7 +338,6 @@ namespace Admissions_Reserve.View
         {
             if (!isInitialized) return;
             _selectedRelative = RegularRelativesGrid.SelectedItem as RelativeItem;
-            BlockSelectedButton.IsEnabled = _selectedRelative != null;
         }
 
         private void AddRelativeButton_Click(object sender, RoutedEventArgs e)
@@ -394,8 +393,43 @@ namespace Admissions_Reserve.View
             try
             {
                 int relativeId = 0;
-                if (SessionManager.CurrentApplicant != null)
+                
+                if (_editingRelativeId > 0)
                 {
+                    // Обновляем существующего родственника
+                    DataService.UpdateRelative(
+                        _editingRelativeId,
+                        SessionManager.CurrentApplicantId.Value,
+                        InnTextBox.Text?.Trim() ?? "",
+                        (RelationDegreeCombo.SelectedItem as ComboBoxItem)?.Content.ToString() ?? "",
+                        LastNameTextBox.Text?.Trim() ?? "",
+                        FirstNameTextBox.Text?.Trim() ?? "",
+                        PatronymicTextBox.Text?.Trim(),
+                        BirthDatePicker.SelectedDate,
+                        PhoneTextBox.Text?.Trim(),
+                        EmailTextBox.Text?.Trim(),
+                        WorkPlaceTextBox.Text?.Trim(),
+                        PositionTextBox.Text?.Trim(),
+                        BirthPlaceTextBox.Text?.Trim(),
+                        IdNumberTextBox.Text?.Trim(),
+                        IssueDatePicker.SelectedDate,
+                        IssuedByTextBox.Text?.Trim(),
+                        DepartmentCodeTextBox.Text?.Trim(),
+                        OkpoTextBox.Text?.Trim(),
+                        PersonalAccountTextBox.Text?.Trim(),
+                        BankNameTextBox.Text?.Trim(),
+                        FiasAddressTextBox.Text?.Trim(),
+                        ApartmentTextBox.Text?.Trim()
+                    );
+                    relativeId = _editingRelativeId;
+                    _editingRelativeId = 0;
+                    DataService.LogChange("Relatives", relativeId, "UPDATE");
+                    MessageBox.Show("Родственник успешно обновлен", "Успех",
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else if (SessionManager.CurrentApplicant != null)
+                {
+                    // Создаем нового родственника
                     relativeId = DataService.CreateRelative(
                         SessionManager.CurrentApplicantId.Value,
                         InnTextBox.Text?.Trim(),
@@ -411,6 +445,8 @@ namespace Admissions_Reserve.View
                         BirthPlaceTextBox.Text?.Trim()
                     );
                     DataService.LogChange("Relatives", relativeId, "INSERT");
+                    MessageBox.Show("Родственник успешно добавлен", "Успех",
+                        MessageBoxButton.OK, MessageBoxImage.Information);
                 }
 
                 var newRelative = new RelativeItem
@@ -428,14 +464,20 @@ namespace Admissions_Reserve.View
                     Email = EmailTextBox.Text,
                     WorkPlace = WorkPlaceTextBox.Text,
                     Position = PositionTextBox.Text,
+                    IdNumber = IdNumberTextBox.Text,
+                    IssueDate = IssueDatePicker.SelectedDate,
+                    IssuedBy = IssuedByTextBox.Text,
+                    DepartmentCode = DepartmentCodeTextBox.Text,
+                    Okpo = OkpoTextBox.Text,
+                    PersonalAccount = PersonalAccountTextBox.Text,
+                    BankName = BankNameTextBox.Text,
+                    FiasAddress = FiasAddressTextBox.Text,
+                    Apartment = ApartmentTextBox.Text,
                     IsBlocked = false
                 };
 
                 _regularRelatives.Add(newRelative);
                 ClearForm();
-
-                MessageBox.Show("Родственник успешно добавлен", "Успех",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
@@ -449,39 +491,57 @@ namespace Admissions_Reserve.View
             var button = sender as Button;
             var item = button?.Tag as RelativeItem;
 
-            if (item != null)
+            if (item != null && item.Id > 0)
             {
-                // Заполняем форму данными для редактирования
-                RelationDegreeCombo.Text = item.RelationDegree;
-                LastNameTextBox.Text = item.LastName;
-                FirstNameTextBox.Text = item.FirstName;
-                PatronymicTextBox.Text = item.Patronymic;
-                BirthDatePicker.SelectedDate = item.BirthDate;
-                PhoneTextBox.Text = item.Phone;
-                EmailTextBox.Text = item.Email;
-                InnTextBox.Text = item.Inn;
-                WorkPlaceTextBox.Text = item.WorkPlace;
-                PositionTextBox.Text = item.Position;
-                BirthPlaceTextBox.Text = item.BirthPlace;
-                IdTypeCombo.SelectedIndex = 0;
-                IdNumberTextBox.Text = item.IdNumber;
-                IssueDatePicker.SelectedDate = item.IssueDate;
-                IssuedByTextBox.Text = item.IssuedBy;
-                DepartmentCodeTextBox.Text = item.DepartmentCode;
-                OkpoTextBox.Text = item.Okpo;
-                PersonalAccountTextBox.Text = item.PersonalAccount;
-                BankNameTextBox.Text = item.BankName;
-                CountryCombo.SelectedIndex = 0;
-                FiasAddressTextBox.Text = item.FiasAddress;
-                ApartmentTextBox.Text = item.Apartment;
-                PravdaCheckBox.IsChecked = item.Pravda;
-                DefactCheckBox.IsChecked = item.Defact;
+                try
+                {
+                    // Загружаем полные данные родственника из БД
+                    var fullRelative = DataService.GetRelative(item.Id);
+                    if (fullRelative == null)
+                    {
+                        MessageBox.Show("Ошибка загрузки данных родственника", "Ошибка",
+                            MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
 
-                // Удаляем старую запись
-                _regularRelatives.Remove(item);
+                    // Заполняем форму всеми данными
+                    RelationDegreeCombo.Text = fullRelative.RelationDegree ?? "";
+                    LastNameTextBox.Text = fullRelative.LastName ?? "";
+                    FirstNameTextBox.Text = fullRelative.FirstName ?? "";
+                    PatronymicTextBox.Text = fullRelative.Patronymic ?? "";
+                    BirthDatePicker.SelectedDate = fullRelative.BirthDate;
+                    PhoneTextBox.Text = fullRelative.Phone ?? "";
+                    EmailTextBox.Text = fullRelative.Email ?? "";
+                    InnTextBox.Text = fullRelative.Inn ?? "";
+                    WorkPlaceTextBox.Text = fullRelative.WorkPlace ?? "";
+                    PositionTextBox.Text = fullRelative.Position ?? "";
+                    BirthPlaceTextBox.Text = fullRelative.BirthPlace ?? "";
+                    IdTypeCombo.SelectedIndex = 0;
+                    IdNumberTextBox.Text = fullRelative.IdNumber ?? "";
+                    IssueDatePicker.SelectedDate = fullRelative.IssueDate;
+                    IssuedByTextBox.Text = fullRelative.IssuedBy ?? "";
+                    DepartmentCodeTextBox.Text = fullRelative.DepartmentCode ?? "";
+                    OkpoTextBox.Text = fullRelative.Okpo ?? "";
+                    PersonalAccountTextBox.Text = fullRelative.PersonalAccount ?? "";
+                    BankNameTextBox.Text = fullRelative.BankName ?? "";
+                    CountryCombo.SelectedIndex = 0;
+                    FiasAddressTextBox.Text = fullRelative.FiasAddress ?? "";
+                    ApartmentTextBox.Text = fullRelative.Apartment ?? "";
 
-                MessageBox.Show("Теперь вы можете отредактировать данные и добавить снова",
-                    "Редактирование", MessageBoxButton.OK, MessageBoxImage.Information);
+                    // Сохраняем ID редактируемого родственника
+                    _editingRelativeId = item.Id;
+
+                    // Удаляем старую запись из таблицы
+                    _regularRelatives.Remove(item);
+
+                    MessageBox.Show("Данные загружены. Отредактируйте их и нажмите 'Сохранить'",
+                        "Редактирование", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ошибка при загрузке данных: {ex.Message}", "Ошибка",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
         }
 
@@ -501,8 +561,6 @@ namespace Admissions_Reserve.View
             PhoneTextBox.Text = "";
             EmailTextBox.Text = "";
             OkpoTextBox.Text = "";
-            PravdaCheckBox.IsChecked = false;
-            DefactCheckBox.IsChecked = false;
             InnTextBox.Text = "";
             WorkPlaceTextBox.Text = "";
             PositionTextBox.Text = "";
@@ -511,6 +569,7 @@ namespace Admissions_Reserve.View
             CountryCombo.SelectedIndex = 0;
             FiasAddressTextBox.Text = "";
             ApartmentTextBox.Text = "";
+            _editingRelativeId = 0; // Сбрасываем ID редактируемого родственника
         }
 
         private void CancelAddButton_Click(object sender, RoutedEventArgs e)
@@ -561,35 +620,7 @@ namespace Admissions_Reserve.View
             }
         }
 
-        private void BlockSelectedButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (!isInitialized) return;
-
-            if (_selectedRelative == null)
-            {
-                MessageBox.Show("Пожалуйста, выберите родственника для блокировки",
-                    "Предупреждение", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            var inputDialog = new InputDialog("Причина блокировки:", "Введите причину блокировки");
-            if (inputDialog.ShowDialog() == true && !string.IsNullOrWhiteSpace(inputDialog.Result))
-            {
-                _regularRelatives.Remove(_selectedRelative);
-
-                _selectedRelative.BlockReason = inputDialog.Result;
-                _selectedRelative.IsBlocked = true;
-                _blockedRelatives.Add(_selectedRelative);
-
-                RenumberItems(_regularRelatives);
-                RenumberItems(_blockedRelatives);
-                _selectedRelative = null;
-                BlockSelectedButton.IsEnabled = false;
-
-                MessageBox.Show("Родственник заблокирован", "Успех",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
-            }
-        }
+       
 
         private void UnblockRelative_Click(object sender, RoutedEventArgs e)
         {

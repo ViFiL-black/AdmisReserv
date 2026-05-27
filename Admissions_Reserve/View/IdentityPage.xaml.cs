@@ -30,7 +30,6 @@ namespace Admissions_Reserve.View
             }
             else
             {
-                // Абитуриент будет создан только при сохранении данных (нажатии кнопки "Далее")
                 currentApplicant = new Applicants
                 {
                     CreatedAt = DateTime.Now,
@@ -54,10 +53,6 @@ namespace Admissions_Reserve.View
                 CitizenshipCombo.ItemsSource = citizenships;
                 CitizenshipCombo.DisplayMemberPath = "Name";
                 CitizenshipCombo.SelectedValuePath = "Id";
-
-                ActualCountryCombo.ItemsSource = citizenships;
-                ActualCountryCombo.DisplayMemberPath = "Name";
-                ActualCountryCombo.SelectedValuePath = "Id";
 
                 var countries = DataService.GetByCondition<Countries>("IsActive = 1");
                 CountryCombo.ItemsSource = countries;
@@ -101,7 +96,6 @@ namespace Admissions_Reserve.View
                         DisplayText = $"{GetDocumentTypeName(d.DocumentTypeId)} ({d.Series} {d.Number})"
                     }).ToList();
 
-                    ExistingIdentityCombo.ItemsSource = null;
                     ExistingIdentityCombo.ItemsSource = docsWithDisplay;
                     ExistingIdentityCombo.DisplayMemberPath = "DisplayText";
                     ExistingIdentityCombo.SelectedValuePath = "Id";
@@ -130,17 +124,12 @@ namespace Admissions_Reserve.View
         private string GetDocumentTypeName(int? documentTypeId)
         {
             if (documentTypeId == null) return "Документ";
-
             try
             {
                 var types = DataService.GetAll<IdentityDocumentTypes>();
-                var docType = types.FirstOrDefault(dt => dt.Id == documentTypeId.Value);
-                return docType?.Name ?? "Документ";
+                return types.FirstOrDefault(dt => dt.Id == documentTypeId.Value)?.Name ?? "Документ";
             }
-            catch
-            {
-                return "Документ";
-            }
+            catch { return "Документ"; }
         }
 
         private void LoadApplicantData()
@@ -155,8 +144,8 @@ namespace Admissions_Reserve.View
                 FirstNameTextBox.Text = currentApplicant.FirstName ?? "";
                 PatronymicTextBox.Text = currentApplicant.Patronymic ?? "";
 
-                if (currentApplicant.BirthDate != null && currentApplicant.BirthDate != default(DateTime))
-                    BirthDatePicker.SelectedDate = currentApplicant.BirthDate;
+                if (currentApplicant.BirthDate.HasValue)
+                    BirthDatePicker.SelectedDate = currentApplicant.BirthDate.Value;
 
                 BirthPlaceTextBox.Text = currentApplicant.BirthPlace ?? "";
 
@@ -165,11 +154,6 @@ namespace Admissions_Reserve.View
 
                 if (currentApplicant.CitizenshipId.HasValue)
                     CitizenshipCombo.SelectedValue = currentApplicant.CitizenshipId.Value;
-
-                if (!string.IsNullOrEmpty(currentApplicant.Snils))
-                {
-                    SnilsTextBox.Text = FormatSnils(currentApplicant.Snils);
-                }
 
                 if (currentApplicant.RegistrationCountryId.HasValue)
                     CountryCombo.SelectedValue = currentApplicant.RegistrationCountryId.Value;
@@ -182,27 +166,6 @@ namespace Admissions_Reserve.View
                 HouseTextBox.Text = currentApplicant.RegistrationHouse ?? "";
                 BuildingTextBox.Text = currentApplicant.RegistrationBuilding ?? "";
                 ApartmentTextBox.Text = currentApplicant.RegistrationApartment ?? "";
-
-                if (currentApplicant.ActualAddressSame == false)
-                {
-                    SameAsRegistrationCheckBox.IsChecked = false;
-                    ActualAddressBorder.Visibility = Visibility.Visible;
-
-                    if (currentApplicant.ActualCountryId.HasValue)
-                        ActualCountryCombo.SelectedValue = currentApplicant.ActualCountryId.Value;
-
-                    ActualPostalCodeTextBox.Text = currentApplicant.ActualPostalCode ?? "";
-                    ActualRegionTextBox.Text = currentApplicant.ActualRegion ?? "";
-                    ActualCityTextBox.Text = currentApplicant.ActualCity ?? "";
-                    ActualStreetTextBox.Text = currentApplicant.ActualStreet ?? "";
-                    ActualHouseTextBox.Text = currentApplicant.ActualHouse ?? "";
-                    ActualApartmentTextBox.Text = currentApplicant.ActualApartment ?? "";
-                }
-                else
-                {
-                    SameAsRegistrationCheckBox.IsChecked = true;
-                    ActualAddressBorder.Visibility = Visibility.Collapsed;
-                }
             }
             finally
             {
@@ -240,14 +203,6 @@ namespace Admissions_Reserve.View
             }
         }
 
-        private string FormatSnils(string snils)
-        {
-            if (string.IsNullOrEmpty(snils) || snils.Length != 11)
-                return snils;
-
-            return $"{snils.Substring(0, 3)}-{snils.Substring(3, 3)}-{snils.Substring(6, 3)} {snils.Substring(9, 2)}";
-        }
-
         private bool SaveData()
         {
             try
@@ -255,14 +210,15 @@ namespace Admissions_Reserve.View
                 if (!ValidateData())
                     return false;
 
-                // Если абитуриент еще не создан (нет ID), создаем его в БД
+                // Если абитуриент еще не создан, создаем его
                 if (currentApplicant.Id == 0)
                 {
                     currentApplicant.Id = DataService.CreateApplicant(currentApplicant);
                     SessionManager.CurrentApplicant = currentApplicant;
+                    isNewApplicant = false;
                 }
 
-                // Обновляем данные из формы
+                // Заполняем данные из формы
                 currentApplicant.LastName = LastNameTextBox.Text.Trim();
                 currentApplicant.FirstName = FirstNameTextBox.Text.Trim();
                 currentApplicant.Patronymic = PatronymicTextBox.Text?.Trim();
@@ -277,15 +233,6 @@ namespace Admissions_Reserve.View
                 if (CitizenshipCombo.SelectedValue != null)
                     currentApplicant.CitizenshipId = (int)CitizenshipCombo.SelectedValue;
 
-                if (!string.IsNullOrWhiteSpace(SnilsTextBox.Text) && NoSnilsCheckBox.IsChecked != true)
-                {
-                    currentApplicant.Snils = SnilsTextBox.Text.Replace("-", "").Replace(" ", "").Trim();
-                }
-                else if (NoSnilsCheckBox.IsChecked == true)
-                {
-                    currentApplicant.Snils = null;
-                }
-
                 if (CountryCombo.SelectedValue != null)
                     currentApplicant.RegistrationCountryId = (int)CountryCombo.SelectedValue;
 
@@ -298,34 +245,7 @@ namespace Admissions_Reserve.View
                 currentApplicant.RegistrationBuilding = BuildingTextBox.Text?.Trim();
                 currentApplicant.RegistrationApartment = ApartmentTextBox.Text?.Trim();
 
-                currentApplicant.ActualAddressSame = SameAsRegistrationCheckBox.IsChecked ?? true;
-
-                if ((bool)!currentApplicant.ActualAddressSame)
-                {
-                    if (ActualCountryCombo.SelectedValue != null)
-                        currentApplicant.ActualCountryId = (int)ActualCountryCombo.SelectedValue;
-
-                    currentApplicant.ActualPostalCode = ActualPostalCodeTextBox.Text?.Trim();
-                    currentApplicant.ActualRegion = ActualRegionTextBox.Text?.Trim();
-                    currentApplicant.ActualCity = ActualCityTextBox.Text?.Trim();
-                    currentApplicant.ActualStreet = ActualStreetTextBox.Text?.Trim();
-                    currentApplicant.ActualHouse = ActualHouseTextBox.Text?.Trim();
-                    currentApplicant.ActualApartment = ActualApartmentTextBox.Text?.Trim();
-                }
-                else
-                {
-                    currentApplicant.ActualCountryId = null;
-                    currentApplicant.ActualPostalCode = null;
-                    currentApplicant.ActualRegion = null;
-                    currentApplicant.ActualCity = null;
-                    currentApplicant.ActualStreet = null;
-                    currentApplicant.ActualHouse = null;
-                    currentApplicant.ActualApartment = null;
-                }
-
                 currentApplicant.UpdatedAt = DateTime.Now;
-
-                // Сохраняем в БД
                 DataService.UpdateApplicant(currentApplicant);
 
                 // Сохраняем документ
@@ -338,12 +258,7 @@ namespace Admissions_Reserve.View
                     CreateNewIdentityDocument();
                 }
 
-                // Обновляем сессию
                 SessionManager.CurrentApplicant = currentApplicant;
-
-                MessageBox.Show("Данные успешно сохранены!", "Успех",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
-
                 return true;
             }
             catch (Exception ex)
@@ -394,73 +309,40 @@ namespace Admissions_Reserve.View
         private void ExistingIdentityCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (!isInitialized || isLoadingData) return;
-
-            if (ExistingIdentityRadio != null && ExistingIdentityRadio.IsChecked == true)
-            {
+            if (ExistingIdentityRadio?.IsChecked == true)
                 LoadSelectedIdentityDocument();
-            }
-        }
-
-        private void SameAddressCheckBox_Checked(object sender, RoutedEventArgs e)
-        {
-            if (!isInitialized) return;
-            ActualAddressBorder.Visibility = Visibility.Collapsed;
-        }
-
-        private void SameAddressCheckBox_Unchecked(object sender, RoutedEventArgs e)
-        {
-            if (!isInitialized) return;
-            ActualAddressBorder.Visibility = Visibility.Visible;
-        }
-
-        private void NoSnilsCheckBox_Checked(object sender, RoutedEventArgs e)
-        {
-            if (!isInitialized) return;
-            SnilsTextBox.IsEnabled = false;
-            SnilsTextBox.Text = string.Empty;
-        }
-
-        private void NoSnilsCheckBox_Unchecked(object sender, RoutedEventArgs e)
-        {
-            if (!isInitialized) return;
-            SnilsTextBox.IsEnabled = true;
         }
 
         private void NextButton_Click(object sender, RoutedEventArgs e)
         {
             if (SaveData())
-            {
                 NavigationService?.Navigate(new ContactsPage());
-            }
         }
 
         private void PrevButton_Click(object sender, RoutedEventArgs e)
         {
             SaveData();
-
             if (NavigationService?.CanGoBack == true)
                 NavigationService.GoBack();
         }
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
-            var result = MessageBox.Show("Вы уверены, что хотите отменить ввод данных?",
-                "Подтверждение", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            var result = MessageBox.Show("Вы уверены, что хотите отменить ввод данных?\nВсе данные будут удалены.",
+                "Подтверждение", MessageBoxButton.YesNo, MessageBoxImage.Warning);
 
             if (result == MessageBoxResult.Yes)
             {
                 if (SessionManager.CurrentApplicantId.HasValue)
                 {
                     DataService.DeleteApplicant(SessionManager.CurrentApplicantId.Value);
-                    DataService.LogChange("Applicants", SessionManager.CurrentApplicantId.Value, "DELETE");
                 }
-
                 SessionManager.Clear();
 
                 if (NavigationService?.CanGoBack == true)
                     NavigationService.GoBack();
                 else
-                    Application.Current.Windows[0]?.Close();
+                    Application.Current.Shutdown();
             }
         }
 
@@ -482,20 +364,12 @@ namespace Admissions_Reserve.View
 
             if (!BirthDatePicker.SelectedDate.HasValue)
                 errors.Add("• Дата рождения обязательна для заполнения");
-            else if (BirthDatePicker.SelectedDate.Value >= DateTime.Today)
-                errors.Add("• Дата рождения не может быть в будущем");
-            else if ((DateTime.Today.Year - BirthDatePicker.SelectedDate.Value.Year) < 16)
-                errors.Add("• Абитуриент должен быть старше 16 лет");
 
             if (string.IsNullOrWhiteSpace(NumberTextBox.Text))
                 errors.Add("• Номер документа обязателен для заполнения");
-            else if (!ValidationHelper.IsValidPassportNumber(NumberTextBox.Text + (SeriesTextBox.Text ?? "")))
-                errors.Add("• Неверный формат номера документа (требуется 10 цифр)");
 
             if (!IssueDatePicker.SelectedDate.HasValue)
                 errors.Add("• Дата выдачи документа обязательна для заполнения");
-            else if (IssueDatePicker.SelectedDate > DateTime.Today)
-                errors.Add("• Дата выдачи не может быть в будущем");
 
             if (string.IsNullOrWhiteSpace(CityTextBox.Text))
                 errors.Add("• Населенный пункт обязателен для заполнения");
@@ -508,13 +382,6 @@ namespace Admissions_Reserve.View
 
             if (CountryCombo.SelectedValue == null)
                 errors.Add("• Страна регистрации обязательна для выбора");
-
-            // Валидация СНИЛС (если указан)
-            if (!string.IsNullOrWhiteSpace(SnilsTextBox.Text) && NoSnilsCheckBox.IsChecked != true)
-            {
-                if (!ValidationHelper.IsValidSnils(SnilsTextBox.Text))
-                    errors.Add("• СНИЛС имеет неверный формат (требуется 11 цифр, возможны дефисы)");
-            }
 
             if (errors.Any())
             {

@@ -11,8 +11,7 @@
     <Grid>
     <TextBlock Text="Добро пожаловать" FontSize="28" FontWeight="Bold" Margin="30,30,0,0" VerticalAlignment="Top" HorizontalAlignment="Left"/>
     <TextBlock Text="Резервное приложение для приемной комиссии" FontSize="16" Margin="32,80,0,0" VerticalAlignment="Top" HorizontalAlignment="Left"/>
-    <Button x:Name="BtnLogin" Content="Войти" Width="120" Height="40" Margin="30,150,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Click="BtnLogin_Click"/>
-    <Button x:Name="BtnExit" Content="Выход" Width="120" Height="40" Margin="170,150,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Click="BtnExit_Click"/>
-    <Button x:Name="BtnSearch" Content="🔍 Поиск абитуриентов" Width="150" Height="40" Margin="30,220,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Click="BtnSearch_Click" Background="#007ACC" Foreground="White" FontSize="12" FontWeight="Bold"/>
+        <Button x:Name="BtnSearch" Content="Войти" Width="150" Height="40" Margin="30,150,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Click="BtnSearch_Click" Background="#007ACC" Foreground="White" FontSize="12" FontWeight="Bold"/>
+    <Button x:Name="BtnExit" Content="Выход" Width="150" Height="40" Margin="200,150,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Click="BtnExit_Click"/>
 </Grid>
 </Page>

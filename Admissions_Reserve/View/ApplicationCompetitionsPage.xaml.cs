@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Data.SQLite;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -200,10 +201,19 @@ namespace Admissions_Reserve.View
 
                 foreach (var p in priorities.OrderBy(p => p.PriorityOrder))
                 {
+                    // Загружаем полные данные конкурса из таблицы Competitions
+                    var competition = DataService.GetByCondition<Competitions>("Name = @Name", 
+                        new SQLiteParameter("@Name", p.CompetitionName ?? "")).FirstOrDefault();
+                    
                     _selectedCompetitions.Add(new CompetitionItem
                     {
                         Priority = p.PriorityOrder,
                         ProgramName = p.CompetitionName ?? "",
+                        EducationBase = competition?.EducationBase ?? "",
+                        StudyForm = competition?.StudyForm ?? "",
+                        AdmissionType = competition?.AdmissionType ?? "",
+                        Branch = competition?.Branch ?? "",
+                        Department = competition?.Department ?? "",
                         IsSelected = true
                     });
                 }

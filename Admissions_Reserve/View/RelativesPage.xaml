@@ -171,9 +171,7 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" Text="ИНН" FontSize="11" VerticalAlignment="Center"/>
-                            <TextBox Grid.Column="1" Name="InnTextBox" Height="23" FontSize="11" Margin="0,0,10,0" ToolTip="12 цифр"/>
-                            <CheckBox Grid.Column="2" Name="PravdaCheckBox" Content="Правда" FontSize="11" VerticalAlignment="Center" Margin="0,0,15,0"/>
-                            <CheckBox Grid.Column="3" Name="DefactCheckBox" Content="Дефакт" FontSize="11" VerticalAlignment="Center"/>
+                            <TextBox Grid.Column="1" Name="InnTextBox" Height="23" FontSize="11" Margin="0,0,0,0" ToolTip="12 цифр"/>
                         </Grid>
 
                         <!-- Строка 9: Место работы + Должность -->
@@ -199,9 +197,9 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" Text="ОКПО" FontSize="11" VerticalAlignment="Center"/>
-                            <TextBox Grid.Column="1" Name="OkpoTextBox" Height="23" FontSize="11" Margin="0,0,10,0"/>
-                            <TextBlock Grid.Column="2" Text="Лицевой счет" FontSize="11" VerticalAlignment="Center"/>
-                            <TextBox Grid.Column="3" Name="PersonalAccountTextBox" Height="23" FontSize="11"/>
+                            <TextBox Grid.Column="1" Name="OkpoTextBox" Height="23" FontSize="11"/>
+                            <TextBlock Grid.Column="2" Text="Лицевой счет" FontSize="11" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                            <TextBox Grid.Column="2" Name="PersonalAccountTextBox" Height="23" FontSize="11" Grid.ColumnSpan="2" Margin="110,0,0,0"/>
                         </Grid>
 
                         <!-- Строка 11: Наименование банка -->
@@ -300,46 +298,7 @@
                     </ScrollViewer>
                 </Border>
 
-                <!-- ========== ТАБЛИЦА "БЛОКИРОВКА РОДСТВЕННИКА" ========== -->
-                <TextBlock Text="Заблокированные родственники" FontSize="13" FontWeight="Bold" Background="#E8EFF7" Padding="8" Margin="0,0,0,8"/>
-
-                <Border BorderBrush="#CCCCCC" BorderThickness="1" Margin="0,0,0,15" CornerRadius="5">
-                    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" MaxHeight="200">
-                        <DataGrid Name="BlockedRelativesGrid" AutoGenerateColumns="False"
-                                  CanUserAddRows="False" CanUserDeleteRows="True"
-                                  HeadersVisibility="Column" FontSize="11" BorderThickness="0"
-                                  RowHeaderWidth="0">
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="№" Width="40" Binding="{Binding Number}" />
-                                <DataGridTextColumn Header="ИНН" Width="120" Binding="{Binding Inn}" />
-                                <DataGridTextColumn Header="Степень родства" Width="110" Binding="{Binding RelationDegree}" />
-                                <DataGridTextColumn Header="Фамилия" Width="120" Binding="{Binding LastName}" />
-                                <DataGridTextColumn Header="Имя" Width="100" Binding="{Binding FirstName}" />
-                                <DataGridTextColumn Header="Отчество" Width="100" Binding="{Binding Patronymic}" />
-                                <DataGridTextColumn Header="Дата рождения" Width="100" Binding="{Binding BirthDate, StringFormat='dd.MM.yyyy'}" />
-                                <DataGridTextColumn Header="Телефон" Width="110" Binding="{Binding Phone}" />
-                                <DataGridTextColumn Header="Причина блокировки" Width="180" Binding="{Binding BlockReason}" />
-                                <DataGridTemplateColumn Header="Действия" Width="80">
-                                    <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <Button Content="Разблок." FontSize="10" Width="65" Height="22"
-                                                    Background="#4CAF50" Foreground="White"
-                                                    Click="UnblockRelative_Click" Tag="{Binding}"/>
-                                        </DataTemplate>
-                                    </DataGridTemplateColumn.CellTemplate>
-                                </DataGridTemplateColumn>
-                            </DataGrid.Columns>
-                        </DataGrid>
-                    </ScrollViewer>
-                </Border>
-
-                <!-- Кнопка блокировки выбранного родственника -->
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,15">
-                    <Button Name="BlockSelectedButton" Content="🔒 Блокировать выбранного" Width="180" Height="32"
-                            FontSize="11" Background="#FF5722" Foreground="White" Click="BlockSelectedButton_Click"
-                            IsEnabled="False"/>
-                </StackPanel>
-
+                
                 <!-- ========== КНОПКИ НАВИГАЦИИ ========== -->
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,10">
                     <Button x:Name="PrevButton" Content="Назад" Width="90" Height="32" Margin="0,0,10,0" FontSize="11" Background="#F0F0F0" Click="PrevButton_Click"/>
