@@ -1,0 +1,75 @@
+= РЕАЛИЗОВАННЫЕ ИЗМЕНЕНИЯ =
+
+1. ТАБЛИЦА ПОЛЬЗОВАТЕЛЕЙ (Users)
+   Создана новая таблица для хранения пользователей:
+   - Id (INTEGER PRIMARY KEY)
+   - Login (TEXT UNIQUE NOT NULL) - логин для входа
+   - Password (TEXT NOT NULL) - пароль
+   - FullName (TEXT NOT NULL) - полное имя пользователя (ФИО)
+   - CreatedAt (TEXT NOT NULL) - дата создания пользователя
+
+   Тестовый пользователь:
+   - Логин: testuser
+   - Пароль: testpassword
+   - ФИО: Тестовый Пользователь
+
+2. ТАБЛИЦА АБИТУРИЕНТОВ (Applicants)
+   Добавлена новая колонка:
+   - CreatedByUserId (INTEGER) - ID пользователя, добавившего абитуриента
+
+3. КЛАСС АУТЕНТИФИКАЦИИ (UserAuthentication.cs)
+   Новый класс Model\UserAuthentication.cs содержит:
+   - Authenticate(login, password) - аутентификация по логину и паролю
+   - CurrentUserId - ID текущего авторизованного пользователя
+   - CurrentUserFullName - ФИО текущего пользователя
+   - Logout() - выход из системы
+   - CreateUser(login, password, fullName) - создание нового пользователя
+   - GetCurrentUser() - получить информацию о текущем пользователе
+   - GetUserNameById(userId) - получить имя пользователя по ID
+
+4. ОБНОВЛЕНА ФОРМА ВХОДА (LoginWindow.xaml.cs)
+   - Удалена демонстрационная проверка (admin/password123, user/qwerty)
+   - Добавлено использование UserAuthentication для проверки учетных данных в БД
+   - Логирование ошибок при входе
+
+5. МОДЕЛЬ АБИТУРИЕНТА (Models.cs)
+   - Добавлено свойство CreatedByUserId в класс Applicants
+   - Служит для отслеживания, кто добавил абитуриента
+
+6. СЕРВИС ДАННЫХ (DataService.cs)
+   - Обновлен метод CreateApplicant() для автоматического заполнения CreatedByUserId
+   - Обновлен метод ReadApplicantFromReader() для чтения CreatedByUserId
+
+= КАК ИСПОЛЬЗОВАТЬ =
+
+ВХОД В ПРИЛОЖЕНИЕ:
+1. При запуске приложения откроется окно входа (LoginWindow)
+2. Введите логин: testuser
+3. Введите пароль: testpassword
+4. Нажмите OK
+
+ПОСЛЕ УСПЕШНОГО ВХОДА:
+- UserAuthentication.CurrentUserId будет содержать ID пользователя
+- UserAuthentication.CurrentUserFullName будет содержать ФИО пользователя
+- При добавлении нового абитуриента автоматически сохраняется ID текущего пользователя в CreatedByUserId
+
+ПРОСМОТР КТО ДОБАВИЛ АБИТУРИЕНТА:
+- В таблице Applicants есть колонка CreatedByUserId
+- Используйте UserAuthentication.GetUserNameById(applicant.CreatedByUserId) для получения имени пользователя
+
+СОЗДАНИЕ НОВЫХ ПОЛЬЗОВАТЕЛЕЙ:
+UserAuthentication.CreateUser("newlogin", "newpassword", "Имя Фамилия");
+
+= БЕЗОПАСНОСТЬ =
+
+Текущая реализация использует:
+- Прямое сравнение паролей (для простоты)
+- Для production рекомендуется использовать хеширование паролей (BCrypt, PBKDF2)
+- Метод HashPassword() уже реализован для использования SHA256
+
+= ИНИЦИАЛИЗАЦИЯ БД =
+
+При первом запуске приложения:
+1. Автоматически создается таблица Users
+2. Автоматически добавляется тестовый пользователь (testuser/testpassword)
+3. Добавляется колонка CreatedByUserId в существующие таблицы Applicants

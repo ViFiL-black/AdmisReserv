@@ -1,0 +1,479 @@
+﻿// DatabaseHelper.cs
+using System;
+using System.Collections.Generic;
+using System.Data.SQLite;
+using System.IO;
+
+namespace Admissions_Reserve.Model
+{
+    public static class DatabaseHelper
+    {
+        private static string connectionString;
+        private static readonly object lockObject = new object();
+
+        static DatabaseHelper()
+        {
+            InitializeDatabase();
+        }
+
+        private static void InitializeDatabase()
+        {
+            lock (lockObject)
+            {
+                string dbDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "App_Data");
+
+                if (!Directory.Exists(dbDirectory))
+                    Directory.CreateDirectory(dbDirectory);
+
+                string dbPath = Path.Combine(dbDirectory, "AdmissionsReserve.db");
+
+                if (!File.Exists(dbPath))
+                    SQLiteConnection.CreateFile(dbPath);
+
+                connectionString = $"Data Source={dbPath};Version=3;Foreign Keys=True;";
+
+                using (var connection = new SQLiteConnection(connectionString))
+                {
+                    connection.Open();
+                    using (var cmd = new SQLiteCommand("PRAGMA foreign_keys = ON;", connection))
+                        cmd.ExecuteNonQuery();
+
+                    CreateAllTablesIfNotExist(connection);
+                    EnsureApplicantColumnsExist(connection);
+                    EnsureRelativesColumnsExist(connection);
+                    EnsureAttachedDocumentsColumnsExist(connection);
+                    SeedAllDataIfEmpty(connection);
+                }
+            }
+        }
+
+        private static void CreateAllTablesIfNotExist(SQLiteConnection connection)
+        {
+            string[] tables = new string[]
+            {
+                "CREATE TABLE IF NOT EXISTS Countries (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL, IsActive INTEGER DEFAULT 1)",
+                "CREATE TABLE IF NOT EXISTS Genders (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL)",
+                "CREATE TABLE IF NOT EXISTS Citizenships (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL)",
+                "CREATE TABLE IF NOT EXISTS IdentityDocumentTypes (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL)",
+                "CREATE TABLE IF NOT EXISTS ApplicationTypes (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL)",
+                "CREATE TABLE IF NOT EXISTS EducationDocumentTypes (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL)",
+                "CREATE TABLE IF NOT EXISTS EducationLevels (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL)",
+                "CREATE TABLE IF NOT EXISTS DocumentForms (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL)",
+                "CREATE TABLE IF NOT EXISTS AdmissionStages (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL)",
+                "CREATE TABLE IF NOT EXISTS CostReimbursementTypes (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL)",
+                "CREATE TABLE IF NOT EXISTS StudyForms (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL)",
+                "CREATE TABLE IF NOT EXISTS Departments (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL)",
+                "CREATE TABLE IF NOT EXISTS EducationPrograms (Id INTEGER PRIMARY KEY AUTOINCREMENT, Code TEXT, Name TEXT NOT NULL)",
+                "CREATE TABLE IF NOT EXISTS BaseEducationLevels (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL)",
+                "CREATE TABLE IF NOT EXISTS AdmissionTypes (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL)",
+                "CREATE TABLE IF NOT EXISTS TargetAdmissionTypes (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL)",
+                "CREATE TABLE IF NOT EXISTS AchievementCategories (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL)",
+                "CREATE TABLE IF NOT EXISTS Competitions (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL, EducationBase TEXT, StudyForm TEXT, AdmissionType TEXT, Department TEXT, Branch TEXT, IsActive INTEGER DEFAULT 1)",
+                "CREATE TABLE IF NOT EXISTS Branches (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL)",
+                "CREATE TABLE IF NOT EXISTS RelationDegrees (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL)",
+                "CREATE TABLE IF NOT EXISTS EducationalOrganizations (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL)",
+                "CREATE TABLE IF NOT EXISTS DocumentCategories (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL)",
+                "CREATE TABLE IF NOT EXISTS DocumentReceiptForms (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL)",
+                "CREATE TABLE IF NOT EXISTS PersonalDocumentTypes (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL, SortOrder INTEGER DEFAULT 0, IsActive INTEGER DEFAULT 1)",
+                "CREATE TABLE IF NOT EXISTS Languages (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL)",
+                "CREATE TABLE IF NOT EXISTS LanguageLevels (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL, SortOrder INTEGER DEFAULT 0)",
+                "CREATE TABLE IF NOT EXISTS RelativeTypes (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL)",
+                "CREATE TABLE IF NOT EXISTS IndividualAchievementTypes (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL, DefaultPoints INTEGER DEFAULT 0)",
+
+                "CREATE TABLE IF NOT EXISTS Users (Id INTEGER PRIMARY KEY AUTOINCREMENT, Login TEXT NOT NULL UNIQUE, Password TEXT NOT NULL, FullName TEXT NOT NULL, CreatedAt TEXT NOT NULL)",
+
+                "CREATE TABLE IF NOT EXISTS Applicants (Id INTEGER PRIMARY KEY AUTOINCREMENT, LastName TEXT, FirstName TEXT, Patronymic TEXT, BirthDate TEXT, BirthPlace TEXT, GenderId INTEGER, CitizenshipId INTEGER, Snils TEXT, Inn TEXT, BirthCountryId INTEGER, RegistrationCountryId INTEGER, RegistrationPostalCode TEXT, RegistrationRegion TEXT, RegistrationDistrict TEXT, RegistrationCity TEXT, RegistrationStreet TEXT, RegistrationHouse TEXT, RegistrationBuilding TEXT, RegistrationApartment TEXT, ActualAddressSame INTEGER, ActualCountryId INTEGER, ActualPostalCode TEXT, ActualRegion TEXT, ActualDistrict TEXT, ActualCity TEXT, ActualStreet TEXT, ActualHouse TEXT, ActualBuilding TEXT, ActualApartment TEXT, Phone TEXT, MobilePhone TEXT, Fax TEXT, WorkPhone TEXT, Email TEXT, AdditionalEmail TEXT, Website TEXT, Telegram TEXT, WhatsApp TEXT, Viber TEXT, PreferredContactMethod TEXT, ContactComment TEXT, NeedsDormitory INTEGER DEFAULT 0, HasDormitoryBenefits INTEGER DEFAULT 0, HasSportsAchievements INTEGER DEFAULT 0, CompletedPreparatoryCourses INTEGER DEFAULT 0, CompletedPreparatoryDepartment INTEGER DEFAULT 0, CompletedMedicalEducation INTEGER DEFAULT 0, CurrentWorkPlace TEXT, ServedInArmy INTEGER DEFAULT 0, ServiceStartDate TEXT, ServiceEndDate TEXT, ReserveYear INTEGER, ApplicationComment TEXT, CreatedAt TEXT NOT NULL, UpdatedAt TEXT NOT NULL, CreatedByUserId INTEGER)",
+
+                "CREATE TABLE IF NOT EXISTS IdentityDocuments (Id INTEGER PRIMARY KEY AUTOINCREMENT, ApplicantId INTEGER NOT NULL, DocumentTypeId INTEGER, Series TEXT, Number TEXT, IssuedBy TEXT, IssueDate TEXT, DepartmentCode TEXT, IsPrimary INTEGER, AddedDate TEXT NOT NULL)",
+                "CREATE TABLE IF NOT EXISTS EducationDocuments (Id INTEGER PRIMARY KEY AUTOINCREMENT, ApplicantId INTEGER NOT NULL, ApplicationTypeId INTEGER, FirstTimeEducation INTEGER DEFAULT 0, CountryId INTEGER, City TEXT, EducationalOrg TEXT, DocumentTypeId INTEGER, EducationLevelId INTEGER, DocumentEducationLevelId INTEGER, Series TEXT, Number TEXT, IssueDate TEXT, GraduationYear TEXT, SatisfactoryCount INTEGER DEFAULT 0, GoodCount INTEGER DEFAULT 0, ExcellentCount INTEGER DEFAULT 0, AverageScore REAL DEFAULT 0, FrdoVerified INTEGER DEFAULT 0, ScanFilePath TEXT, DocumentFormId INTEGER, OriginalOrganization TEXT, CreatedAt TEXT NOT NULL, UpdatedAt TEXT NOT NULL)",
+                "CREATE TABLE IF NOT EXISTS Relatives (Id INTEGER PRIMARY KEY AUTOINCREMENT, ApplicantId INTEGER NOT NULL, Inn TEXT, RelationDegree TEXT, LastName TEXT, FirstName TEXT, Patronymic TEXT, BirthDate TEXT, Phone TEXT, Email TEXT, WorkPlace TEXT, Position TEXT, IsBlocked INTEGER DEFAULT 0, BlockReason TEXT, CreatedAt TEXT NOT NULL, UpdatedAt TEXT NOT NULL)",
+                "CREATE TABLE IF NOT EXISTS ApplicantLanguages (Id INTEGER PRIMARY KEY AUTOINCREMENT, ApplicantId INTEGER NOT NULL, LanguageId INTEGER, LanguageLevelId INTEGER, IsPrimary INTEGER DEFAULT 0, CreatedAt TEXT NOT NULL, UpdatedAt TEXT NOT NULL)",
+                "CREATE TABLE IF NOT EXISTS SportAchievements (Id INTEGER PRIMARY KEY AUTOINCREMENT, ApplicantId INTEGER NOT NULL, SportType TEXT, Achievement TEXT, Rank TEXT, Year INTEGER, CreatedAt TEXT NOT NULL, UpdatedAt TEXT NOT NULL)",
+                "CREATE TABLE IF NOT EXISTS IndividualAchievements (Id INTEGER PRIMARY KEY AUTOINCREMENT, ApplicantId INTEGER NOT NULL, AchievementTypeId INTEGER, Achievement TEXT, AchievementName TEXT, Category TEXT, Year TEXT, Points INTEGER DEFAULT 0, DocumentName TEXT, DocumentPath TEXT, CreatedAt TEXT NOT NULL, UpdatedAt TEXT NOT NULL)",
+                "CREATE TABLE IF NOT EXISTS ApplicationPriorities (Id INTEGER PRIMARY KEY AUTOINCREMENT, ApplicantId INTEGER NOT NULL, PriorityOrder INTEGER, ProgramCode TEXT, ProgramName TEXT, StudyForm TEXT, EducationBase TEXT, Department TEXT, AdmissionType TEXT, Branch TEXT, IsSelected INTEGER DEFAULT 0, CreatedAt TEXT NOT NULL, UpdatedAt TEXT NOT NULL)",
+                "CREATE TABLE IF NOT EXISTS AttachedDocuments (Id INTEGER PRIMARY KEY AUTOINCREMENT, ApplicantId INTEGER NOT NULL, DocumentName TEXT, DocumentType TEXT, FilePath TEXT, FileSize INTEGER, UploadedAt TEXT NOT NULL, CreatedAt TEXT NOT NULL, UpdatedAt TEXT NOT NULL)",
+                "CREATE TABLE IF NOT EXISTS ContactInformation (Id INTEGER PRIMARY KEY AUTOINCREMENT, ApplicantId INTEGER NOT NULL, ContactType TEXT, ContactValue TEXT, IsPreferred INTEGER DEFAULT 0, CreatedAt TEXT NOT NULL, UpdatedAt TEXT NOT NULL)",
+                "CREATE TABLE IF NOT EXISTS Documents (Id INTEGER PRIMARY KEY AUTOINCREMENT, ApplicantId INTEGER NOT NULL, DocumentTypeId INTEGER, Series TEXT, Number TEXT, CreatedAt TEXT NOT NULL, UpdatedAt TEXT NOT NULL)",
+                "CREATE TABLE IF NOT EXISTS RelativeDocuments (Id INTEGER PRIMARY KEY AUTOINCREMENT, ApplicantId INTEGER NOT NULL, RelativeTypeId INTEGER, LastName TEXT, FirstName TEXT, Patronymic TEXT, BirthDate TEXT, BirthPlace TEXT, GenderId INTEGER, DocumentTypeId INTEGER, Series TEXT, Number TEXT, IssuedBy TEXT, IssueDate TEXT, DepartmentCode TEXT, Snils TEXT, Inn TEXT, Phone TEXT, Email TEXT, RegistrationAddress TEXT, ActualAddress TEXT, Workplace TEXT, Position TEXT, IsGuardian INTEGER DEFAULT 0, CreatedAt TEXT NOT NULL, UpdatedAt TEXT NOT NULL)",
+                "CREATE TABLE IF NOT EXISTS CompetitionPriorities (Id INTEGER PRIMARY KEY AUTOINCREMENT, ApplicantId INTEGER NOT NULL, CompetitionName TEXT, PriorityOrder INTEGER, IsSelected INTEGER DEFAULT 0, CreatedAt TEXT NOT NULL, UpdatedAt TEXT NOT NULL)",
+                "CREATE TABLE IF NOT EXISTS ChangeHistory (Id INTEGER PRIMARY KEY AUTOINCREMENT, TableName TEXT, RecordId INTEGER, Action TEXT, ChangedAt TEXT NOT NULL)"
+            };
+
+            foreach (string sql in tables)
+            {
+                try { using (var cmd = new SQLiteCommand(sql, connection)) { cmd.ExecuteNonQuery(); } }
+                catch { }
+            }
+        }
+
+        private static void SeedAllDataIfEmpty(SQLiteConnection connection)
+        {
+            var seedData = new Dictionary<string, string[]>
+            {
+                { "Genders", new[] { "Мужской", "Женский" } },
+                { "Citizenships", new[] { "Российская Федерация", "Республика Беларусь", "Республика Казахстан", "Другое" } },
+                { "Countries", new[] { "Россия", "Беларусь", "Казахстан", "Украина", "Другая страна" } },
+                { "IdentityDocumentTypes", new[] { "Паспорт гражданина РФ", "Загранпаспорт", "Свидетельство о рождении", "Водительское удостоверение", "Военный билет" } },
+                { "ApplicationTypes", new[] { "Среднее профессиональное образование", "Высшее образование - бакалавриат", "Высшее образование - магистратура", "Высшее образование - аспирантура", "Высшее образование - ординатура" } },
+                { "EducationDocumentTypes", new[] { "Аттестат", "Диплом", "Свидетельство", "Справка об обучении" } },
+                { "EducationLevels", new[] { "Среднее общее", "Среднее профессиональное", "Высшее - бакалавриат", "Высшее - магистратура", "Высшее - специалитет" } },
+                { "DocumentForms", new[] { "Копия", "Оригинал", "Заверенная копия", "Электронная копия" } },
+                { "AdmissionStages", new[] { "Основной набор", "Дополнительный набор", "Целевой набор" } },
+                { "CostReimbursementTypes", new[] { "бюджет", "внебюджет", "целевое обучение" } },
+                { "StudyForms", new[] { "Очная", "Заочная", "Очно-заочная" } },
+                { "Departments", new[] { "Отделение автоматики", "Отделение автоматики и электромеханики", "Отделение информационных технологий" } },
+                { "BaseEducationLevels", new[] { "Основной общий", "Средний общий", "Средний профессиональный" } },
+                { "AdmissionTypes", new[] { "Общий", "Целевой", "Отдельная квота" } },
+                { "TargetAdmissionTypes", new[] { "Не выбран", "Целевое обучение по договору", "Целевой прием по квоте" } },
+                { "Branches", new[] { "Головная организация", "Филиал №1", "Филиал №2" } },
+                { "RelationDegrees", new[] { "Отец", "Мать", "Брат", "Сестра", "Муж", "Жена", "Опекун", "Попечитель" } },
+                { "RelativeTypes", new[] { "Отец", "Мать", "Брат", "Сестра", "Муж", "Жена", "Опекун", "Попечитель" } },
+                { "Languages", new[] { "Русский", "Английский", "Немецкий", "Французский", "Испанский", "Китайский", "Японский", "Корейский" } },
+                { "AchievementCategories", new[] { "Не выбрано", "Ветераны боевых действий", "Военнослужащие по контракту", "Герои Российской Федерации", "Дети военнослужащих, участвующих в СВО", "Дети граждан, погибших при участии в СВО" } }
+            };
+
+            foreach (var table in seedData)
+            {
+                try
+                {
+                    using (var cmd = new SQLiteCommand($"SELECT COUNT(*) FROM {table.Key}", connection))
+                    {
+                        if ((long)cmd.ExecuteScalar() > 0) continue;
+                    }
+
+                    foreach (string value in table.Value)
+                    {
+                        string sql;
+                        if (table.Key == "Countries")
+                            sql = $"INSERT INTO {table.Key} (Name, IsActive) VALUES ('{value.Replace("'", "''")}', 1)";
+                        else
+                            sql = $"INSERT INTO {table.Key} (Name) VALUES ('{value.Replace("'", "''")}')";
+
+                        try { using (var cmd = new SQLiteCommand(sql, connection)) { cmd.ExecuteNonQuery(); } }
+                        catch { }
+                    }
+                }
+                catch { }
+            }
+
+            // Заполняем EducationPrograms
+            try
+            {
+                using (var cmd = new SQLiteCommand("SELECT COUNT(*) FROM EducationPrograms", connection))
+                {
+                    if ((long)cmd.ExecuteScalar() == 0)
+                    {
+                        var programs = new[] {
+                            "INSERT INTO EducationPrograms (Code, Name) VALUES ('08.02.09', '08.02.09 Монтаж, наладка и эксплуатация электрооборудования')",
+                            "INSERT INTO EducationPrograms (Code, Name) VALUES ('15.02.17', '15.02.17 Монтаж и ремонт промышленного оборудования')",
+                            "INSERT INTO EducationPrograms (Code, Name) VALUES ('27.02.04', '27.02.04 Автоматические системы управления')",
+                            "INSERT INTO EducationPrograms (Code, Name) VALUES ('09.02.11', '09.02.11 Разработка и управление программным обеспечением')"
+                        };
+                        foreach (string sql in programs)
+                            try { using (var c = new SQLiteCommand(sql, connection)) { c.ExecuteNonQuery(); } } catch { }
+                    }
+                }
+            }
+            catch { }
+
+            // Заполняем Competitions
+            try
+            {
+                using (var cmd = new SQLiteCommand("SELECT COUNT(*) FROM Competitions", connection))
+                {
+                    if ((long)cmd.ExecuteScalar() == 0)
+                    {
+                        var competitions = new[] {
+                            "INSERT INTO Competitions (Name, EducationBase, StudyForm, AdmissionType, Department, Branch, IsActive) VALUES ('08.02.09 Монтаж, наладка и эксплуатация электрооборудования', 'Осн. общ.', 'Очная', 'Общий', 'Отделение автоматики', 'Головная орг.', 1)",
+                            "INSERT INTO Competitions (Name, EducationBase, StudyForm, AdmissionType, Department, Branch, IsActive) VALUES ('15.02.17 Монтаж и ремонт промышленного оборудования', 'Осн. общ.', 'Очная', 'Общий', 'Отделение автоматики и электромеханики', 'Головная орг.', 1)",
+                            "INSERT INTO Competitions (Name, EducationBase, StudyForm, AdmissionType, Department, Branch, IsActive) VALUES ('27.02.04 Автоматические системы управления', 'Осн. общ.', 'Очная', 'Общий', 'Отделение автоматики и электромеханики', 'Головная орг.', 1)",
+                            "INSERT INTO Competitions (Name, EducationBase, StudyForm, AdmissionType, Department, Branch, IsActive) VALUES ('09.02.11 Разработка и управление программным обеспечением', 'Осн. общ.', 'Очная', 'Общий', 'Отделение информационных технологий', 'Головная орг.', 1)",
+                            "INSERT INTO Competitions (Name, EducationBase, StudyForm, AdmissionType, Department, Branch, IsActive) VALUES ('08.02.09 Монтаж электрооборудования (заочная)', 'Сред. общ.', 'Заочная', 'Общий', 'Отделение автоматики', 'Головная орг.', 1)"
+                        };
+                        foreach (string sql in competitions)
+                            try { using (var c = new SQLiteCommand(sql, connection)) { c.ExecuteNonQuery(); } } catch { }
+                    }
+                }
+            }
+            catch { }
+
+            // Заполняем LanguageLevels
+            try
+            {
+                using (var cmd = new SQLiteCommand("SELECT COUNT(*) FROM LanguageLevels", connection))
+                {
+                    if ((long)cmd.ExecuteScalar() == 0)
+                    {
+                        var levels = new[] {
+                            "INSERT INTO LanguageLevels (Name, SortOrder) VALUES ('Элементарный', 1)",
+                            "INSERT INTO LanguageLevels (Name, SortOrder) VALUES ('Базовый', 2)",
+                            "INSERT INTO LanguageLevels (Name, SortOrder) VALUES ('Средний', 3)",
+                            "INSERT INTO LanguageLevels (Name, SortOrder) VALUES ('Выше среднего', 4)",
+                            "INSERT INTO LanguageLevels (Name, SortOrder) VALUES ('Продвинутый', 5)",
+                            "INSERT INTO LanguageLevels (Name, SortOrder) VALUES ('Беглый', 6)"
+                        };
+                        foreach (string sql in levels)
+                            try { using (var c = new SQLiteCommand(sql, connection)) { c.ExecuteNonQuery(); } } catch { }
+                    }
+                }
+            }
+            catch { }
+
+            // Заполняем PersonalDocumentTypes
+            try
+            {
+                using (var cmd = new SQLiteCommand("SELECT COUNT(*) FROM PersonalDocumentTypes", connection))
+                {
+                    if ((long)cmd.ExecuteScalar() == 0)
+                    {
+                        var docs = new[] {
+                            "INSERT INTO PersonalDocumentTypes (Name, SortOrder) VALUES ('Медицинская справка 086у', 1)",
+                            "INSERT INTO PersonalDocumentTypes (Name, SortOrder) VALUES ('Полис ОМС', 2)",
+                            "INSERT INTO PersonalDocumentTypes (Name, SortOrder) VALUES ('СНИЛС', 3)",
+                            "INSERT INTO PersonalDocumentTypes (Name, SortOrder) VALUES ('ИНН', 4)",
+                            "INSERT INTO PersonalDocumentTypes (Name, SortOrder) VALUES ('Фото 3x4', 5)",
+                            "INSERT INTO PersonalDocumentTypes (Name, SortOrder) VALUES ('Признанный сертификат', 6)",
+                            "INSERT INTO PersonalDocumentTypes (Name, SortOrder) VALUES ('Справка об инвалидности', 7)",
+                            "INSERT INTO PersonalDocumentTypes (Name, SortOrder) VALUES ('Свидетельство о браке', 8)",
+                            "INSERT INTO PersonalDocumentTypes (Name, SortOrder) VALUES ('Свидетельство о рождении', 9)",
+                            "INSERT INTO PersonalDocumentTypes (Name, SortOrder) VALUES ('Военный билет', 10)",
+                            "INSERT INTO PersonalDocumentTypes (Name, SortOrder) VALUES ('Водительское удостоверение', 11)",
+                            "INSERT INTO PersonalDocumentTypes (Name, SortOrder) VALUES ('Загранпаспорт', 12)"
+                        };
+                        foreach (string sql in docs)
+                            try { using (var c = new SQLiteCommand(sql, connection)) { c.ExecuteNonQuery(); } } catch { }
+                    }
+                }
+            }
+            catch { }
+
+            // Заполняем IndividualAchievementTypes
+            try
+            {
+                using (var cmd = new SQLiteCommand("SELECT COUNT(*) FROM IndividualAchievementTypes", connection))
+                {
+                    if ((long)cmd.ExecuteScalar() == 0)
+                    {
+                        var types = new Dictionary<string, int> {
+                            { "Победитель всероссийской олимпиады школьников", 10 },
+                            { "Призер всероссийской олимпиады школьников", 8 },
+                            { "Победитель олимпиады школьников из перечня Минобрнауки", 7 },
+                            { "Призер олимпиады школьников из перечня Минобрнауки", 5 },
+                            { "Значок ГТО (золотой)", 5 },
+                            { "Значок ГТО (серебряный)", 3 },
+                            { "Аттестат с отличием (золотая медаль)", 10 },
+                            { "Аттестат с отличием (серебряная медаль)", 7 },
+                            { "Диплом СПО с отличием", 10 },
+                            { "Волонтерская деятельность", 3 },
+                            { "Участие в творческих конкурсах", 2 },
+                            { "Спортивные достижения", 3 },
+                            { "Наличие статуса победителя чемпионата «Профессионалы»", 8 },
+                            { "Наличие статуса призера чемпионата «Профессионалы»", 5 },
+                            { "Наличие статуса победителя чемпионата «Абилимпикс»", 8 },
+                            { "Наличие статуса призера чемпионата «Абилимпикс»", 5 },
+                            { "Иное", 0 }
+                        };
+                        foreach (var kv in types)
+                        {
+                            string sql = $"INSERT INTO IndividualAchievementTypes (Name, DefaultPoints) VALUES ('{kv.Key.Replace("'", "''")}', {kv.Value})";
+                            try { using (var c = new SQLiteCommand(sql, connection)) { c.ExecuteNonQuery(); } } catch { }
+                        }
+                    }
+                }
+            }
+            catch { }
+
+            // Инициализация тестового пользователя
+            try
+            {
+                using (var cmd = new SQLiteCommand("SELECT COUNT(*) FROM Users WHERE Login = 'testuser'", connection))
+                {
+                    if ((long)cmd.ExecuteScalar() == 0)
+                    {
+                        string passwordHash = "testpassword"; // Пароль будет "testpassword" в виде хеша
+
+                        using (var insertCmd = new SQLiteCommand("INSERT INTO Users (Login, Password, FullName, CreatedAt) VALUES ('testuser', @password, 'Тестовый Пользователь', @createdAt)", connection))
+                        {
+                            insertCmd.Parameters.AddWithValue("@password", passwordHash);
+                            insertCmd.Parameters.AddWithValue("@createdAt", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                            insertCmd.ExecuteNonQuery();
+                        }
+                    }
+                }
+            }
+            catch { }
+        }
+
+        private static void EnsureApplicantColumnsExist(SQLiteConnection connection)
+        {
+            var requiredColumns = new Dictionary<string, string>
+            {
+                { "Inn", "TEXT" }, { "BirthCountryId", "INTEGER" },
+                { "NeedsDormitory", "INTEGER DEFAULT 0" }, { "HasDormitoryBenefits", "INTEGER DEFAULT 0" },
+                { "HasSportsAchievements", "INTEGER DEFAULT 0" },
+                { "CompletedPreparatoryCourses", "INTEGER DEFAULT 0" }, { "CompletedPreparatoryDepartment", "INTEGER DEFAULT 0" },
+                { "CompletedMedicalEducation", "INTEGER DEFAULT 0" }, { "CurrentWorkPlace", "TEXT" },
+                { "ServedInArmy", "INTEGER DEFAULT 0" },
+                { "ServiceStartDate", "TEXT" }, { "ServiceEndDate", "TEXT" },
+                { "ReserveYear", "INTEGER" }, { "ApplicationComment", "TEXT" },
+                { "CreatedByUserId", "INTEGER" }
+            };
+
+            var existing = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            try
+            {
+                using (var cmd = new SQLiteCommand("PRAGMA table_info(Applicants);", connection))
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                        existing.Add(reader[1].ToString());
+                }
+            }
+            catch { return; }
+
+            foreach (var kv in requiredColumns)
+            {
+                if (!existing.Contains(kv.Key))
+                {
+                    try
+                    {
+                        using (var alter = new SQLiteCommand($"ALTER TABLE Applicants ADD COLUMN {kv.Key} {kv.Value};", connection))
+                            alter.ExecuteNonQuery();
+                    }
+                    catch { }
+                }
+            }
+
+            // Проверяем и добавляем колонны в таблицу IndividualAchievements
+            var individualAchievementsColumns = new Dictionary<string, string>
+            {
+                { "AchievementTypeId", "INTEGER" },
+                { "Achievement", "TEXT" },
+                { "AchievementName", "TEXT" },
+                { "Category", "TEXT" },
+                { "Year", "TEXT" },
+                { "Points", "INTEGER DEFAULT 0" },
+                { "DocumentName", "TEXT" },
+                { "DocumentPath", "TEXT" }
+            };
+
+            var existingAchievements = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            try
+            {
+                using (var cmd = new SQLiteCommand("PRAGMA table_info(IndividualAchievements);", connection))
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                        existingAchievements.Add(reader[1].ToString());
+                }
+            }
+            catch { return; }
+
+            foreach (var kv in individualAchievementsColumns)
+            {
+                if (!existingAchievements.Contains(kv.Key))
+                {
+                    try
+                    {
+                        using (var alter = new SQLiteCommand($"ALTER TABLE IndividualAchievements ADD COLUMN {kv.Key} {kv.Value};", connection))
+                            alter.ExecuteNonQuery();
+                    }
+                    catch { }
+                }
+            }
+        }
+
+        private static void EnsureRelativesColumnsExist(SQLiteConnection connection)
+        {
+            var requiredColumns = new Dictionary<string, string>
+            {
+                { "BirthPlace", "TEXT" }
+            };
+
+            var existing = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            try
+            {
+                using (var cmd = new SQLiteCommand("PRAGMA table_info(Relatives);", connection))
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                        existing.Add(reader[1].ToString());
+                }
+            }
+            catch { return; }
+
+            foreach (var kv in requiredColumns)
+            {
+                if (!existing.Contains(kv.Key))
+                {
+                    try
+                    {
+                        using (var alter = new SQLiteCommand($"ALTER TABLE Relatives ADD COLUMN {kv.Key} {kv.Value};", connection))
+                            alter.ExecuteNonQuery();
+                    }
+                    catch { }
+                }
+            }
+        }
+
+        private static void EnsureAttachedDocumentsColumnsExist(SQLiteConnection connection)
+        {
+            var requiredColumns = new Dictionary<string, string>
+            {
+                { "SeriesNumber", "TEXT" },
+                { "Category", "TEXT" },
+                { "AdditionalData", "TEXT" },
+                { "IssueDate", "TEXT" },
+                { "DocumentInfo", "TEXT" },
+                { "AttachmentPath", "TEXT" },
+                { "AttachmentName", "TEXT" }
+            };
+
+            var existing = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            try
+            {
+                using (var cmd = new SQLiteCommand("PRAGMA table_info(AttachedDocuments);", connection))
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                        existing.Add(reader[1].ToString());
+                }
+            }
+            catch { return; }
+
+            foreach (var kv in requiredColumns)
+            {
+                if (!existing.Contains(kv.Key))
+                {
+                    try
+                    {
+                        using (var alter = new SQLiteCommand($"ALTER TABLE AttachedDocuments ADD COLUMN {kv.Key} {kv.Value};", connection))
+                            alter.ExecuteNonQuery();
+                    }
+                    catch { }
+                }
+            }
+        }
+
+        public static string GetConnectionString()
+        {
+            string dbDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "App_Data");
+            if (!Directory.Exists(dbDirectory)) Directory.CreateDirectory(dbDirectory);
+            return $"Data Source={Path.Combine(dbDirectory, "AdmissionsReserve.db")};Version=3;Foreign Keys=True;";
+        }
+
+        public static string GetDatabasePath()
+        {
+            return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "App_Data", "AdmissionsReserve.db");
+        }
+
+        public static SQLiteConnection GetConnection()
+        {
+            var connection = new SQLiteConnection(connectionString);
+            connection.Open();
+            using (var cmd = new SQLiteCommand("PRAGMA foreign_keys = ON;", connection))
+                cmd.ExecuteNonQuery();
+            return connection;
+        }
+    }
+}

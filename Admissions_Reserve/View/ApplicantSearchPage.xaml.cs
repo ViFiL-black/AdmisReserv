@@ -263,9 +263,21 @@ namespace Admissions_Reserve.View
                 // Очищаем SessionManager для создания нового абитуриента
                 SessionManager.Clear();
                 
+<<<<<<< HEAD
+<<<<<<< HEAD
+                // Переходим в мастер добавления (сверху отображаются шаги)
+                var wizardPage = new ApplicantWizardPage();
+                NavigationService?.Navigate(wizardPage);
+=======
                 // Переходим на первую страницу ввода данных
                 var identityPage = new IdentityPage();
                 NavigationService?.Navigate(identityPage);
+>>>>>>> 19e85d81073b5709fa252e0d3bb4e82c270681da
+=======
+                // Переходим на первую страницу ввода данных
+                var identityPage = new IdentityPage();
+                NavigationService?.Navigate(identityPage);
+>>>>>>> 19e85d81073b5709fa252e0d3bb4e82c270681da
             }
             catch (Exception ex)
             {

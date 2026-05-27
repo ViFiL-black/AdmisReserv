@@ -1,0 +1,2 @@
+[2026-05-27 14:01:55] [Startup] База данных инициализирована успешно - Путь: C:\Users\ViFiL\source\repos\Admissions_Reserve\Admissions_Reserve\bin\Debug\App_Data\AdmissionsReserve.db
+[2026-05-27 14:02:30] [Startup] База данных инициализирована успешно - Путь: C:\Users\ViFiL\source\repos\Admissions_Reserve\Admissions_Reserve\bin\Debug\App_Data\AdmissionsReserve.db

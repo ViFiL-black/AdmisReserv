@@ -1,0 +1,173 @@
+﻿using System;
+using System.Data.SQLite;
+using System.Security.Cryptography;
+using System.Text;
+
+namespace Admissions_Reserve.Model
+{
+    public static class UserAuthentication
+    {
+        private static int? _currentUserId;
+        private static string _currentUserFullName;
+
+        public static int? CurrentUserId => _currentUserId;
+        public static string CurrentUserFullName => _currentUserFullName;
+
+        public static bool Authenticate(string login, string password)
+        {
+            if (string.IsNullOrWhiteSpace(login) || string.IsNullOrWhiteSpace(password))
+                return false;
+
+            try
+            {
+                using (var connection = DatabaseHelper.GetConnection())
+                {
+                    var query = "SELECT Id, Password, FullName FROM Users WHERE Login = @Login";
+                    using (var cmd = new SQLiteCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@Login", login);
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                string storedPassword = reader["Password"]?.ToString();
+                                string fullName = reader["FullName"]?.ToString();
+                                int userId = Convert.ToInt32(reader["Id"]);
+
+                                if (VerifyPassword(password, storedPassword))
+                                {
+                                    _currentUserId = userId;
+                                    _currentUserFullName = fullName;
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.LogError("Ошибка при аутентификации пользователя", ex);
+            }
+
+            return false;
+        }
+
+        public static void Logout()
+        {
+            _currentUserId = null;
+            _currentUserFullName = null;
+        }
+
+        private static bool VerifyPassword(string inputPassword, string storedPassword)
+        {
+            // Для простоты используем прямое сравнение
+            // В продакшене следует использовать хеширование (например, BCrypt)
+            return inputPassword == storedPassword;
+        }
+
+        public static string HashPassword(string password)
+        {
+            using (var sha256 = SHA256.Create())
+            {
+                byte[] hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+                return Convert.ToBase64String(hashedBytes);
+            }
+        }
+
+        public static bool CreateUser(string login, string password, string fullName)
+        {
+            if (string.IsNullOrWhiteSpace(login) || string.IsNullOrWhiteSpace(password) || string.IsNullOrWhiteSpace(fullName))
+                return false;
+
+            try
+            {
+                using (var connection = DatabaseHelper.GetConnection())
+                {
+                    var query = "INSERT INTO Users (Login, Password, FullName, CreatedAt) VALUES (@Login, @Password, @FullName, @CreatedAt)";
+                    using (var cmd = new SQLiteCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@Login", login);
+                        cmd.Parameters.AddWithValue("@Password", password);
+                        cmd.Parameters.AddWithValue("@FullName", fullName);
+                        cmd.Parameters.AddWithValue("@CreatedAt", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                        cmd.ExecuteNonQuery();
+                        return true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.LogError("Ошибка при создании пользователя", ex);
+                return false;
+            }
+        }
+
+        public static User GetCurrentUser()
+        {
+            if (!_currentUserId.HasValue)
+                return null;
+
+            try
+            {
+                using (var connection = DatabaseHelper.GetConnection())
+                {
+                    var query = "SELECT Id, Login, FullName, CreatedAt FROM Users WHERE Id = @Id";
+                    using (var cmd = new SQLiteCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@Id", _currentUserId.Value);
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                return new User
+                                {
+                                    Id = Convert.ToInt32(reader["Id"]),
+                                    Login = reader["Login"]?.ToString(),
+                                    FullName = reader["FullName"]?.ToString(),
+                                    CreatedAt = DateTime.Parse(reader["CreatedAt"]?.ToString() ?? DateTime.Now.ToString())
+                                };
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.LogError("Ошибка при получении текущего пользователя", ex);
+            }
+
+            return null;
+        }
+
+        public static string GetUserNameById(int userId)
+        {
+            try
+            {
+                using (var connection = DatabaseHelper.GetConnection())
+                {
+                    var query = "SELECT FullName FROM Users WHERE Id = @Id";
+                    using (var cmd = new SQLiteCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@Id", userId);
+                        var result = cmd.ExecuteScalar();
+                        return result?.ToString() ?? "Неизвестный пользователь";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.LogError("Ошибка при получении имени пользователя", ex);
+                return "Неизвестный пользователь";
+            }
+        }
+    }
+
+    public class User
+    {
+        public int Id { get; set; }
+        public string Login { get; set; }
+        public string FullName { get; set; }
+        public DateTime CreatedAt { get; set; }
+    }
+}

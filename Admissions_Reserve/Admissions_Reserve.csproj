@@ -116,6 +116,7 @@
     <Compile Include="Model\LogHelper.cs" />
     <Compile Include="Model\Models.cs" />
     <Compile Include="Model\PageModels.cs" />
+    <Compile Include="Model\UserAuthentication.cs" />
     <Compile Include="Model\ValidationHelper.cs" />
     <Compile Include="View\AdditionalInfoPage.xaml.cs">
       <DependentUpon>AdditionalInfoPage.xaml</DependentUpon>
