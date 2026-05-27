@@ -5,11 +5,11 @@
     {
 <<<<<<< HEAD
 <<<<<<< HEAD
-      "AbsoluteMoniker": "D:0:0:{0D8992C2-2F8C-4598-A145-5CB497CD9F6E}|Admissions_Reserve\\Admissions_Reserve.csproj|C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\admissions_reserve\\view\\applicantwizardpage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "AbsoluteMoniker": "D:0:0:{0D8992C2-2F8C-4598-A145-5CB497CD9F6E}|Admissions_Reserve\\Admissions_Reserve.csproj|c:\\users\\vifil\\source\\repos\\admissions_reserve\\admissions_reserve\\view\\applicantwizardpage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
       "RelativeMoniker": "D:0:0:{0D8992C2-2F8C-4598-A145-5CB497CD9F6E}|Admissions_Reserve\\Admissions_Reserve.csproj|solutionrelative:admissions_reserve\\view\\applicantwizardpage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{0D8992C2-2F8C-4598-A145-5CB497CD9F6E}|Admissions_Reserve\\Admissions_Reserve.csproj|c:\\users\\vifil\\source\\repos\\admissions_reserve\\admissions_reserve\\model\\databasehelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{0D8992C2-2F8C-4598-A145-5CB497CD9F6E}|Admissions_Reserve\\Admissions_Reserve.csproj|C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\admissions_reserve\\model\\databasehelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{0D8992C2-2F8C-4598-A145-5CB497CD9F6E}|Admissions_Reserve\\Admissions_Reserve.csproj|solutionrelative:admissions_reserve\\model\\databasehelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
@@ -722,8 +722,7 @@
               "RelativeToolTip": "Admissions_Reserve\\Model\\DatabaseHelper.cs",
               "ViewState": "AgIAAMIBAAAAAAAAAAAuwOoBAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-26T05:17:44.243Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-05-26T05:17:44.243Z"
             },
             {
               "$type": "Document",
@@ -932,8 +931,7 @@
               "RelativeToolTip": "Admissions_Reserve\\CreateDb.cs",
               "ViewState": "AgIAAAYAAAAAAAAAAIBgwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-27T08:53:38.354Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-05-27T08:53:38.354Z"
             },
             {
               "$type": "Document",
@@ -945,8 +943,7 @@
               "RelativeToolTip": "Admissions_Reserve\\App.xaml.cs",
               "ViewState": "AgIAACIAAAAAAAAAAAAxwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-27T08:49:09.085Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-05-27T08:49:09.085Z"
             },
             {
               "$type": "Document",
@@ -1017,8 +1014,7 @@
               "RelativeToolTip": "Admissions_Reserve\\View\\ApplicantSearchPage.xaml.cs",
               "ViewState": "AgIAABQBAAAAAAAAAABBwBUBAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-27T07:04:33.747Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-05-27T07:04:33.747Z"
             },
             {
               "$type": "Document",

@@ -3,9 +3,15 @@
   "WorkspaceRootPath": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\",
   "Documents": [
     {
-<<<<<<< HEAD
-<<<<<<< HEAD
-      "AbsoluteMoniker": "D:0:0:{0D8992C2-2F8C-4598-A145-5CB497CD9F6E}|Admissions_Reserve\\Admissions_Reserve.csproj|c:\\users\\vifil\\source\\repos\\admissions_reserve\\admissions_reserve\\view\\applicantwizardpage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "AbsoluteMoniker": "D:0:0:{0D8992C2-2F8C-4598-A145-5CB497CD9F6E}|Admissions_Reserve\\Admissions_Reserve.csproj|c:\\users\\vifil\\source\\repos\\admissions_reserve\\admissions_reserve\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{0D8992C2-2F8C-4598-A145-5CB497CD9F6E}|Admissions_Reserve\\Admissions_Reserve.csproj|solutionrelative:admissions_reserve\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0D8992C2-2F8C-4598-A145-5CB497CD9F6E}|Admissions_Reserve\\Admissions_Reserve.csproj|C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\admissions_reserve\\view\\applicantsearchpage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0D8992C2-2F8C-4598-A145-5CB497CD9F6E}|Admissions_Reserve\\Admissions_Reserve.csproj|solutionrelative:admissions_reserve\\view\\applicantsearchpage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0D8992C2-2F8C-4598-A145-5CB497CD9F6E}|Admissions_Reserve\\Admissions_Reserve.csproj|C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\admissions_reserve\\view\\applicantwizardpage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
       "RelativeMoniker": "D:0:0:{0D8992C2-2F8C-4598-A145-5CB497CD9F6E}|Admissions_Reserve\\Admissions_Reserve.csproj|solutionrelative:admissions_reserve\\view\\applicantwizardpage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     },
     {
@@ -15,30 +21,12 @@
     {
       "AbsoluteMoniker": "D:0:0:{0D8992C2-2F8C-4598-A145-5CB497CD9F6E}|Admissions_Reserve\\Admissions_Reserve.csproj|C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\admissions_reserve\\model\\userauthentication.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{0D8992C2-2F8C-4598-A145-5CB497CD9F6E}|Admissions_Reserve\\Admissions_Reserve.csproj|solutionrelative:admissions_reserve\\model\\userauthentication.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-=======
-      "AbsoluteMoniker": "D:0:0:{0D8992C2-2F8C-4598-A145-5CB497CD9F6E}|Admissions_Reserve\\Admissions_Reserve.csproj|c:\\users\\vifil\\source\\repos\\admissions_reserve\\admissions_reserve\\view\\applicantsearchpage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{0D8992C2-2F8C-4598-A145-5CB497CD9F6E}|Admissions_Reserve\\Admissions_Reserve.csproj|solutionrelative:admissions_reserve\\view\\applicantsearchpage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
->>>>>>> 19e85d81073b5709fa252e0d3bb4e82c270681da
-=======
-      "AbsoluteMoniker": "D:0:0:{0D8992C2-2F8C-4598-A145-5CB497CD9F6E}|Admissions_Reserve\\Admissions_Reserve.csproj|c:\\users\\vifil\\source\\repos\\admissions_reserve\\admissions_reserve\\view\\applicantsearchpage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{0D8992C2-2F8C-4598-A145-5CB497CD9F6E}|Admissions_Reserve\\Admissions_Reserve.csproj|solutionrelative:admissions_reserve\\view\\applicantsearchpage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
->>>>>>> 19e85d81073b5709fa252e0d3bb4e82c270681da
     },
     {
       "AbsoluteMoniker": "D:0:0:{0D8992C2-2F8C-4598-A145-5CB497CD9F6E}|Admissions_Reserve\\Admissions_Reserve.csproj|C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\admissions_reserve\\view\\applicantsearchpage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
       "RelativeMoniker": "D:0:0:{0D8992C2-2F8C-4598-A145-5CB497CD9F6E}|Admissions_Reserve\\Admissions_Reserve.csproj|solutionrelative:admissions_reserve\\view\\applicantsearchpage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     },
     {
-<<<<<<< HEAD
-<<<<<<< HEAD
-      "AbsoluteMoniker": "D:0:0:{0D8992C2-2F8C-4598-A145-5CB497CD9F6E}|Admissions_Reserve\\Admissions_Reserve.csproj|C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\admissions_reserve\\view\\applicantsearchpage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{0D8992C2-2F8C-4598-A145-5CB497CD9F6E}|Admissions_Reserve\\Admissions_Reserve.csproj|solutionrelative:admissions_reserve\\view\\applicantsearchpage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-=======
->>>>>>> 19e85d81073b5709fa252e0d3bb4e82c270681da
-=======
->>>>>>> 19e85d81073b5709fa252e0d3bb4e82c270681da
       "AbsoluteMoniker": "D:0:0:{0D8992C2-2F8C-4598-A145-5CB497CD9F6E}|Admissions_Reserve\\Admissions_Reserve.csproj|C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\admissions_reserve\\view\\welcomepage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{0D8992C2-2F8C-4598-A145-5CB497CD9F6E}|Admissions_Reserve\\Admissions_Reserve.csproj|solutionrelative:admissions_reserve\\view\\welcomepage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -143,10 +131,6 @@
       "RelativeMoniker": "D:0:0:{0D8992C2-2F8C-4598-A145-5CB497CD9F6E}|Admissions_Reserve\\Admissions_Reserve.csproj|solutionrelative:admissions_reserve\\model\\applicants.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{0D8992C2-2F8C-4598-A145-5CB497CD9F6E}|Admissions_Reserve\\Admissions_Reserve.csproj|C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\admissions_reserve\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{0D8992C2-2F8C-4598-A145-5CB497CD9F6E}|Admissions_Reserve\\Admissions_Reserve.csproj|solutionrelative:admissions_reserve\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{0D8992C2-2F8C-4598-A145-5CB497CD9F6E}|Admissions_Reserve\\Admissions_Reserve.csproj|C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\admissions_reserve\\individualachievementsmethods.txt||{8B382828-6202-11D1-8870-0000F87579D2}",
       "RelativeMoniker": "D:0:0:{0D8992C2-2F8C-4598-A145-5CB497CD9F6E}|Admissions_Reserve\\Admissions_Reserve.csproj|solutionrelative:admissions_reserve\\individualachievementsmethods.txt||{8B382828-6202-11D1-8870-0000F87579D2}"
     },
@@ -215,8 +199,6 @@
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:README.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
     },
     {
-<<<<<<< HEAD
-<<<<<<< HEAD
       "AbsoluteMoniker": "D:0:0:{0D8992C2-2F8C-4598-A145-5CB497CD9F6E}|Admissions_Reserve\\Admissions_Reserve.csproj|C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\admissions_reserve\\changes_edit_delete_applicants.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{0D8992C2-2F8C-4598-A145-5CB497CD9F6E}|Admissions_Reserve\\Admissions_Reserve.csproj|solutionrelative:admissions_reserve\\changes_edit_delete_applicants.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -259,14 +241,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\README_RUS.txt||{8B382828-6202-11D1-8870-0000F87579D2}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:README_RUS.txt||{8B382828-6202-11D1-8870-0000F87579D2}"
-=======
-      "AbsoluteMoniker": "D:0:0:{0D8992C2-2F8C-4598-A145-5CB497CD9F6E}|Admissions_Reserve\\Admissions_Reserve.csproj|c:\\users\\vifil\\source\\repos\\admissions_reserve\\admissions_reserve\\changes_edit_delete_applicants.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{0D8992C2-2F8C-4598-A145-5CB497CD9F6E}|Admissions_Reserve\\Admissions_Reserve.csproj|solutionrelative:admissions_reserve\\changes_edit_delete_applicants.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
->>>>>>> 19e85d81073b5709fa252e0d3bb4e82c270681da
-=======
-      "AbsoluteMoniker": "D:0:0:{0D8992C2-2F8C-4598-A145-5CB497CD9F6E}|Admissions_Reserve\\Admissions_Reserve.csproj|c:\\users\\vifil\\source\\repos\\admissions_reserve\\admissions_reserve\\changes_edit_delete_applicants.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{0D8992C2-2F8C-4598-A145-5CB497CD9F6E}|Admissions_Reserve\\Admissions_Reserve.csproj|solutionrelative:admissions_reserve\\changes_edit_delete_applicants.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
->>>>>>> 19e85d81073b5709fa252e0d3bb4e82c270681da
     }
   ],
   "DocumentGroupContainers": [
@@ -300,434 +274,30 @@
             },
             {
               "$type": "Document",
-<<<<<<< HEAD
-<<<<<<< HEAD
+              "DocumentIndex": 54,
+              "Title": "FIXES_APPLIED.txt",
+              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\FIXES_APPLIED.txt",
+              "RelativeDocumentMoniker": "FIXES_APPLIED.txt",
+              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\FIXES_APPLIED.txt",
+              "RelativeToolTip": "FIXES_APPLIED.txt",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAEYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003109|",
+              "WhenOpened": "2026-05-27T08:53:56.031Z"
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 1,
-=======
-=======
->>>>>>> 19e85d81073b5709fa252e0d3bb4e82c270681da
-              "DocumentIndex": 48,
-              "Title": "CHANGES_EDIT_DELETE_APPLICANTS.cs",
-              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\CHANGES_EDIT_DELETE_APPLICANTS.cs",
-              "RelativeDocumentMoniker": "Admissions_Reserve\\CHANGES_EDIT_DELETE_APPLICANTS.cs",
-              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\CHANGES_EDIT_DELETE_APPLICANTS.cs",
-              "RelativeToolTip": "Admissions_Reserve\\CHANGES_EDIT_DELETE_APPLICANTS.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAFQAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-27T07:29:51.174Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "RelativesPage.xaml",
-              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\RelativesPage.xaml",
-              "RelativeDocumentMoniker": "Admissions_Reserve\\View\\RelativesPage.xaml",
-              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\RelativesPage.xaml",
-              "RelativeToolTip": "Admissions_Reserve\\View\\RelativesPage.xaml",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2026-05-27T06:34:36.36Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "WelcomePage.xaml.cs",
-              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\WelcomePage.xaml.cs",
-              "RelativeDocumentMoniker": "Admissions_Reserve\\View\\WelcomePage.xaml.cs",
-              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\WelcomePage.xaml.cs",
-              "RelativeToolTip": "Admissions_Reserve\\View\\WelcomePage.xaml.cs",
-              "ViewState": "AgIAAA8AAAAAAAAAAAAswAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-27T07:05:12.258Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
               "Title": "ApplicantSearchPage.xaml.cs",
               "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\ApplicantSearchPage.xaml.cs",
               "RelativeDocumentMoniker": "Admissions_Reserve\\View\\ApplicantSearchPage.xaml.cs",
               "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\ApplicantSearchPage.xaml.cs",
               "RelativeToolTip": "Admissions_Reserve\\View\\ApplicantSearchPage.xaml.cs",
-              "ViewState": "AgIAAO0AAAAAAAAAAAAYwBUBAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAPUAAAAAAAAAAAArwAQBAAAPAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-27T07:04:33.747Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-05-27T07:04:33.747Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "WelcomePage.xaml",
-              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\WelcomePage.xaml",
-              "RelativeDocumentMoniker": "Admissions_Reserve\\View\\WelcomePage.xaml",
-              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\WelcomePage.xaml",
-              "RelativeToolTip": "Admissions_Reserve\\View\\WelcomePage.xaml",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2026-05-27T07:04:47.764Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "DocumentsPage.xaml",
-              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\DocumentsPage.xaml",
-              "RelativeDocumentMoniker": "Admissions_Reserve\\View\\DocumentsPage.xaml",
-              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\DocumentsPage.xaml",
-              "RelativeToolTip": "Admissions_Reserve\\View\\DocumentsPage.xaml",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2026-05-26T14:41:53.995Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "ApplicantSearchPage.xaml",
-              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\ApplicantSearchPage.xaml",
-              "RelativeDocumentMoniker": "Admissions_Reserve\\View\\ApplicantSearchPage.xaml",
-              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\ApplicantSearchPage.xaml",
-              "RelativeToolTip": "Admissions_Reserve\\View\\ApplicantSearchPage.xaml",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2026-05-27T07:04:11.129Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 47,
-              "Title": "README.md",
-              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\README.md",
-              "RelativeDocumentMoniker": "README.md",
-              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\README.md",
-              "RelativeToolTip": "README.md",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABABAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
-              "WhenOpened": "2026-05-27T07:10:11.773Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 46,
-              "Title": "INDEX.md",
-              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\INDEX.md",
-              "RelativeDocumentMoniker": "INDEX.md",
-              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\INDEX.md",
-              "RelativeToolTip": "INDEX.md",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAB0BAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
-              "WhenOpened": "2026-05-27T07:09:45.437Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 45,
-              "Title": "COMPLETION_REPORT.md",
-              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\COMPLETION_REPORT.md",
-              "RelativeDocumentMoniker": "COMPLETION_REPORT.md",
-              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\COMPLETION_REPORT.md",
-              "RelativeToolTip": "COMPLETION_REPORT.md",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAE8BAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
-              "WhenOpened": "2026-05-27T07:09:18.302Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 44,
-              "Title": "QUICK_START_GUIDE.md",
-              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\QUICK_START_GUIDE.md",
-              "RelativeDocumentMoniker": "QUICK_START_GUIDE.md",
-              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\QUICK_START_GUIDE.md",
-              "RelativeToolTip": "QUICK_START_GUIDE.md",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAANwAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
-              "WhenOpened": "2026-05-27T07:08:43.6Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 43,
-              "Title": "IMPLEMENTATION_CHECKLIST.md",
-              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\IMPLEMENTATION_CHECKLIST.md",
-              "RelativeDocumentMoniker": "IMPLEMENTATION_CHECKLIST.md",
-              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\IMPLEMENTATION_CHECKLIST.md",
-              "RelativeToolTip": "IMPLEMENTATION_CHECKLIST.md",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAOYAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
-              "WhenOpened": "2026-05-27T07:08:20.753Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 42,
-              "Title": "APPLICANT_SEARCH_ARCHITECTURE.md",
-              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\APPLICANT_SEARCH_ARCHITECTURE.md",
-              "RelativeDocumentMoniker": "APPLICANT_SEARCH_ARCHITECTURE.md",
-              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\APPLICANT_SEARCH_ARCHITECTURE.md",
-              "RelativeToolTip": "APPLICANT_SEARCH_ARCHITECTURE.md",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQBAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
-              "WhenOpened": "2026-05-27T07:07:58.411Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 41,
-              "Title": "APPLICANT_SEARCH_SUMMARY.md",
-              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\APPLICANT_SEARCH_SUMMARY.md",
-              "RelativeDocumentMoniker": "APPLICANT_SEARCH_SUMMARY.md",
-              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\APPLICANT_SEARCH_SUMMARY.md",
-              "RelativeToolTip": "APPLICANT_SEARCH_SUMMARY.md",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAJUAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
-              "WhenOpened": "2026-05-27T07:07:34.264Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 40,
-              "Title": "ApplicantSearchPage_DEVELOPER.md",
-              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\ApplicantSearchPage_DEVELOPER.md",
-              "RelativeDocumentMoniker": "ApplicantSearchPage_DEVELOPER.md",
-              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\ApplicantSearchPage_DEVELOPER.md",
-              "RelativeToolTip": "ApplicantSearchPage_DEVELOPER.md",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAKMAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
-              "WhenOpened": "2026-05-27T07:07:15.394Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 39,
-              "Title": "ApplicantSearchPage_README.md",
-              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\ApplicantSearchPage_README.md",
-              "RelativeDocumentMoniker": "ApplicantSearchPage_README.md",
-              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\ApplicantSearchPage_README.md",
-              "RelativeToolTip": "ApplicantSearchPage_README.md",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAGUAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
-              "WhenOpened": "2026-05-27T07:06:46.562Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 37,
-              "Title": "InputValidators.cs",
-              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\InputValidators.cs",
-              "RelativeDocumentMoniker": "Admissions_Reserve\\View\\InputValidators.cs",
-              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\InputValidators.cs",
-              "RelativeToolTip": "Admissions_Reserve\\View\\InputValidators.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAHkAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-26T15:21:10.602Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 38,
-              "Title": "InputValidationHelper.cs",
-              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\Model\\InputValidationHelper.cs",
-              "RelativeDocumentMoniker": "Admissions_Reserve\\Model\\InputValidationHelper.cs",
-              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\Model\\InputValidationHelper.cs",
-              "RelativeToolTip": "Admissions_Reserve\\Model\\InputValidationHelper.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAD0AAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-26T15:43:41.325Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 32,
-              "Title": "ApplicationTypeAndEducationPage.xaml.cs",
-              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\ApplicationTypeAndEducationPage.xaml.cs",
-              "RelativeDocumentMoniker": "Admissions_Reserve\\View\\ApplicationTypeAndEducationPage.xaml.cs",
-              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\ApplicationTypeAndEducationPage.xaml.cs",
-              "RelativeToolTip": "Admissions_Reserve\\View\\ApplicationTypeAndEducationPage.xaml.cs",
-              "ViewState": "AgIAAL8CAAAAAAAAAEBVwAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-26T14:23:02.104Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "AttachedDocumentsPage.xaml.cs",
-              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\AttachedDocumentsPage.xaml.cs",
-              "RelativeDocumentMoniker": "Admissions_Reserve\\View\\AttachedDocumentsPage.xaml.cs",
-              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\AttachedDocumentsPage.xaml.cs",
-              "RelativeToolTip": "Admissions_Reserve\\View\\AttachedDocumentsPage.xaml.cs",
-              "ViewState": "AgIAAG4AAAAAAAAAAAAswOwAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-26T14:01:30.263Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "DocumentsPage.xaml.cs",
-              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\DocumentsPage.xaml.cs",
-              "RelativeDocumentMoniker": "Admissions_Reserve\\View\\DocumentsPage.xaml.cs",
-              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\DocumentsPage.xaml.cs",
-              "RelativeToolTip": "Admissions_Reserve\\View\\DocumentsPage.xaml.cs",
-              "ViewState": "AgIAAIQAAAAAAAAAAIAwwJMAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-25T17:55:30.965Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 33,
-              "Title": "AUDIT_REPORT.md",
-              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\AUDIT_REPORT.md",
-              "RelativeDocumentMoniker": "AUDIT_REPORT.md",
-              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\AUDIT_REPORT.md",
-              "RelativeToolTip": "AUDIT_REPORT.md",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAALQAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
-              "WhenOpened": "2026-05-26T14:29:01.973Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 34,
-              "Title": "DEVELOPMENT_GUIDE.md",
-              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\DEVELOPMENT_GUIDE.md",
-              "RelativeDocumentMoniker": "DEVELOPMENT_GUIDE.md",
-              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\DEVELOPMENT_GUIDE.md",
-              "RelativeToolTip": "DEVELOPMENT_GUIDE.md",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAACkBAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
-              "WhenOpened": "2026-05-26T14:29:29.098Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 36,
-              "Title": "QUICK_START.md",
-              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\QUICK_START.md",
-              "RelativeDocumentMoniker": "QUICK_START.md",
-              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\QUICK_START.md",
-              "RelativeToolTip": "QUICK_START.md",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAFkBAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
-              "WhenOpened": "2026-05-26T14:30:22.663Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 35,
-              "Title": "FINAL_SUMMARY.md",
-              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\FINAL_SUMMARY.md",
-              "RelativeDocumentMoniker": "FINAL_SUMMARY.md",
-              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\FINAL_SUMMARY.md",
-              "RelativeToolTip": "FINAL_SUMMARY.md",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAANUAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
-              "WhenOpened": "2026-05-26T14:29:54.531Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "AttachedDocumentsPage.xaml",
-              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\AttachedDocumentsPage.xaml",
-              "RelativeDocumentMoniker": "Admissions_Reserve\\View\\AttachedDocumentsPage.xaml",
-              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\AttachedDocumentsPage.xaml",
-              "RelativeToolTip": "Admissions_Reserve\\View\\AttachedDocumentsPage.xaml",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2026-05-26T13:57:52.475Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 10,
-              "Title": "PrioritiesPage.xaml.cs",
-              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\PrioritiesPage.xaml.cs",
-              "RelativeDocumentMoniker": "Admissions_Reserve\\View\\PrioritiesPage.xaml.cs",
-              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\PrioritiesPage.xaml.cs",
-              "RelativeToolTip": "Admissions_Reserve\\View\\PrioritiesPage.xaml.cs",
-              "ViewState": "AgIAABMBAAAAAAAAAABRwBYBAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-26T13:50:21.254Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 9,
-              "Title": "Models.cs",
-              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\Model\\Models.cs",
-              "RelativeDocumentMoniker": "Admissions_Reserve\\Model\\Models.cs",
-              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\Model\\Models.cs",
-              "RelativeToolTip": "Admissions_Reserve\\Model\\Models.cs",
-              "ViewState": "AgIAAOgBAAAAAAAAAMBbwOwBAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-26T05:21:26.635Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 11,
-              "Title": "PrioritiesPage.xaml",
-              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\PrioritiesPage.xaml",
-              "RelativeDocumentMoniker": "Admissions_Reserve\\View\\PrioritiesPage.xaml",
-              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\PrioritiesPage.xaml",
-              "RelativeToolTip": "Admissions_Reserve\\View\\PrioritiesPage.xaml",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2026-05-26T13:45:53.558Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 14,
-              "Title": "DataService.cs",
-              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\Model\\DataService.cs",
-              "RelativeDocumentMoniker": "Admissions_Reserve\\Model\\DataService.cs",
-              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\Model\\DataService.cs",
-              "RelativeToolTip": "Admissions_Reserve\\Model\\DataService.cs",
-              "ViewState": "AgIAAKQHAAAAAAAAAABRwKcHAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-26T05:52:46.313Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 15,
-              "Title": "DatabasePersistenceHelper.cs",
-              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\Model\\DatabasePersistenceHelper.cs",
-              "RelativeDocumentMoniker": "Admissions_Reserve\\Model\\DatabasePersistenceHelper.cs",
-              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\Model\\DatabasePersistenceHelper.cs",
-              "RelativeToolTip": "Admissions_Reserve\\Model\\DatabasePersistenceHelper.cs",
-              "ViewState": "AgIAAMwAAAAAAAAAAAAIwCoBAAA0AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-26T05:17:54.364Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 12,
-              "Title": "IndividualAchievementsPage.xaml.cs",
-              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\IndividualAchievementsPage.xaml.cs",
-              "RelativeDocumentMoniker": "Admissions_Reserve\\View\\IndividualAchievementsPage.xaml.cs",
-              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\IndividualAchievementsPage.xaml.cs",
-              "RelativeToolTip": "Admissions_Reserve\\View\\IndividualAchievementsPage.xaml.cs",
-              "ViewState": "AgIAAPsAAAAAAAAAAEBVwP8AAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-26T11:25:15.749Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 31,
-              "Title": "IndividualAchievementsMethods.txt",
-              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\IndividualAchievementsMethods.txt",
-              "RelativeDocumentMoniker": "Admissions_Reserve\\IndividualAchievementsMethods.txt",
-              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\IndividualAchievementsMethods.txt",
-              "RelativeToolTip": "Admissions_Reserve\\IndividualAchievementsMethods.txt",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAACoAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003109|",
-              "WhenOpened": "2026-05-26T12:02:57.368Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 13,
-              "Title": "IndividualAchievementsPage.xaml",
-              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\IndividualAchievementsPage.xaml",
-              "RelativeDocumentMoniker": "Admissions_Reserve\\View\\IndividualAchievementsPage.xaml",
-              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\IndividualAchievementsPage.xaml",
-              "RelativeToolTip": "Admissions_Reserve\\View\\IndividualAchievementsPage.xaml",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2026-05-26T11:24:38.434Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 16,
-<<<<<<< HEAD
->>>>>>> 19e85d81073b5709fa252e0d3bb4e82c270681da
-=======
->>>>>>> 19e85d81073b5709fa252e0d3bb4e82c270681da
-              "Title": "DatabaseHelper.cs",
-              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\Model\\DatabaseHelper.cs",
-              "RelativeDocumentMoniker": "Admissions_Reserve\\Model\\DatabaseHelper.cs",
-              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\Model\\DatabaseHelper.cs",
-              "RelativeToolTip": "Admissions_Reserve\\Model\\DatabaseHelper.cs",
-              "ViewState": "AgIAAMIBAAAAAAAAAAAuwOoBAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-26T05:17:44.243Z"
-            },
-            {
-              "$type": "Document",
-<<<<<<< HEAD
-<<<<<<< HEAD
               "DocumentIndex": 58,
               "Title": "QUICK_REFERENCE.txt",
               "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\QUICK_REFERENCE.txt",
@@ -741,26 +311,97 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "MainWindow.xaml",
+              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\MainWindow.xaml",
+              "RelativeDocumentMoniker": "Admissions_Reserve\\MainWindow.xaml",
+              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\MainWindow.xaml",
+              "RelativeToolTip": "Admissions_Reserve\\MainWindow.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2026-05-25T16:44:51.335Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
               "Title": "ApplicantWizardPage.xaml",
               "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\ApplicantWizardPage.xaml",
               "RelativeDocumentMoniker": "Admissions_Reserve\\View\\ApplicantWizardPage.xaml",
               "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\ApplicantWizardPage.xaml",
               "RelativeToolTip": "Admissions_Reserve\\View\\ApplicantWizardPage.xaml",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2026-05-26T06:54:22.524Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-05-26T06:54:22.524Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 54,
-              "Title": "FIXES_APPLIED.txt",
-              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\FIXES_APPLIED.txt",
-              "RelativeDocumentMoniker": "FIXES_APPLIED.txt",
-              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\FIXES_APPLIED.txt",
-              "RelativeToolTip": "FIXES_APPLIED.txt",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAEYAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003109|",
-              "WhenOpened": "2026-05-27T08:53:56.031Z"
+              "DocumentIndex": 22,
+              "Title": "ApplicationCompetitionsPage.xaml.cs",
+              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\ApplicationCompetitionsPage.xaml.cs",
+              "RelativeDocumentMoniker": "Admissions_Reserve\\View\\ApplicationCompetitionsPage.xaml.cs",
+              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\ApplicationCompetitionsPage.xaml.cs",
+              "RelativeToolTip": "Admissions_Reserve\\View\\ApplicationCompetitionsPage.xaml.cs",
+              "ViewState": "AgIAALEBAAAAAAAAAIBZwLUAAAAQAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-26T09:51:18.158Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 29,
+              "Title": "FormattingHelper.cs",
+              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\Model\\FormattingHelper.cs",
+              "RelativeDocumentMoniker": "Admissions_Reserve\\Model\\FormattingHelper.cs",
+              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\Model\\FormattingHelper.cs",
+              "RelativeToolTip": "Admissions_Reserve\\Model\\FormattingHelper.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-26T05:59:30.875Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 30,
+              "Title": "ExportHelper.cs",
+              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\Model\\ExportHelper.cs",
+              "RelativeDocumentMoniker": "Admissions_Reserve\\Model\\ExportHelper.cs",
+              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\Model\\ExportHelper.cs",
+              "RelativeToolTip": "Admissions_Reserve\\Model\\ExportHelper.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-26T05:59:28.339Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 28,
+              "Title": "PageModels.cs",
+              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\Model\\PageModels.cs",
+              "RelativeDocumentMoniker": "Admissions_Reserve\\Model\\PageModels.cs",
+              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\Model\\PageModels.cs",
+              "RelativeToolTip": "Admissions_Reserve\\Model\\PageModels.cs",
+              "ViewState": "AgIAAHQAAAAAAAAAAAA7wIAAAAAvAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-26T05:59:33.207Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 31,
+              "Title": "Applicants.cs",
+              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\Model\\Applicants.cs",
+              "RelativeDocumentMoniker": "Admissions_Reserve\\Model\\Applicants.cs",
+              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\Model\\Applicants.cs",
+              "RelativeToolTip": "Admissions_Reserve\\Model\\Applicants.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-26T05:59:22.849Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "DatabaseHelper.cs",
+              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\Model\\DatabaseHelper.cs",
+              "RelativeDocumentMoniker": "Admissions_Reserve\\Model\\DatabaseHelper.cs",
+              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\Model\\DatabaseHelper.cs",
+              "RelativeToolTip": "Admissions_Reserve\\Model\\DatabaseHelper.cs",
+              "ViewState": "AgIAAMIBAAAAAAAAAAAuwOoBAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-26T05:17:44.243Z"
             },
             {
               "$type": "Document",
@@ -776,50 +417,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 22,
-=======
-=======
->>>>>>> 19e85d81073b5709fa252e0d3bb4e82c270681da
-              "DocumentIndex": 18,
-              "Title": "ApplicationCompetitionsPage.xaml",
-              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\ApplicationCompetitionsPage.xaml",
-              "RelativeDocumentMoniker": "Admissions_Reserve\\View\\ApplicationCompetitionsPage.xaml",
-              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\ApplicationCompetitionsPage.xaml",
-              "RelativeToolTip": "Admissions_Reserve\\View\\ApplicationCompetitionsPage.xaml",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2026-05-26T09:50:30.495Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 17,
-              "Title": "RelativesPage.xaml.cs",
-              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\RelativesPage.xaml.cs",
-              "RelativeDocumentMoniker": "Admissions_Reserve\\View\\RelativesPage.xaml.cs",
-              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\RelativesPage.xaml.cs",
-              "RelativeToolTip": "Admissions_Reserve\\View\\RelativesPage.xaml.cs",
-              "ViewState": "AgIAADsDAAAAAAAAAEBVwD8DAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-26T07:52:20.659Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 19,
-              "Title": "ApplicationCompetitionsPage.xaml.cs",
-              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\ApplicationCompetitionsPage.xaml.cs",
-              "RelativeDocumentMoniker": "Admissions_Reserve\\View\\ApplicationCompetitionsPage.xaml.cs",
-              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\ApplicationCompetitionsPage.xaml.cs",
-              "RelativeToolTip": "Admissions_Reserve\\View\\ApplicationCompetitionsPage.xaml.cs",
-              "ViewState": "AgIAALEBAAAAAAAAAIBZwLUAAAAQAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-26T09:51:18.158Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 20,
-<<<<<<< HEAD
->>>>>>> 19e85d81073b5709fa252e0d3bb4e82c270681da
-=======
->>>>>>> 19e85d81073b5709fa252e0d3bb4e82c270681da
+              "DocumentIndex": 23,
               "Title": "AdditionalInfoPage.xaml.cs",
               "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\AdditionalInfoPage.xaml.cs",
               "RelativeDocumentMoniker": "Admissions_Reserve\\View\\AdditionalInfoPage.xaml.cs",
@@ -831,15 +429,7 @@
             },
             {
               "$type": "Document",
-<<<<<<< HEAD
-<<<<<<< HEAD
-              "DocumentIndex": 23,
-=======
-              "DocumentIndex": 21,
->>>>>>> 19e85d81073b5709fa252e0d3bb4e82c270681da
-=======
-              "DocumentIndex": 21,
->>>>>>> 19e85d81073b5709fa252e0d3bb4e82c270681da
+              "DocumentIndex": 24,
               "Title": "IdentityPage.xaml.cs",
               "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\IdentityPage.xaml.cs",
               "RelativeDocumentMoniker": "Admissions_Reserve\\View\\IdentityPage.xaml.cs",
@@ -851,15 +441,7 @@
             },
             {
               "$type": "Document",
-<<<<<<< HEAD
-<<<<<<< HEAD
-              "DocumentIndex": 24,
-=======
-              "DocumentIndex": 22,
->>>>>>> 19e85d81073b5709fa252e0d3bb4e82c270681da
-=======
-              "DocumentIndex": 22,
->>>>>>> 19e85d81073b5709fa252e0d3bb4e82c270681da
+              "DocumentIndex": 25,
               "Title": "AdditionalInfoPage.xaml",
               "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\AdditionalInfoPage.xaml",
               "RelativeDocumentMoniker": "Admissions_Reserve\\View\\AdditionalInfoPage.xaml",
@@ -870,15 +452,7 @@
             },
             {
               "$type": "Document",
-<<<<<<< HEAD
-<<<<<<< HEAD
-              "DocumentIndex": 26,
-=======
-              "DocumentIndex": 24,
->>>>>>> 19e85d81073b5709fa252e0d3bb4e82c270681da
-=======
-              "DocumentIndex": 24,
->>>>>>> 19e85d81073b5709fa252e0d3bb4e82c270681da
+              "DocumentIndex": 27,
               "Title": "ContactsPage.xaml.cs",
               "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\ContactsPage.xaml.cs",
               "RelativeDocumentMoniker": "Admissions_Reserve\\View\\ContactsPage.xaml.cs",
@@ -890,15 +464,7 @@
             },
             {
               "$type": "Document",
-<<<<<<< HEAD
-<<<<<<< HEAD
-              "DocumentIndex": 25,
-=======
-              "DocumentIndex": 23,
->>>>>>> 19e85d81073b5709fa252e0d3bb4e82c270681da
-=======
-              "DocumentIndex": 23,
->>>>>>> 19e85d81073b5709fa252e0d3bb4e82c270681da
+              "DocumentIndex": 26,
               "Title": "ContactsPage.xaml",
               "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\ContactsPage.xaml",
               "RelativeDocumentMoniker": "Admissions_Reserve\\View\\ContactsPage.xaml",
@@ -909,8 +475,6 @@
             },
             {
               "$type": "Document",
-<<<<<<< HEAD
-<<<<<<< HEAD
               "DocumentIndex": 59,
               "Title": "README_RUS.txt",
               "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\README_RUS.txt",
@@ -971,7 +535,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 4,
               "Title": "UserAuthentication.cs",
               "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\Model\\UserAuthentication.cs",
               "RelativeDocumentMoniker": "Admissions_Reserve\\Model\\UserAuthentication.cs",
@@ -983,7 +547,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 5,
               "Title": "ApplicantSearchPage.xaml",
               "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\ApplicantSearchPage.xaml",
               "RelativeDocumentMoniker": "Admissions_Reserve\\View\\ApplicantSearchPage.xaml",
@@ -1006,19 +570,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "ApplicantSearchPage.xaml.cs",
-              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\ApplicantSearchPage.xaml.cs",
-              "RelativeDocumentMoniker": "Admissions_Reserve\\View\\ApplicantSearchPage.xaml.cs",
-              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\ApplicantSearchPage.xaml.cs",
-              "RelativeToolTip": "Admissions_Reserve\\View\\ApplicantSearchPage.xaml.cs",
-              "ViewState": "AgIAABQBAAAAAAAAAABBwBUBAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-27T07:04:33.747Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 6,
               "Title": "WelcomePage.xaml.cs",
               "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\WelcomePage.xaml.cs",
               "RelativeDocumentMoniker": "Admissions_Reserve\\View\\WelcomePage.xaml.cs",
@@ -1038,7 +590,8 @@
               "RelativeToolTip": "IMPLEMENTATION_NOTES.txt",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAEsAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003109|",
-              "WhenOpened": "2026-05-27T08:31:24.94Z"
+              "WhenOpened": "2026-05-27T08:31:24.94Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1054,7 +607,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 8,
               "Title": "RelativesPage.xaml",
               "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\RelativesPage.xaml",
               "RelativeDocumentMoniker": "Admissions_Reserve\\View\\RelativesPage.xaml",
@@ -1065,7 +618,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 7,
               "Title": "WelcomePage.xaml",
               "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\WelcomePage.xaml",
               "RelativeDocumentMoniker": "Admissions_Reserve\\View\\WelcomePage.xaml",
@@ -1076,7 +629,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 9,
               "Title": "DocumentsPage.xaml",
               "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\DocumentsPage.xaml",
               "RelativeDocumentMoniker": "Admissions_Reserve\\View\\DocumentsPage.xaml",
@@ -1231,7 +784,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 11,
               "Title": "AttachedDocumentsPage.xaml.cs",
               "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\AttachedDocumentsPage.xaml.cs",
               "RelativeDocumentMoniker": "Admissions_Reserve\\View\\AttachedDocumentsPage.xaml.cs",
@@ -1243,7 +796,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 10,
               "Title": "DocumentsPage.xaml.cs",
               "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\DocumentsPage.xaml.cs",
               "RelativeDocumentMoniker": "Admissions_Reserve\\View\\DocumentsPage.xaml.cs",
@@ -1303,7 +856,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 12,
               "Title": "AttachedDocumentsPage.xaml",
               "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\AttachedDocumentsPage.xaml",
               "RelativeDocumentMoniker": "Admissions_Reserve\\View\\AttachedDocumentsPage.xaml",
@@ -1314,7 +867,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 14,
               "Title": "PrioritiesPage.xaml.cs",
               "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\PrioritiesPage.xaml.cs",
               "RelativeDocumentMoniker": "Admissions_Reserve\\View\\PrioritiesPage.xaml.cs",
@@ -1326,7 +879,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 13,
               "Title": "Models.cs",
               "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\Model\\Models.cs",
               "RelativeDocumentMoniker": "Admissions_Reserve\\Model\\Models.cs",
@@ -1338,7 +891,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 15,
               "Title": "PrioritiesPage.xaml",
               "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\PrioritiesPage.xaml",
               "RelativeDocumentMoniker": "Admissions_Reserve\\View\\PrioritiesPage.xaml",
@@ -1349,7 +902,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 17,
+              "DocumentIndex": 18,
               "Title": "DataService.cs",
               "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\Model\\DataService.cs",
               "RelativeDocumentMoniker": "Admissions_Reserve\\Model\\DataService.cs",
@@ -1361,7 +914,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 18,
+              "DocumentIndex": 19,
               "Title": "DatabasePersistenceHelper.cs",
               "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\Model\\DatabasePersistenceHelper.cs",
               "RelativeDocumentMoniker": "Admissions_Reserve\\Model\\DatabasePersistenceHelper.cs",
@@ -1373,7 +926,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 15,
+              "DocumentIndex": 16,
               "Title": "IndividualAchievementsPage.xaml.cs",
               "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\IndividualAchievementsPage.xaml.cs",
               "RelativeDocumentMoniker": "Admissions_Reserve\\View\\IndividualAchievementsPage.xaml.cs",
@@ -1397,7 +950,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 16,
+              "DocumentIndex": 17,
               "Title": "IndividualAchievementsPage.xaml",
               "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\IndividualAchievementsPage.xaml",
               "RelativeDocumentMoniker": "Admissions_Reserve\\View\\IndividualAchievementsPage.xaml",
@@ -1408,7 +961,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 20,
+              "DocumentIndex": 21,
               "Title": "ApplicationCompetitionsPage.xaml",
               "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\ApplicationCompetitionsPage.xaml",
               "RelativeDocumentMoniker": "Admissions_Reserve\\View\\ApplicationCompetitionsPage.xaml",
@@ -1419,7 +972,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 19,
+              "DocumentIndex": 20,
               "Title": "RelativesPage.xaml.cs",
               "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\RelativesPage.xaml.cs",
               "RelativeDocumentMoniker": "Admissions_Reserve\\View\\RelativesPage.xaml.cs",
@@ -1428,128 +981,6 @@
               "ViewState": "AgIAADsDAAAAAAAAAEBVwD8DAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-05-26T07:52:20.659Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 21,
-              "Title": "ApplicationCompetitionsPage.xaml.cs",
-              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\ApplicationCompetitionsPage.xaml.cs",
-              "RelativeDocumentMoniker": "Admissions_Reserve\\View\\ApplicationCompetitionsPage.xaml.cs",
-              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\ApplicationCompetitionsPage.xaml.cs",
-              "RelativeToolTip": "Admissions_Reserve\\View\\ApplicationCompetitionsPage.xaml.cs",
-              "ViewState": "AgIAALEBAAAAAAAAAIBZwLUAAAAQAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-26T09:51:18.158Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 28,
-=======
-=======
->>>>>>> 19e85d81073b5709fa252e0d3bb4e82c270681da
-              "DocumentIndex": 25,
-              "Title": "ApplicantWizardPage.xaml",
-              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\ApplicantWizardPage.xaml",
-              "RelativeDocumentMoniker": "Admissions_Reserve\\View\\ApplicantWizardPage.xaml",
-              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\View\\ApplicantWizardPage.xaml",
-              "RelativeToolTip": "Admissions_Reserve\\View\\ApplicantWizardPage.xaml",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2026-05-26T06:54:22.524Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 27,
-<<<<<<< HEAD
->>>>>>> 19e85d81073b5709fa252e0d3bb4e82c270681da
-=======
->>>>>>> 19e85d81073b5709fa252e0d3bb4e82c270681da
-              "Title": "FormattingHelper.cs",
-              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\Model\\FormattingHelper.cs",
-              "RelativeDocumentMoniker": "Admissions_Reserve\\Model\\FormattingHelper.cs",
-              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\Model\\FormattingHelper.cs",
-              "RelativeToolTip": "Admissions_Reserve\\Model\\FormattingHelper.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-26T05:59:30.875Z"
-            },
-            {
-              "$type": "Document",
-<<<<<<< HEAD
-<<<<<<< HEAD
-              "DocumentIndex": 29,
-=======
-              "DocumentIndex": 28,
->>>>>>> 19e85d81073b5709fa252e0d3bb4e82c270681da
-=======
-              "DocumentIndex": 28,
->>>>>>> 19e85d81073b5709fa252e0d3bb4e82c270681da
-              "Title": "ExportHelper.cs",
-              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\Model\\ExportHelper.cs",
-              "RelativeDocumentMoniker": "Admissions_Reserve\\Model\\ExportHelper.cs",
-              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\Model\\ExportHelper.cs",
-              "RelativeToolTip": "Admissions_Reserve\\Model\\ExportHelper.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-26T05:59:28.339Z"
-            },
-            {
-              "$type": "Document",
-<<<<<<< HEAD
-<<<<<<< HEAD
-              "DocumentIndex": 27,
-=======
-              "DocumentIndex": 26,
->>>>>>> 19e85d81073b5709fa252e0d3bb4e82c270681da
-=======
-              "DocumentIndex": 26,
->>>>>>> 19e85d81073b5709fa252e0d3bb4e82c270681da
-              "Title": "PageModels.cs",
-              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\Model\\PageModels.cs",
-              "RelativeDocumentMoniker": "Admissions_Reserve\\Model\\PageModels.cs",
-              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\Model\\PageModels.cs",
-              "RelativeToolTip": "Admissions_Reserve\\Model\\PageModels.cs",
-              "ViewState": "AgIAAHQAAAAAAAAAAAA7wIAAAAAvAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-26T05:59:33.207Z"
-            },
-            {
-              "$type": "Document",
-<<<<<<< HEAD
-<<<<<<< HEAD
-              "DocumentIndex": 30,
-=======
-              "DocumentIndex": 29,
->>>>>>> 19e85d81073b5709fa252e0d3bb4e82c270681da
-=======
-              "DocumentIndex": 29,
->>>>>>> 19e85d81073b5709fa252e0d3bb4e82c270681da
-              "Title": "Applicants.cs",
-              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\Model\\Applicants.cs",
-              "RelativeDocumentMoniker": "Admissions_Reserve\\Model\\Applicants.cs",
-              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\Model\\Applicants.cs",
-              "RelativeToolTip": "Admissions_Reserve\\Model\\Applicants.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-26T05:59:22.849Z"
-            },
-            {
-              "$type": "Document",
-<<<<<<< HEAD
-<<<<<<< HEAD
-              "DocumentIndex": 31,
-=======
-              "DocumentIndex": 30,
->>>>>>> 19e85d81073b5709fa252e0d3bb4e82c270681da
-=======
-              "DocumentIndex": 30,
->>>>>>> 19e85d81073b5709fa252e0d3bb4e82c270681da
-              "Title": "MainWindow.xaml",
-              "DocumentMoniker": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\MainWindow.xaml",
-              "RelativeDocumentMoniker": "Admissions_Reserve\\MainWindow.xaml",
-              "ToolTip": "C:\\Users\\ViFiL\\source\\repos\\Admissions_Reserve\\Admissions_Reserve\\MainWindow.xaml",
-              "RelativeToolTip": "Admissions_Reserve\\MainWindow.xaml",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2026-05-25T16:44:51.335Z"
             }
           ]
         }
