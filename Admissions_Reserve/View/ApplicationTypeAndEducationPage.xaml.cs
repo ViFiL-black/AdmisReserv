@@ -660,7 +660,6 @@ namespace Admissions_Reserve.View
 
             try
             {
-                SaveData();
 
                 if (NavigationService?.CanGoBack == true)
                     NavigationService.GoBack();

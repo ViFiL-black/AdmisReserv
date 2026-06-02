@@ -301,8 +301,6 @@ namespace Admissions_Reserve.View
         // Кнопка НАЗАД - возврат на страницу удостоверения личности
         private void PrevButton_Click(object sender, RoutedEventArgs e)
         {
-            // Сохраняем данные перед возвратом
-            SaveData();
 
             // Возвращаемся на предыдущую страницу
             if (NavigationService?.CanGoBack == true)

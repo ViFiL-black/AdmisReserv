@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Windows.Controls;
 using System.Windows;
 using Admissions_Reserve.Model;
@@ -49,18 +49,6 @@ namespace Admissions_Reserve.View
 
         private void NavigateToStep(int step)
         {
-            // Запрет перехода на остальные шаги, если не заполнено удостоверение личности
-            if (step != 0 && (SessionManager.CurrentApplicant == null || SessionManager.CurrentApplicant.Id == 0))
-            {
-                MessageBox.Show("Сначала необходимо заполнить данные удостоверения личности",
-                    "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
-
-                // Перенаправляем на первый шаг
-                _currentStep = 0;
-                StepFrame.Navigate(new IdentityPage());
-                return;
-            }
-
             Page page = null;
             switch (step)
             {

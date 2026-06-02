@@ -321,7 +321,6 @@ namespace Admissions_Reserve.View
 
         private void PrevButton_Click(object sender, RoutedEventArgs e)
         {
-            SaveData();
             if (NavigationService?.CanGoBack == true)
                 NavigationService.GoBack();
         }

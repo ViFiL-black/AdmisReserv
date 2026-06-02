@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -38,17 +38,6 @@ namespace Admissions_Reserve.View
 
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
-            // Проверяем, был ли создан абитуриент
-            if (SessionManager.CurrentApplicant == null || SessionManager.CurrentApplicant.Id == 0)
-            {
-                MessageBox.Show("Сначала необходимо заполнить данные удостоверения личности",
-                    "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
-
-                if (NavigationService?.CanGoBack == true)
-                    NavigationService.GoBack();
-                return;
-            }
-
             LoadMainDocuments();
             LoadAttachedDocumentsFromDB();
         }
@@ -188,7 +177,7 @@ namespace Admissions_Reserve.View
         {
             var result = MessageBox.Show(
                 "Вы уверены, что хотите отменить ввод данных?\n\n" +
-                "ВНИМАНИЕ: Все данные абитуриента будут безвозвратно удалены из базе данных!\n\n" +
+                "ВНИМАНИЕ: Все данные абитуриента будут безвозвратно удалены из базы данных!\n\n" +
                 "Это действие нельзя отменить.",
                 "Подтверждение удаления",
                 MessageBoxButton.YesNo,

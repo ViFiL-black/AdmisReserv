@@ -587,7 +587,6 @@ namespace Admissions_Reserve.View
 
         private void PrevButton_Click(object sender, RoutedEventArgs e)
         {
-            SaveAllData();
             if (NavigationService?.CanGoBack == true)
                 NavigationService.GoBack();
         }
@@ -596,7 +595,7 @@ namespace Admissions_Reserve.View
         {
             if (SaveAllData())
             {
-                NavigationService?.Navigate(new DocumentsPage());
+                NavigationService?.Navigate(new ApplicationCompetitionsPage());
             }
         }
 
