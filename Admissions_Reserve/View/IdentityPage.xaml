@@ -89,7 +89,7 @@
                             <TextBlock Text="Номер" FontSize="11" FontWeight="SemiBold"/>
                             <TextBlock Text="*" Foreground="Red" FontSize="11" FontWeight="Bold"/>
                         </StackPanel>
-                        <TextBox Name="NumberTextBox" Height="23" FontSize="11" MaxLength="4"/>
+                        <TextBox Name="NumberTextBox" Height="23" FontSize="11" MaxLength="6"/>
                     </StackPanel>
                     <StackPanel Grid.Column="3">
                         <StackPanel Orientation="Horizontal">

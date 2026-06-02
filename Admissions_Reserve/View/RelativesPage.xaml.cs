@@ -237,7 +237,16 @@ namespace Admissions_Reserve.View
                         WorkPlace = relative.WorkPlace,
                         Position = relative.Position,
                         IsBlocked = relative.IsBlocked ?? false,
-                        BlockReason = relative.BlockReason
+                        BlockReason = relative.BlockReason,
+                        IdNumber = relative.IdNumber,
+                        IssueDate = relative.IssueDate,
+                        IssuedBy = relative.IssuedBy,
+                        DepartmentCode = relative.DepartmentCode,
+                        Okpo = relative.Okpo,
+                        PersonalAccount = relative.PersonalAccount,
+                        BankName = relative.BankName,
+                        FiasAddress = relative.FiasAddress,
+                        Apartment = relative.Apartment
                     };
                     
                     if (item.IsBlocked)
@@ -422,7 +431,6 @@ namespace Admissions_Reserve.View
                         ApartmentTextBox.Text?.Trim()
                     );
                     relativeId = _editingRelativeId;
-                    _editingRelativeId = 0;
                     DataService.LogChange("Relatives", relativeId, "UPDATE");
                     MessageBox.Show("Родственник успешно обновлен", "Успех",
                         MessageBoxButton.OK, MessageBoxImage.Information);
@@ -442,7 +450,16 @@ namespace Admissions_Reserve.View
                         EmailTextBox.Text?.Trim(),
                         WorkPlaceTextBox.Text?.Trim(),
                         PositionTextBox.Text?.Trim(),
-                        BirthPlaceTextBox.Text?.Trim()
+                        BirthPlaceTextBox.Text?.Trim(),
+                        IdNumberTextBox.Text?.Trim(),
+                        IssueDatePicker.SelectedDate,
+                        IssuedByTextBox.Text?.Trim(),
+                        DepartmentCodeTextBox.Text?.Trim(),
+                        OkpoTextBox.Text?.Trim(),
+                        PersonalAccountTextBox.Text?.Trim(),
+                        BankNameTextBox.Text?.Trim(),
+                        FiasAddressTextBox.Text?.Trim(),
+                        ApartmentTextBox.Text?.Trim()
                     );
                     DataService.LogChange("Relatives", relativeId, "INSERT");
                     MessageBox.Show("Родственник успешно добавлен", "Успех",
@@ -452,7 +469,7 @@ namespace Admissions_Reserve.View
                 var newRelative = new RelativeItem
                 {
                     Id = relativeId,
-                    Number = _nextNumber++,
+                    Number = _editingRelativeId > 0 ? _selectedRelative?.Number ?? _nextNumber++ : _nextNumber++,
                     Inn = InnTextBox.Text,
                     RelationDegree = (RelationDegreeCombo.SelectedItem as ComboBoxItem)?.Content.ToString(),
                     LastName = LastNameTextBox.Text,
@@ -476,7 +493,23 @@ namespace Admissions_Reserve.View
                     IsBlocked = false
                 };
 
-                _regularRelatives.Add(newRelative);
+                if (_editingRelativeId > 0)
+                {
+                    // При редактировании обновляем существующий элемент
+                    var indexToUpdate = _regularRelatives.IndexOf(_selectedRelative);
+                    if (indexToUpdate >= 0)
+                    {
+                        _regularRelatives[indexToUpdate] = newRelative;
+                    }
+                    _editingRelativeId = 0;
+                    _selectedRelative = null;
+                }
+                else
+                {
+                    // При добавлении добавляем новый элемент
+                    _regularRelatives.Add(newRelative);
+                }
+
                 ClearForm();
             }
             catch (Exception ex)
@@ -510,12 +543,12 @@ namespace Admissions_Reserve.View
                     FirstNameTextBox.Text = fullRelative.FirstName ?? "";
                     PatronymicTextBox.Text = fullRelative.Patronymic ?? "";
                     BirthDatePicker.SelectedDate = fullRelative.BirthDate;
+                    BirthPlaceTextBox.Text = fullRelative.BirthPlace ?? "";
                     PhoneTextBox.Text = fullRelative.Phone ?? "";
                     EmailTextBox.Text = fullRelative.Email ?? "";
                     InnTextBox.Text = fullRelative.Inn ?? "";
                     WorkPlaceTextBox.Text = fullRelative.WorkPlace ?? "";
                     PositionTextBox.Text = fullRelative.Position ?? "";
-                    BirthPlaceTextBox.Text = fullRelative.BirthPlace ?? "";
                     IdTypeCombo.SelectedIndex = 0;
                     IdNumberTextBox.Text = fullRelative.IdNumber ?? "";
                     IssueDatePicker.SelectedDate = fullRelative.IssueDate;
@@ -528,11 +561,9 @@ namespace Admissions_Reserve.View
                     FiasAddressTextBox.Text = fullRelative.FiasAddress ?? "";
                     ApartmentTextBox.Text = fullRelative.Apartment ?? "";
 
-                    // Сохраняем ID редактируемого родственника
+                    // Сохраняем текущий элемент и ID редактируемого родственника
+                    _selectedRelative = item;
                     _editingRelativeId = item.Id;
-
-                    // Удаляем старую запись из таблицы
-                    _regularRelatives.Remove(item);
 
                     MessageBox.Show("Данные загружены. Отредактируйте их и нажмите 'Сохранить'",
                         "Редактирование", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -688,7 +719,17 @@ namespace Admissions_Reserve.View
                             relative.Phone ?? "",
                             relative.Email ?? "",
                             relative.WorkPlace ?? "",
-                            relative.Position ?? ""
+                            relative.Position ?? "",
+                            relative.BirthPlace ?? "",
+                            relative.IdNumber ?? "",
+                            relative.IssueDate,
+                            relative.IssuedBy ?? "",
+                            relative.DepartmentCode ?? "",
+                            relative.Okpo ?? "",
+                            relative.PersonalAccount ?? "",
+                            relative.BankName ?? "",
+                            relative.FiasAddress ?? "",
+                            relative.Apartment ?? ""
                         );
                         relative.Id = newId;
                         DataService.LogChange("Relatives", newId, "INSERT");
@@ -709,7 +750,16 @@ namespace Admissions_Reserve.View
                             relative.Email ?? "",
                             relative.WorkPlace ?? "",
                             relative.Position ?? "",
-                            relative.BirthPlace ?? ""
+                            relative.BirthPlace ?? "",
+                            relative.IdNumber ?? "",
+                            relative.IssueDate,
+                            relative.IssuedBy ?? "",
+                            relative.DepartmentCode ?? "",
+                            relative.Okpo ?? "",
+                            relative.PersonalAccount ?? "",
+                            relative.BankName ?? "",
+                            relative.FiasAddress ?? "",
+                            relative.Apartment ?? ""
                         );
                         DataService.LogChange("Relatives", relative.Id, "UPDATE");
                     }
@@ -796,7 +846,4 @@ namespace Admissions_Reserve.View
             }
         }
     }
-
-    // Диалоговое окно для ввода причины блокировки
-   
 }

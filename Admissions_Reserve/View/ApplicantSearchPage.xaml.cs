@@ -181,17 +181,36 @@ namespace Admissions_Reserve.View
                 // Загружаем абитуриента в SessionManager
                 SessionManager.CurrentApplicant = applicant;
 
-                // Если режим редактирования, открываем через мастер с навигацией
-                if (editMode)
+                // Получаем главное окно
+                var mainWindow = Application.Current.MainWindow as MainWindow;
+                if (mainWindow != null)
                 {
-                    var wizardPage = new ApplicantWizardPage();
-                    NavigationService?.Navigate(wizardPage);
+                    // Режим редактирования - открываем мастер
+                    if (editMode)
+                    {
+                        var wizardPage = new ApplicantWizardPage();
+                        mainWindow.MainFrame.Navigate(wizardPage);
+                    }
+                    else
+                    {
+                        // В режиме просмотра открываем мастер
+                        var wizardPage = new ApplicantWizardPage();
+                        mainWindow.MainFrame.Navigate(wizardPage);
+                    }
                 }
                 else
                 {
-                    // В режиме просмотра открываем первую страницу
-                    var identityPage = new IdentityPage();
-                    NavigationService?.Navigate(identityPage);
+                    // Fallback на NavigationService если MainWindow не найдена
+                    if (editMode)
+                    {
+                        var wizardPage = new ApplicantWizardPage();
+                        NavigationService?.Navigate(wizardPage);
+                    }
+                    else
+                    {
+                        var identityPage = new IdentityPage();
+                        NavigationService?.Navigate(identityPage);
+                    }
                 }
             }
             catch (Exception ex)
@@ -263,9 +282,20 @@ namespace Admissions_Reserve.View
                 // Очищаем SessionManager для создания нового абитуриента
                 SessionManager.Clear();
                 
-                // Переходим в мастер добавления (сверху отображаются шаги)
-                var wizardPage = new ApplicantWizardPage();
-                NavigationService?.Navigate(wizardPage);
+                // Получаем главное окно
+                var mainWindow = Application.Current.MainWindow as MainWindow;
+                if (mainWindow != null)
+                {
+                    // Переходим в мастер добавления
+                    var wizardPage = new ApplicantWizardPage();
+                    mainWindow.MainFrame.Navigate(wizardPage);
+                }
+                else
+                {
+                    // Fallback на NavigationService
+                    var wizardPage = new ApplicantWizardPage();
+                    NavigationService?.Navigate(wizardPage);
+                }
             }
             catch (Exception ex)
             {

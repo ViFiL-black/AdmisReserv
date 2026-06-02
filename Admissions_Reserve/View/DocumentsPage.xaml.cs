@@ -281,9 +281,9 @@ namespace Admissions_Reserve.View
                         DocumentTypeId = doc.DocumentTypeId,
                         SeriesNumber = seriesNumber,
                         Category = "Абитуриент (прием 2026)",
-                        AdditionalData = "",
+                        AdditionalData = doc.AdditionalData ?? "",
                         IssueDate = doc.IssueDate,
-                        DocumentInfo = doc.IssuedBy,
+                        DocumentInfo = doc.DocumentInfo ?? doc.IssuedBy ?? "",
                         AddedDate = doc.AddedDate ?? DateTime.Now,
                         PersonalDataCategory = "Абитуриент (прием 2026)",
                         IsPersonalDataDocument = true,
@@ -306,9 +306,9 @@ namespace Admissions_Reserve.View
                         DocumentTypeId = doc.DocumentTypeId,
                         SeriesNumber = seriesNumber,
                         Category = "Абитуриент (прием 2026)",
-                        AdditionalData = "",
+                        AdditionalData = doc.AdditionalData ?? "",
                         IssueDate = null,
-                        DocumentInfo = "",
+                        DocumentInfo = doc.DocumentInfo ?? "",
                         AddedDate = DateTime.Now,
                         PersonalDataCategory = "Абитуриент (прием 2026)",
                         IsPersonalDataDocument = false,
@@ -471,7 +471,9 @@ namespace Admissions_Reserve.View
                         IssueDate = IssueDatePicker.SelectedDate,
                         DepartmentCode = "",
                         IsPrimary = _personalDataDocuments.Count == 0,
-                        AddedDate = DateTime.Now
+                        AddedDate = DateTime.Now,
+                        AdditionalData = AdditionalDataTextBox.Text,
+                        DocumentInfo = documentInfo
                     };
 
                     documentId = DataService.CreateIdentityDocument(newDoc);
@@ -509,7 +511,9 @@ namespace Admissions_Reserve.View
                         ApplicantId = SessionManager.CurrentApplicantId.Value,
                         DocumentTypeId = selectedTypeId,
                         Series = series,
-                        Number = number
+                        Number = number,
+                        AdditionalData = AdditionalDataTextBox.Text,
+                        DocumentInfo = documentInfo
                     };
 
                     documentId = DataService.CreateGeneralDocument(newDoc);
@@ -679,7 +683,69 @@ namespace Admissions_Reserve.View
 
         private bool SaveData()
         {
-            return ValidateDocuments();
+            if (!ValidateDocuments())
+                return false;
+
+            // Сохраняем или обновляем доп. данные для каждого документа
+            try
+            {
+                // Сохраняем доп. данные для документов, удостоверяющих личность
+                foreach (var doc in _personalDataDocuments)
+                {
+                    if (doc.Id > 0)
+                    {
+                        // Обновляем существующий документ
+                        var identityDoc = new IdentityDocuments
+                        {
+                            Id = doc.Id,
+                            ApplicantId = SessionManager.CurrentApplicantId.Value,
+                            DocumentTypeId = doc.DocumentTypeId,
+                            Series = (doc.SeriesNumber ?? "").Split(new[] { ' ' }, System.StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? "",
+                            Number = (doc.SeriesNumber ?? "").Split(new[] { ' ' }, System.StringSplitOptions.RemoveEmptyEntries).LastOrDefault() ?? "",
+                            IssuedBy = "",
+                            IssueDate = doc.IssueDate,
+                            DepartmentCode = "",
+                            IsPrimary = false,
+                            AddedDate = doc.AddedDate,
+                            AdditionalData = doc.AdditionalData,
+                            DocumentInfo = doc.DocumentInfo
+                        };
+                        DataService.UpdateIdentityDocument(identityDoc);
+                        DataService.LogChange("IdentityDocuments", doc.Id, "UPDATE");
+                    }
+                }
+
+                // Сохраняем доп. данные для общих документов
+                foreach (var doc in _documents)
+                {
+                    if (doc.Id > 0)
+                    {
+                        // Используем расширение для обновления документа
+                        var generalDoc = new Documents
+                        {
+                            Id = doc.Id,
+                            ApplicantId = SessionManager.CurrentApplicantId.Value,
+                            DocumentTypeId = doc.DocumentTypeId,
+                            Series = (doc.SeriesNumber ?? "").Split(new[] { ' ' }, System.StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? "",
+                            Number = (doc.SeriesNumber ?? "").Split(new[] { ' ' }, System.StringSplitOptions.RemoveEmptyEntries).LastOrDefault() ?? "",
+                            AdditionalData = doc.AdditionalData,
+                            DocumentInfo = doc.DocumentInfo,
+                            CreatedAt = doc.AddedDate,
+                            UpdatedAt = DateTime.Now
+                        };
+                        DataServiceExtensions.UpdateGeneralDocument(generalDoc);
+                        DataService.LogChange("Documents", doc.Id, "UPDATE");
+                    }
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при сохранении данных документов: {ex.Message}", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
+            }
         }
 
         private async void NextButton_Click(object sender, RoutedEventArgs e)

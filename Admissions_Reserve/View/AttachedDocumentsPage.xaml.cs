@@ -12,13 +12,49 @@ namespace Admissions_Reserve.View
     {
         public class AttachedDocument : INotifyPropertyChanged
         {
-            public int Id { get; set; }
-            public int Number { get; set; }
-            public string DocumentType { get; set; }
-            public string SeriesNumber { get; set; }
-            public string Category { get; set; }
-            public DateTime? IssueDate { get; set; }
-            public string DocumentInfo { get; set; }
+            private int _id;
+            private int _number;
+            private string _documentType;
+            private string _seriesNumber;
+            private string _category;
+            private DateTime? _issueDate;
+            private string _documentInfo;
+
+            public int Id
+            {
+                get => _id;
+                set { if (_id != value) { _id = value; OnPropertyChanged(nameof(Id)); } }
+            }
+            public int Number
+            {
+                get => _number;
+                set { if (_number != value) { _number = value; OnPropertyChanged(nameof(Number)); } }
+            }
+            public string DocumentType
+            {
+                get => _documentType;
+                set { if (_documentType != value) { _documentType = value; OnPropertyChanged(nameof(DocumentType)); } }
+            }
+            public string SeriesNumber
+            {
+                get => _seriesNumber;
+                set { if (_seriesNumber != value) { _seriesNumber = value; OnPropertyChanged(nameof(SeriesNumber)); } }
+            }
+            public string Category
+            {
+                get => _category;
+                set { if (_category != value) { _category = value; OnPropertyChanged(nameof(Category)); } }
+            }
+            public DateTime? IssueDate
+            {
+                get => _issueDate;
+                set { if (_issueDate != value) { _issueDate = value; OnPropertyChanged(nameof(IssueDate)); } }
+            }
+            public string DocumentInfo
+            {
+                get => _documentInfo;
+                set { if (_documentInfo != value) { _documentInfo = value; OnPropertyChanged(nameof(DocumentInfo)); } }
+            }
 
             public event PropertyChangedEventHandler PropertyChanged;
             protected void OnPropertyChanged(string name) =>
@@ -38,8 +74,11 @@ namespace Admissions_Reserve.View
 
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
+            // Resolve applicant id from SessionManager
+            int? applicantId = SessionManager.CurrentApplicantId ?? (SessionManager.CurrentApplicant != null && SessionManager.CurrentApplicant.Id != 0 ? (int?)SessionManager.CurrentApplicant.Id : null);
+
             // Проверяем, был ли создан абитуриент
-            if (SessionManager.CurrentApplicant == null || SessionManager.CurrentApplicant.Id == 0)
+            if (applicantId == null)
             {
                 MessageBox.Show("Сначала необходимо заполнить данные удостоверения личности",
                     "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -49,18 +88,16 @@ namespace Admissions_Reserve.View
                 return;
             }
 
-            LoadMainDocuments();
-            LoadAttachedDocumentsFromDB();
+            LoadMainDocuments(applicantId.Value);
+            LoadAttachedDocumentsFromDB(applicantId.Value);
         }
 
-        private void LoadMainDocuments()
+        private void LoadMainDocuments(int applicantId)
         {
             try
             {
-                if (SessionManager.CurrentApplicantId == null) return;
-
                 // Загружаем документ об образовании
-                var eduDocs = DataService.GetApplicantEducationDocuments(SessionManager.CurrentApplicantId.Value);
+                var eduDocs = DataService.GetApplicantEducationDocuments(applicantId);
                 var eduDoc = eduDocs.FirstOrDefault();
                 if (eduDoc != null)
                 {
@@ -71,7 +108,7 @@ namespace Admissions_Reserve.View
                 }
 
                 // Загружаем удостоверение личности
-                var idDocs = DataService.GetAllIdentityDocuments(SessionManager.CurrentApplicantId.Value);
+                var idDocs = DataService.GetAllIdentityDocuments(applicantId);
                 var idDoc = idDocs.FirstOrDefault(d => d.IsPrimary == true) ?? idDocs.FirstOrDefault();
                 if (idDoc != null)
                 {
@@ -97,15 +134,14 @@ namespace Admissions_Reserve.View
             catch { return null; }
         }
 
-        private void LoadAttachedDocumentsFromDB()
+        private void LoadAttachedDocumentsFromDB(int applicantId)
         {
             try
             {
-                if (SessionManager.CurrentApplicantId == null) return;
                 _documents.Clear();
                 _nextNumber = 1;
 
-                var docs = DataService.GetApplicantAttachedDocuments(SessionManager.CurrentApplicantId.Value);
+                var docs = DataService.GetApplicantAttachedDocuments(applicantId);
                 foreach (var doc in docs)
                 {
                     _documents.Add(new AttachedDocument
@@ -119,6 +155,8 @@ namespace Admissions_Reserve.View
                         DocumentInfo = ""
                     });
                 }
+
+                DocumentsGrid.ItemsSource = _documents;
                 DocumentsGrid.Items.Refresh();
             }
             catch { }
@@ -158,15 +196,16 @@ namespace Admissions_Reserve.View
             try
             {
                 // Сохраняем все данные перед завершением
-                if (SessionManager.CurrentApplicantId != null)
+                int? applicantId = SessionManager.CurrentApplicantId ?? (SessionManager.CurrentApplicant != null && SessionManager.CurrentApplicant.Id != 0 ? (int?)SessionManager.CurrentApplicant.Id : null);
+                if (applicantId != null)
                 {
-                    var applicant = DataService.GetApplicant(SessionManager.CurrentApplicantId.Value);
+                    var applicant = DataService.GetApplicant(applicantId.Value);
                     if (applicant != null)
                     {
                         applicant.UpdatedAt = DateTime.Now;
                         DataService.UpdateApplicant(applicant);
                     }
-                    DataService.LogChange("Applicants", SessionManager.CurrentApplicantId.Value, "COMPLETE");
+                    DataService.LogChange("Applicants", applicantId.Value, "COMPLETE");
                 }
 
                 MessageBox.Show("Заявление успешно заполнено! Все данные сохранены.\nВы будете перенаправлены на страницу поиска абитуриентов.",
@@ -175,12 +214,19 @@ namespace Admissions_Reserve.View
                 SessionManager.Clear();
 
                 // Переход на страницу поиска абитуриентов (без выхода из аккаунта)
-                NavigationService?.Navigate(new ApplicantSearchPage());
+                var mainWindow = Application.Current.MainWindow as MainWindow;
+                if (mainWindow != null)
+                {
+                    mainWindow.MainFrame.Navigate(new ApplicantSearchPage());
+                }
+                else
+                {
+                    NavigationService?.Navigate(new ApplicantSearchPage());
+                }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка при завершении: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+
             }
         }
 
@@ -208,10 +254,11 @@ namespace Admissions_Reserve.View
                     try
                     {
                         // Удаляем все данные абитуриента из БД
-                        if (SessionManager.CurrentApplicantId != null)
+                        int? applicantId = SessionManager.CurrentApplicantId ?? (SessionManager.CurrentApplicant != null && SessionManager.CurrentApplicant.Id != 0 ? (int?)SessionManager.CurrentApplicant.Id : null);
+                        if (applicantId != null)
                         {
-                            DataService.DeleteApplicant(SessionManager.CurrentApplicantId.Value);
-                            DataService.LogChange("Applicants", SessionManager.CurrentApplicantId.Value, "DELETE_ALL");
+                            DataService.DeleteApplicant(applicantId.Value);
+                            DataService.LogChange("Applicants", applicantId.Value, "DELETE_ALL");
                         }
 
                         SessionManager.Clear();

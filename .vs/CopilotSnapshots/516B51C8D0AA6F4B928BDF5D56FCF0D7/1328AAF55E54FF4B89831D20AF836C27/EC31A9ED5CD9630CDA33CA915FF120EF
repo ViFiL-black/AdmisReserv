@@ -1,0 +1,7 @@
+﻿<Page x:Class="Admissions_Reserve.View.ApplicantWizardPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:local="clr-namespace:Admissions_Reserve.View"
+      Title="Мастер добавления абитуриента">
+    <Frame x:Name="StepFrame" NavigationUIVisibility="Hidden" />
+</Page>

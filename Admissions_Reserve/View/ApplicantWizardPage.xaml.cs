@@ -33,20 +33,6 @@ namespace Admissions_Reserve.View
             UpdateNavigationButtons();
         }
 
-        private void Step_Click(object sender, RoutedEventArgs e)
-        {
-            if (sender is Button btn && btn.Tag is string tag)
-            {
-                int idx = Array.IndexOf(_stepTags, tag);
-                if (idx >= 0)
-                {
-                    _currentStep = idx;
-                    NavigateToStep(_currentStep);
-                    UpdateNavigationButtons();
-                }
-            }
-        }
-
         private void NavigateToStep(int step)
         {
             // Запрет перехода на остальные шаги, если не заполнено удостоверение личности

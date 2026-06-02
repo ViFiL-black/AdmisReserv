@@ -62,7 +62,6 @@
                                 <DataGridTextColumn Header="Фамилия" Width="120" Binding="{Binding LastName}" IsReadOnly="True"/>
                                 <DataGridTextColumn Header="Имя" Width="100" Binding="{Binding FirstName}" IsReadOnly="True"/>
                                 <DataGridTextColumn Header="Отчество" Width="100" Binding="{Binding Patronymic}" IsReadOnly="True"/>
-                                <DataGridTextColumn Header="Дата рождения" Width="110" Binding="{Binding BirthDate, StringFormat='dd.MM.yyyy'}" IsReadOnly="True"/>
                                 <DataGridTextColumn Header="Email" Width="150" Binding="{Binding Email}" IsReadOnly="True"/>
                                 <DataGridTextColumn Header="Телефон" Width="120" Binding="{Binding Phone}" IsReadOnly="True"/>
                                 <DataGridTemplateColumn Header="Действия" Width="120">

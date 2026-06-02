@@ -110,11 +110,13 @@
     <Compile Include="Model\DatabaseHelper.cs" />
     <Compile Include="Model\DatabasePersistenceHelper.cs" />
     <Compile Include="Model\DataService.cs" />
+    <Compile Include="Model\DataServiceExtensions.cs" />
     <Compile Include="Model\ExportHelper.cs" />
     <Compile Include="Model\FormattingHelper.cs" />
     <Compile Include="Model\InputValidationHelper.cs" />
     <Compile Include="Model\LogHelper.cs" />
     <Compile Include="Model\Models.cs" />
+    <Compile Include="Model\NavigationManager.cs" />
     <Compile Include="Model\PageModels.cs" />
     <Compile Include="Model\UserAuthentication.cs" />
     <Compile Include="Model\ValidationHelper.cs" />
