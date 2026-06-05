@@ -88,6 +88,7 @@ namespace Admissions_Reserve.Model
         public DateTime? AddedDate { get; set; }
         public string AdditionalData { get; set; }
         public string DocumentInfo { get; set; }
+        public string Category { get; set; }
         public virtual Applicants Applicants { get; set; }
         public virtual IdentityDocumentTypes IdentityDocumentTypes { get; set; }
     }
@@ -159,6 +160,8 @@ namespace Admissions_Reserve.Model
         public string Number { get; set; }
         public string AdditionalData { get; set; }
         public string DocumentInfo { get; set; }
+        public string Category { get; set; } 
+        public DateTime? IssueDate { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
     }

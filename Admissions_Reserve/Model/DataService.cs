@@ -510,83 +510,276 @@ namespace Admissions_Reserve.Model
 
         public static int CreateIdentityDocument(IdentityDocuments doc)
         {
-            lock (lockObject)
+            using (var connection = DatabaseHelper.GetConnection())
             {
-                using (var connection = DatabaseHelper.GetConnection())
+                string sql = @"
+                    INSERT INTO IdentityDocuments 
+                    (ApplicantId, DocumentTypeId, Series, Number, IssuedBy, IssueDate, DepartmentCode, IsPrimary, AddedDate, AdditionalData, DocumentInfo, Category)
+                    VALUES (@appId, @docTypeId, @series, @number, @issuedBy, @issueDate, @deptCode, @isPrimary, @addedDate, @additionalData, @documentInfo, @category);
+                    SELECT last_insert_rowid();";
+                using (var cmd = new SQLiteCommand(sql, connection))
                 {
-                    var query = @"INSERT INTO IdentityDocuments (
-                        ApplicantId, DocumentTypeId, Series, Number,
-                        IssuedBy, IssueDate, DepartmentCode, IsPrimary, AddedDate, AdditionalData, DocumentInfo
-                    ) VALUES (
-                        @ApplicantId, @DocumentTypeId, @Series, @Number,
-                        @IssuedBy, @IssueDate, @DepartmentCode, @IsPrimary, @AddedDate, @AdditionalData, @DocumentInfo
-                    ); SELECT last_insert_rowid();";
-
-                    using (var cmd = new SQLiteCommand(query, connection))
-                    {
-                        AddDocumentParameters(cmd, doc);
-                        cmd.Parameters.AddWithValue("@AdditionalData", doc.AdditionalData ?? string.Empty);
-                        cmd.Parameters.AddWithValue("@DocumentInfo", doc.DocumentInfo ?? string.Empty);
-                        var result = cmd.ExecuteScalar();
-                        connection.Close();
-                        return Convert.ToInt32(result);
-                    }
-                }
-            }
-        }
-
-        public static void UpdateIdentityDocument(IdentityDocuments doc)
-        {
-            lock (lockObject)
-            {
-                using (var connection = DatabaseHelper.GetConnection())
-                {
-                    var query = @"UPDATE IdentityDocuments SET 
-                        DocumentTypeId = @DocumentTypeId,
-                        Series = @Series,
-                        Number = @Number,
-                        IssuedBy = @IssuedBy,
-                        IssueDate = @IssueDate,
-                        DepartmentCode = @DepartmentCode,
-                        IsPrimary = @IsPrimary,
-                        AdditionalData = @AdditionalData,
-                        DocumentInfo = @DocumentInfo
-                    WHERE Id = @Id";
-
-                    using (var cmd = new SQLiteCommand(query, connection))
-                    {
-                        cmd.Parameters.AddWithValue("@Id", doc.Id);
-                        AddDocumentParameters(cmd, doc);
-                        cmd.Parameters.AddWithValue("@AdditionalData", doc.AdditionalData ?? string.Empty);
-                        cmd.Parameters.AddWithValue("@DocumentInfo", doc.DocumentInfo ?? string.Empty);
-                        cmd.ExecuteNonQuery();
-                        connection.Close();
-                    }
+                    cmd.Parameters.AddWithValue("@appId", doc.ApplicantId);
+                    cmd.Parameters.AddWithValue("@docTypeId", doc.DocumentTypeId);
+                    cmd.Parameters.AddWithValue("@series", doc.Series ?? "");
+                    cmd.Parameters.AddWithValue("@number", doc.Number ?? "");
+                    cmd.Parameters.AddWithValue("@issuedBy", doc.IssuedBy ?? "");
+                    cmd.Parameters.AddWithValue("@issueDate", doc.IssueDate?.ToString("yyyy-MM-dd"));
+                    cmd.Parameters.AddWithValue("@deptCode", doc.DepartmentCode ?? "");
+                    cmd.Parameters.AddWithValue("@isPrimary", doc.IsPrimary ?? false);
+                    cmd.Parameters.AddWithValue("@addedDate", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                    cmd.Parameters.AddWithValue("@additionalData", doc.AdditionalData ?? "");
+                    cmd.Parameters.AddWithValue("@documentInfo", doc.DocumentInfo ?? "");
+                    cmd.Parameters.AddWithValue("@category", doc.Category ?? "");
+                    return Convert.ToInt32(cmd.ExecuteScalar());
                 }
             }
         }
 
         public static List<IdentityDocuments> GetApplicantDocuments(int applicantId)
         {
-            var docs = new List<IdentityDocuments>();
-
+            var list = new List<IdentityDocuments>();
             using (var connection = DatabaseHelper.GetConnection())
             {
-                var query = "SELECT * FROM IdentityDocuments WHERE ApplicantId = @ApplicantId";
-                using (var cmd = new SQLiteCommand(query, connection))
+                string sql = @"
+                    SELECT Id, ApplicantId, DocumentTypeId, Series, Number, IssuedBy, IssueDate, DepartmentCode, IsPrimary, AddedDate, AdditionalData, DocumentInfo, Category
+                    FROM IdentityDocuments WHERE ApplicantId = @id";
+                using (var cmd = new SQLiteCommand(sql, connection))
                 {
-                    cmd.Parameters.AddWithValue("@ApplicantId", applicantId);
+                    cmd.Parameters.AddWithValue("@id", applicantId);
                     using (var reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
                         {
-                            docs.Add(ReadDocumentFromReader(reader));
+                            list.Add(new IdentityDocuments
+                            {
+                                Id = Convert.ToInt32(reader["Id"]),
+                                ApplicantId = Convert.ToInt32(reader["ApplicantId"]),
+                                DocumentTypeId = reader["DocumentTypeId"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["DocumentTypeId"]),
+                                Series = reader["Series"]?.ToString(),
+                                Number = reader["Number"]?.ToString(),
+                                IssuedBy = reader["IssuedBy"]?.ToString(),
+                                IssueDate = reader["IssueDate"] == DBNull.Value ? (DateTime?)null : DateTime.Parse(reader["IssueDate"].ToString()),
+                                DepartmentCode = reader["DepartmentCode"]?.ToString(),
+                                IsPrimary = reader["IsPrimary"] != DBNull.Value && Convert.ToBoolean(reader["IsPrimary"]),
+                                AddedDate = reader["AddedDate"] == DBNull.Value ? DateTime.Now : DateTime.Parse(reader["AddedDate"].ToString()),
+                                AdditionalData = reader["AdditionalData"]?.ToString(),
+                                DocumentInfo = reader["DocumentInfo"]?.ToString(),
+                                Category = reader["Category"]?.ToString()
+                            });
                         }
                     }
                 }
             }
-            return docs;
+            return list;
         }
+
+        public static void UpdateIdentityDocument(IdentityDocuments doc)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                string sql = @"
+                    UPDATE IdentityDocuments SET
+                        DocumentTypeId = @docTypeId,
+                        Series = @series,
+                        Number = @number,
+                        IssuedBy = @issuedBy,
+                        IssueDate = @issueDate,
+                        DepartmentCode = @deptCode,
+                        IsPrimary = @isPrimary,
+                        AdditionalData = @additionalData,
+                        DocumentInfo = @documentInfo,
+                        Category = @category
+                    WHERE Id = @id AND ApplicantId = @appId";
+                using (var cmd = new SQLiteCommand(sql, connection))
+                {
+                    cmd.Parameters.AddWithValue("@id", doc.Id);
+                    cmd.Parameters.AddWithValue("@appId", doc.ApplicantId);
+                    cmd.Parameters.AddWithValue("@docTypeId", doc.DocumentTypeId);
+                    cmd.Parameters.AddWithValue("@series", doc.Series ?? "");
+                    cmd.Parameters.AddWithValue("@number", doc.Number ?? "");
+                    cmd.Parameters.AddWithValue("@issuedBy", doc.IssuedBy ?? "");
+                    cmd.Parameters.AddWithValue("@issueDate", doc.IssueDate?.ToString("yyyy-MM-dd"));
+                    cmd.Parameters.AddWithValue("@deptCode", doc.DepartmentCode ?? "");
+                    cmd.Parameters.AddWithValue("@isPrimary", doc.IsPrimary ?? false);
+                    cmd.Parameters.AddWithValue("@additionalData", doc.AdditionalData ?? "");
+                    cmd.Parameters.AddWithValue("@documentInfo", doc.DocumentInfo ?? "");
+                    cmd.Parameters.AddWithValue("@category", doc.Category ?? "");
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        // ========== General Documents (таблица Documents) ==========
+        public static int CreateGeneralDocument(Documents doc)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                string sql = @"
+                    INSERT INTO Documents 
+                    (ApplicantId, DocumentTypeId, Series, Number, AdditionalData, DocumentInfo, Category, IssueDate, CreatedAt, UpdatedAt)
+                    VALUES (@appId, @docTypeId, @series, @number, @additionalData, @documentInfo, @category, @issueDate, @createdAt, @updatedAt);
+                    SELECT last_insert_rowid();";
+                using (var cmd = new SQLiteCommand(sql, connection))
+                {
+                    cmd.Parameters.AddWithValue("@appId", doc.ApplicantId);
+                    cmd.Parameters.AddWithValue("@docTypeId", doc.DocumentTypeId);
+                    cmd.Parameters.AddWithValue("@series", doc.Series ?? "");
+                    cmd.Parameters.AddWithValue("@number", doc.Number ?? "");
+                    cmd.Parameters.AddWithValue("@additionalData", doc.AdditionalData ?? "");
+                    cmd.Parameters.AddWithValue("@documentInfo", doc.DocumentInfo ?? "");
+                    cmd.Parameters.AddWithValue("@category", doc.Category ?? "");
+                    cmd.Parameters.AddWithValue("@issueDate", doc.IssueDate?.ToString("yyyy-MM-dd"));
+                    cmd.Parameters.AddWithValue("@createdAt", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                    cmd.Parameters.AddWithValue("@updatedAt", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                    return Convert.ToInt32(cmd.ExecuteScalar());
+                }
+            }
+        }
+
+        public static List<Documents> GetAllGeneralDocuments(int applicantId)
+        {
+            var list = new List<Documents>();
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                string sql = @"
+                    SELECT Id, ApplicantId, DocumentTypeId, Series, Number, AdditionalData, DocumentInfo, Category, IssueDate, CreatedAt, UpdatedAt
+                    FROM Documents WHERE ApplicantId = @id";
+                using (var cmd = new SQLiteCommand(sql, connection))
+                {
+                    cmd.Parameters.AddWithValue("@id", applicantId);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            list.Add(new Documents
+                            {
+                                Id = Convert.ToInt32(reader["Id"]),
+                                ApplicantId = Convert.ToInt32(reader["ApplicantId"]),
+                                DocumentTypeId = reader["DocumentTypeId"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["DocumentTypeId"]),
+                                Series = reader["Series"]?.ToString(),
+                                Number = reader["Number"]?.ToString(),
+                                AdditionalData = reader["AdditionalData"]?.ToString(),
+                                DocumentInfo = reader["DocumentInfo"]?.ToString(),
+                                Category = reader["Category"]?.ToString(),
+                                IssueDate = reader["IssueDate"] == DBNull.Value ? (DateTime?)null : DateTime.Parse(reader["IssueDate"].ToString()),
+                                CreatedAt = DateTime.Parse(reader["CreatedAt"].ToString()),
+                                UpdatedAt = DateTime.Parse(reader["UpdatedAt"].ToString())
+                            });
+                        }
+                    }
+                }
+            }
+            return list;
+        }
+
+        public static void DeleteGeneralDocument(int docId, int applicantId)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                string sql = "DELETE FROM Documents WHERE Id = @id AND ApplicantId = @appId";
+                using (var cmd = new SQLiteCommand(sql, connection))
+                {
+                    cmd.Parameters.AddWithValue("@id", docId);
+                    cmd.Parameters.AddWithValue("@appId", applicantId);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        // Метод LogChange (упрощённо)
+        public static void LogChange(string tableName, int recordId, string action)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                string sql = "INSERT INTO ChangeHistory (TableName, RecordId, Action, ChangedAt) VALUES (@table, @record, @action, @changedAt)";
+                using (var cmd = new SQLiteCommand(sql, connection))
+                {
+                    cmd.Parameters.AddWithValue("@table", tableName);
+                    cmd.Parameters.AddWithValue("@record", recordId);
+                    cmd.Parameters.AddWithValue("@action", action);
+                    cmd.Parameters.AddWithValue("@changedAt", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+        
+
+        /// <summary>
+        /// Удалить документ об образовании по Id
+        /// </summary>
+        public static void DeleteEducationDocument(int id)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                string sql = "DELETE FROM EducationDocuments WHERE Id = @id";
+                using (var cmd = new SQLiteCommand(sql, connection))
+                {
+                    cmd.Parameters.AddWithValue("@id", id);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        // ========== IdentityDocuments ==========
+
+        /// <summary>
+        /// Получить все удостоверяющие личность документы абитуриента
+        /// </summary>
+        public static List<IdentityDocuments> GetAllIdentityDocuments(int applicantId)
+        {
+            var list = new List<IdentityDocuments>();
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                string sql = @"
+            SELECT Id, ApplicantId, DocumentTypeId, Series, Number, IssuedBy, IssueDate, DepartmentCode, IsPrimary, AddedDate, AdditionalData, DocumentInfo, Category
+            FROM IdentityDocuments WHERE ApplicantId = @id";
+                using (var cmd = new SQLiteCommand(sql, connection))
+                {
+                    cmd.Parameters.AddWithValue("@id", applicantId);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            list.Add(new IdentityDocuments
+                            {
+                                Id = Convert.ToInt32(reader["Id"]),
+                                ApplicantId = Convert.ToInt32(reader["ApplicantId"]),
+                                DocumentTypeId = reader["DocumentTypeId"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["DocumentTypeId"]),
+                                Series = reader["Series"]?.ToString(),
+                                Number = reader["Number"]?.ToString(),
+                                IssuedBy = reader["IssuedBy"]?.ToString(),
+                                IssueDate = reader["IssueDate"] == DBNull.Value ? (DateTime?)null : DateTime.Parse(reader["IssueDate"].ToString()),
+                                DepartmentCode = reader["DepartmentCode"]?.ToString(),
+                                IsPrimary = reader["IsPrimary"] != DBNull.Value && Convert.ToBoolean(reader["IsPrimary"]),
+                                AddedDate = reader["AddedDate"] == DBNull.Value ? (DateTime?)null : DateTime.Parse(reader["AddedDate"].ToString()),
+                                AdditionalData = reader["AdditionalData"]?.ToString(),
+                                DocumentInfo = reader["DocumentInfo"]?.ToString(),
+                                Category = reader["Category"]?.ToString()
+                            });
+                        }
+                    }
+                }
+            }
+            return list;
+        }
+
+        /// <summary>
+        /// Удалить документ, удостоверяющий личность, по Id
+        /// </summary>
+        public static void DeleteIdentityDocument(int id)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                string sql = "DELETE FROM IdentityDocuments WHERE Id = @id";
+                using (var cmd = new SQLiteCommand(sql, connection))
+                {
+                    cmd.Parameters.AddWithValue("@id", id);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
 
         public static IdentityDocuments GetDocument(int id)
         {
@@ -638,35 +831,7 @@ namespace Admissions_Reserve.Model
             };
         }
 
-        // ========== МЕТОДЫ ДЛЯ ЛОГИРОВАНИЯ ==========
-
-        public static void LogChange(string tableName, int recordId, string action)
-        {
-            try
-            {
-                lock (lockObject)
-                {
-                    using (var connection = DatabaseHelper.GetConnection())
-                    {
-                        var query = @"INSERT INTO ChangeHistory (TableName, RecordId, Action, ChangedAt) 
-                                      VALUES (@TableName, @RecordId, @Action, @ChangedAt)";
-                        using (var cmd = new SQLiteCommand(query, connection))
-                        {
-                            cmd.Parameters.AddWithValue("@TableName", tableName);
-                            cmd.Parameters.AddWithValue("@RecordId", recordId);
-                            cmd.Parameters.AddWithValue("@Action", action);
-                            cmd.Parameters.AddWithValue("@ChangedAt", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
-                            cmd.ExecuteNonQuery();
-                        }
-                        connection.Close();
-                    }
-                }
-            }
-            catch
-            {
-                // Игнорируем ошибки логирования
-            }
-        }
+ 
 
         // ========== МЕТОДЫ ДЛЯ РОДСТВЕННИКОВ ==========
 
@@ -1337,73 +1502,11 @@ namespace Admissions_Reserve.Model
 
         // ========== МЕТОДЫ ДЛЯ ДОКУМЕНТОВ (IdentityDocuments) ==========
 
-        public static List<IdentityDocuments> GetAllIdentityDocuments(int applicantId)
-        {
-            var docs = new List<IdentityDocuments>();
-            using (var connection = DatabaseHelper.GetConnection())
-            {
-                var query = "SELECT * FROM IdentityDocuments WHERE ApplicantId = @ApplicantId ORDER BY AddedDate DESC";
-                using (var cmd = new SQLiteCommand(query, connection))
-                {
-                    cmd.Parameters.AddWithValue("@ApplicantId", applicantId);
-                    using (var reader = cmd.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            docs.Add(new IdentityDocuments
-                            {
-                                Id = Convert.ToInt32(reader["Id"]),
-                                ApplicantId = Convert.ToInt32(reader["ApplicantId"]),
-                                DocumentTypeId = reader["DocumentTypeId"] != DBNull.Value ? Convert.ToInt32(reader["DocumentTypeId"]) : (int?)null,
-                                Series = reader["Series"]?.ToString(),
-                                Number = reader["Number"]?.ToString(),
-                                IssuedBy = reader["IssuedBy"]?.ToString(),
-                                IssueDate = reader["IssueDate"] != DBNull.Value ? Convert.ToDateTime(reader["IssueDate"]) : (DateTime?)null,
-                                DepartmentCode = reader["DepartmentCode"]?.ToString(),
-                                IsPrimary = reader["IsPrimary"] != DBNull.Value && Convert.ToInt32(reader["IsPrimary"]) == 1,
-                                AddedDate = reader["AddedDate"] != DBNull.Value ? Convert.ToDateTime(reader["AddedDate"]) : DateTime.Now,
-                                AdditionalData = reader["AdditionalData"]?.ToString(),
-                                DocumentInfo = reader["DocumentInfo"]?.ToString()
-                            });
-                        }
-                    }
-                }
-            }
-            return docs;
-        }
+      
 
         // ========== МЕТОДЫ ДЛЯ ОБЩИХ ДОКУМЕНТОВ (Documents) ==========
 
-        public static int CreateGeneralDocument(Documents doc)
-        {
-            lock (lockObject)
-            {
-                using (var connection = DatabaseHelper.GetConnection())
-                {
-                    var query = @"INSERT INTO Documents (ApplicantId, DocumentTypeId, Series, Number, AdditionalData, DocumentInfo, CreatedAt, UpdatedAt)
-                          VALUES (@ApplicantId, @DocumentTypeId, @Series, @Number, @AdditionalData, @DocumentInfo, @CreatedAt, @UpdatedAt);
-                          SELECT last_insert_rowid();";
-
-                    using (var cmd = new SQLiteCommand(query, connection))
-                    {
-                        cmd.Parameters.AddWithValue("@ApplicantId", doc.ApplicantId);
-                        cmd.Parameters.AddWithValue("@DocumentTypeId", (object)doc.DocumentTypeId ?? DBNull.Value);
-                        cmd.Parameters.AddWithValue("@Series", (object)doc.Series ?? DBNull.Value);
-                        cmd.Parameters.AddWithValue("@Number", (object)doc.Number ?? DBNull.Value);
-                        cmd.Parameters.AddWithValue("@AdditionalData", (object)doc.AdditionalData ?? DBNull.Value);
-                        cmd.Parameters.AddWithValue("@DocumentInfo", (object)doc.DocumentInfo ?? DBNull.Value);
-                        cmd.Parameters.AddWithValue("@CreatedAt", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
-                        cmd.Parameters.AddWithValue("@UpdatedAt", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
-
-                        var result = cmd.ExecuteScalar();
-                        connection.Close();
-                        return Convert.ToInt32(result);
-                    }
-                }
-            }
-        }
-        // Добавьте эти методы в DataService.cs
-
+       
         public static List<PersonalDocumentTypes> GetAllPersonalDocumentTypes()
         {
             var result = new List<PersonalDocumentTypes>();
@@ -1429,51 +1532,7 @@ namespace Admissions_Reserve.Model
             }
             return result;
         }
-        public static List<Documents> GetAllGeneralDocuments(int applicantId)
-        {
-            var docs = new List<Documents>();
-            using (var connection = DatabaseHelper.GetConnection())
-            {
-                var query = "SELECT * FROM Documents WHERE ApplicantId = @ApplicantId ORDER BY CreatedAt DESC";
-                using (var cmd = new SQLiteCommand(query, connection))
-                {
-                    cmd.Parameters.AddWithValue("@ApplicantId", applicantId);
-                    using (var reader = cmd.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            docs.Add(new Documents
-                            {
-                                Id = Convert.ToInt32(reader["Id"]),
-                                ApplicantId = Convert.ToInt32(reader["ApplicantId"]),
-                                DocumentTypeId = reader["DocumentTypeId"] != DBNull.Value ? Convert.ToInt32(reader["DocumentTypeId"]) : (int?)null,
-                                Series = reader["Series"]?.ToString(),
-                                Number = reader["Number"]?.ToString(),
-                                AdditionalData = reader["AdditionalData"]?.ToString(),
-                                DocumentInfo = reader["DocumentInfo"]?.ToString(),
-                                CreatedAt = reader["CreatedAt"] != DBNull.Value ? Convert.ToDateTime(reader["CreatedAt"]) : DateTime.Now,
-                                UpdatedAt = reader["UpdatedAt"] != DBNull.Value ? Convert.ToDateTime(reader["UpdatedAt"]) : DateTime.Now
-                            });
-                        }
-                    }
-                }
-            }
-            return docs;    
-        }
-
-        public static void DeleteGeneralDocument(int id, int applicantId)
-        {
-            using (var connection = DatabaseHelper.GetConnection())
-            {
-                var query = "DELETE FROM Documents WHERE Id = @Id AND ApplicantId = @ApplicantId";
-                using (var cmd = new SQLiteCommand(query, connection))
-                {
-                    cmd.Parameters.AddWithValue("@Id", id);
-                    cmd.Parameters.AddWithValue("@ApplicantId", applicantId);
-                    cmd.ExecuteNonQuery();
-                }
-            }
-        }
+       
         public static void DeleteAttachedDocument(int documentId)
         {
             using (var connection = DatabaseHelper.GetConnection())

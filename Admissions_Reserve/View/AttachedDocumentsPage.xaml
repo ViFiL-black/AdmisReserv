@@ -79,17 +79,17 @@
                 <TextBlock Text="Прочие документы, приложенные к заявлению" FontSize="13" FontWeight="Bold" Background="#E8EFF7" Padding="8" Margin="0,0,0,8"/>
 
                 <Border BorderBrush="#CCCCCC" BorderThickness="1" Margin="0,0,0,15">
-                    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" MaxHeight="250">
+                    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" MaxHeight="400">
                         <DataGrid x:Name="DocumentsGrid" AutoGenerateColumns="False"
                                   CanUserAddRows="False" HeadersVisibility="Column" FontSize="11" BorderThickness="0"
                                   RowHeaderWidth="0">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="№" Width="40" Binding="{Binding Number}" />
-                                <DataGridTextColumn Header="Тип документа" Width="150" Binding="{Binding DocumentType}" />
-                                <DataGridTextColumn Header="Серия и номер" Width="120" Binding="{Binding SeriesNumber}" />
-                                <DataGridTextColumn Header="Категория" Width="120" Binding="{Binding Category}" />
+                                <DataGridTextColumn Header="Тип документа" Width="180" Binding="{Binding DocumentType}" />
+                                <DataGridTextColumn Header="Серия и номер" Width="130" Binding="{Binding SeriesNumber}" />
+                                <DataGridTextColumn Header="Категория" Width="140" Binding="{Binding Category}" />
                                 <DataGridTextColumn Header="Дата выдачи" Width="100" Binding="{Binding IssueDate, StringFormat='dd.MM.yyyy'}" />
-                                <DataGridTextColumn Header="Информация" Width="200" Binding="{Binding DocumentInfo}" />
+                                <DataGridTextColumn Header="Информация о документе" Width="250" Binding="{Binding DocumentInfo}" />
                                 <DataGridTemplateColumn Header="Удалить" Width="50">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>

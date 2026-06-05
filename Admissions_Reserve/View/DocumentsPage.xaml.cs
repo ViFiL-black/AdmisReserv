@@ -1,3 +1,5 @@
+// Полный код DocumentsPage.xaml.cs (исправленный)
+
 using Admissions_Reserve.Model;
 using Microsoft.Win32;
 using System;
@@ -6,17 +8,17 @@ using System.ComponentModel;
 using System.Data.SQLite;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 
 namespace Admissions_Reserve.View
 {
     public partial class DocumentsPage : Page
     {
-        // Модель документа
         public class DocumentItem : INotifyPropertyChanged
         {
+            // ... все свойства без изменений (они уже были) ...
             public int Id { get; set; }
             private int _number;
             private string _documentType;
@@ -33,85 +35,23 @@ namespace Admissions_Reserve.View
             private bool _hasAttachment;
             private int? _documentTypeId;
 
-            public int Number
-            {
-                get => _number;
-                set { _number = value; OnPropertyChanged(nameof(Number)); }
-            }
-            public string DocumentType
-            {
-                get => _documentType;
-                set { _documentType = value; OnPropertyChanged(nameof(DocumentType)); }
-            }
-            public string SeriesNumber
-            {
-                get => _seriesNumber;
-                set { _seriesNumber = value; OnPropertyChanged(nameof(SeriesNumber)); }
-            }
-            public string Category
-            {
-                get => _category;
-                set { _category = value; OnPropertyChanged(nameof(Category)); }
-            }
-            public string AdditionalData
-            {
-                get => _additionalData;
-                set { _additionalData = value; OnPropertyChanged(nameof(AdditionalData)); }
-            }
-            public DateTime? IssueDate
-            {
-                get => _issueDate;
-                set { _issueDate = value; OnPropertyChanged(nameof(IssueDate)); }
-            }
-            public string DocumentInfo
-            {
-                get => _documentInfo;
-                set { _documentInfo = value; OnPropertyChanged(nameof(DocumentInfo)); }
-            }
-            public DateTime AddedDate
-            {
-                get => _addedDate;
-                set { _addedDate = value; OnPropertyChanged(nameof(AddedDate)); }
-            }
-            public string PersonalDataCategory
-            {
-                get => _personalDataCategory;
-                set { _personalDataCategory = value; OnPropertyChanged(nameof(PersonalDataCategory)); }
-            }
-            public bool IsPersonalDataDocument
-            {
-                get => _isPersonalDataDocument;
-                set { _isPersonalDataDocument = value; OnPropertyChanged(nameof(IsPersonalDataDocument)); }
-            }
-            public string AttachmentPath
-            {
-                get => _attachmentPath;
-                set
-                {
-                    _attachmentPath = value;
-                    OnPropertyChanged(nameof(AttachmentPath));
-                    HasAttachment = !string.IsNullOrEmpty(value);
-                }
-            }
-            public string AttachmentName
-            {
-                get => _attachmentName;
-                set { _attachmentName = value; OnPropertyChanged(nameof(AttachmentName)); }
-            }
-            public bool HasAttachment
-            {
-                get => _hasAttachment;
-                set { _hasAttachment = value; OnPropertyChanged(nameof(HasAttachment)); }
-            }
-            public int? DocumentTypeId
-            {
-                get => _documentTypeId;
-                set { _documentTypeId = value; OnPropertyChanged(nameof(DocumentTypeId)); }
-            }
+            public int Number { get => _number; set { _number = value; OnPropertyChanged(nameof(Number)); } }
+            public string DocumentType { get => _documentType; set { _documentType = value; OnPropertyChanged(nameof(DocumentType)); } }
+            public string SeriesNumber { get => _seriesNumber; set { _seriesNumber = value; OnPropertyChanged(nameof(SeriesNumber)); } }
+            public string Category { get => _category; set { _category = value; OnPropertyChanged(nameof(Category)); } }
+            public string AdditionalData { get => _additionalData; set { _additionalData = value; OnPropertyChanged(nameof(AdditionalData)); } }
+            public DateTime? IssueDate { get => _issueDate; set { _issueDate = value; OnPropertyChanged(nameof(IssueDate)); } }
+            public string DocumentInfo { get => _documentInfo; set { _documentInfo = value; OnPropertyChanged(nameof(DocumentInfo)); } }
+            public DateTime AddedDate { get => _addedDate; set { _addedDate = value; OnPropertyChanged(nameof(AddedDate)); } }
+            public string PersonalDataCategory { get => _personalDataCategory; set { _personalDataCategory = value; OnPropertyChanged(nameof(PersonalDataCategory)); } }
+            public bool IsPersonalDataDocument { get => _isPersonalDataDocument; set { _isPersonalDataDocument = value; OnPropertyChanged(nameof(IsPersonalDataDocument)); } }
+            public string AttachmentPath { get => _attachmentPath; set { _attachmentPath = value; OnPropertyChanged(nameof(AttachmentPath)); HasAttachment = !string.IsNullOrEmpty(value); } }
+            public string AttachmentName { get => _attachmentName; set { _attachmentName = value; OnPropertyChanged(nameof(AttachmentName)); } }
+            public bool HasAttachment { get => _hasAttachment; set { _hasAttachment = value; OnPropertyChanged(nameof(HasAttachment)); } }
+            public int? DocumentTypeId { get => _documentTypeId; set { _documentTypeId = value; OnPropertyChanged(nameof(DocumentTypeId)); } }
 
             public event PropertyChangedEventHandler PropertyChanged;
-            protected void OnPropertyChanged(string name) =>
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+            protected void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
         private ObservableCollection<DocumentItem> _documents;
@@ -123,7 +63,6 @@ namespace Admissions_Reserve.View
         private bool isNavigating = false;
         private bool _isLoadingData = false;
 
-        // Коллекции для ComboBox
         private ObservableCollection<IdentityDocumentTypes> _identityDocumentTypes;
         private ObservableCollection<PersonalDocumentTypes> _personalDocumentTypes;
 
@@ -131,35 +70,20 @@ namespace Admissions_Reserve.View
         {
             InitializeComponent();
             Loaded += DocumentsPage_Loaded;
-            
-            // Получаем ID текущего абитуриента из SessionManager
-            if (SessionManager.CurrentApplicant != null && SessionManager.CurrentApplicant.Id != 0)
-            {
-                // ID уже установлен в SessionManager
-            }
-            else if (SessionManager.CurrentApplicantId.HasValue)
-            {
-                // ID уже установлен
-            }
         }
 
         private void DocumentsPage_Loaded(object sender, RoutedEventArgs e)
         {
-            // Проверяем, был ли создан абитуриент
             if (SessionManager.CurrentApplicant == null || SessionManager.CurrentApplicant.Id == 0)
             {
-                MessageBox.Show("Сначала необходимо заполнить данные удостоверения личности",
-                    "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
-
-                if (NavigationService?.CanGoBack == true)
-                    NavigationService.GoBack();
+                MessageBox.Show("Сначала необходимо заполнить данные удостоверения личности", "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
+                if (NavigationService?.CanGoBack == true) NavigationService.GoBack();
                 return;
             }
 
             InitializeData();
             LoadDocumentTypesFromDatabase();
             LoadDocumentsFromDatabase();
-
             isInitialized = true;
         }
 
@@ -174,44 +98,24 @@ namespace Admissions_Reserve.View
             PersonalDataDocumentsGrid.ItemsSource = _personalDataDocuments;
         }
 
-        /// <summary>
-        /// Загрузка типов документов из базы данных
-        /// </summary>
         private void LoadDocumentTypesFromDatabase()
         {
             try
             {
-                // Загружаем типы документов, удостоверяющих личность
                 var identityTypes = DataService.GetAll<IdentityDocumentTypes>();
                 _identityDocumentTypes.Clear();
-                foreach (var type in identityTypes)
-                {
-                    _identityDocumentTypes.Add(type);
-                }
+                foreach (var type in identityTypes) _identityDocumentTypes.Add(type);
 
-                // Загружаем типы персональных документов из БД
                 var personalTypes = DataService.GetAll<PersonalDocumentTypes>();
                 _personalDocumentTypes.Clear();
-                foreach (var type in personalTypes)
-                {
-                    _personalDocumentTypes.Add(type);
-                }
+                foreach (var type in personalTypes) _personalDocumentTypes.Add(type);
 
-                // Если таблица пуста, добавляем базовые типы
-                if (_personalDocumentTypes.Count == 0)
-                {
-                    AddDefaultPersonalDocumentTypes();
-                }
-
-                // Устанавливаем источник для ComboBox
+                if (_personalDocumentTypes.Count == 0) AddDefaultPersonalDocumentTypes();
                 UpdateDocumentTypeCombo();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка загрузки типов документов: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-
-                // В случае ошибки создаем базовые типы программно
+                MessageBox.Show($"Ошибка загрузки типов документов: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 AddDefaultPersonalDocumentTypes();
                 UpdateDocumentTypeCombo();
             }
@@ -240,16 +144,14 @@ namespace Admissions_Reserve.View
                 DocumentTypeCombo.ItemsSource = _identityDocumentTypes;
                 DocumentTypeCombo.DisplayMemberPath = "Name";
                 DocumentTypeCombo.SelectedValuePath = "Id";
-                if (_identityDocumentTypes.Count > 0)
-                    DocumentTypeCombo.SelectedIndex = 0;
+                if (_identityDocumentTypes.Count > 0) DocumentTypeCombo.SelectedIndex = 0;
             }
             else
             {
                 DocumentTypeCombo.ItemsSource = _personalDocumentTypes;
                 DocumentTypeCombo.DisplayMemberPath = "Name";
                 DocumentTypeCombo.SelectedValuePath = "Id";
-                if (_personalDocumentTypes.Count > 0)
-                    DocumentTypeCombo.SelectedIndex = 0;
+                if (_personalDocumentTypes.Count > 0) DocumentTypeCombo.SelectedIndex = 0;
             }
         }
 
@@ -257,22 +159,18 @@ namespace Admissions_Reserve.View
         {
             if (_isLoadingData) return;
             _isLoadingData = true;
-
             try
             {
                 if (SessionManager.CurrentApplicantId == null) return;
-
                 _nextNumber = 1;
                 _documents.Clear();
                 _personalDataDocuments.Clear();
 
-                // Загружаем документы, удостоверяющие личность
                 var identityDocs = DataService.GetApplicantDocuments(SessionManager.CurrentApplicantId.Value);
                 foreach (var doc in identityDocs)
                 {
                     var docType = GetIdentityDocumentTypeName(doc.DocumentTypeId);
                     var seriesNumber = $"{doc.Series} {doc.Number}".Trim();
-
                     _personalDataDocuments.Add(new DocumentItem
                     {
                         Id = doc.Id,
@@ -280,24 +178,22 @@ namespace Admissions_Reserve.View
                         DocumentType = docType,
                         DocumentTypeId = doc.DocumentTypeId,
                         SeriesNumber = seriesNumber,
-                        Category = "Абитуриент (прием 2026)",
+                        Category = doc.Category ?? "Абитуриент (прием 2026)",
                         AdditionalData = doc.AdditionalData ?? "",
                         IssueDate = doc.IssueDate,
                         DocumentInfo = doc.DocumentInfo ?? doc.IssuedBy ?? "",
                         AddedDate = doc.AddedDate ?? DateTime.Now,
-                        PersonalDataCategory = "Абитуриент (прием 2026)",
+                        PersonalDataCategory = doc.Category ?? "Абитуриент (прием 2026)",
                         IsPersonalDataDocument = true,
                         HasAttachment = false
                     });
                 }
 
-                // Загружаем общие документы
                 var generalDocs = DataService.GetAllGeneralDocuments(SessionManager.CurrentApplicantId.Value);
                 foreach (var doc in generalDocs)
                 {
                     var seriesNumber = $"{doc.Series} {doc.Number}".Trim();
                     var docType = GetPersonalDocumentTypeName(doc.DocumentTypeId);
-
                     _documents.Add(new DocumentItem
                     {
                         Id = doc.Id,
@@ -305,12 +201,12 @@ namespace Admissions_Reserve.View
                         DocumentType = docType,
                         DocumentTypeId = doc.DocumentTypeId,
                         SeriesNumber = seriesNumber,
-                        Category = "Абитуриент (прием 2026)",
+                        Category = doc.Category ?? "Абитуриент (прием 2026)",
                         AdditionalData = doc.AdditionalData ?? "",
-                        IssueDate = null,
+                        IssueDate = doc.IssueDate,
                         DocumentInfo = doc.DocumentInfo ?? "",
-                        AddedDate = DateTime.Now,
-                        PersonalDataCategory = "Абитуриент (прием 2026)",
+                        AddedDate = doc.CreatedAt,
+                        PersonalDataCategory = doc.Category ?? "Абитуриент (прием 2026)",
                         IsPersonalDataDocument = false,
                         HasAttachment = false
                     });
@@ -321,41 +217,23 @@ namespace Admissions_Reserve.View
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка загрузки документов: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Ошибка загрузки документов: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-            finally
-            {
-                _isLoadingData = false;
-            }
+            finally { _isLoadingData = false; }
         }
 
         private string GetIdentityDocumentTypeName(int? documentTypeId)
         {
             if (documentTypeId == null) return "Документ";
-            try
-            {
-                var type = _identityDocumentTypes.FirstOrDefault(dt => dt.Id == documentTypeId.Value);
-                return type?.Name ?? "Документ";
-            }
-            catch
-            {
-                return "Документ";
-            }
+            var type = _identityDocumentTypes.FirstOrDefault(dt => dt.Id == documentTypeId.Value);
+            return type?.Name ?? "Документ";
         }
 
         private string GetPersonalDocumentTypeName(int? documentTypeId)
         {
             if (documentTypeId == null) return "Документ";
-            try
-            {
-                var type = _personalDocumentTypes.FirstOrDefault(dt => dt.Id == documentTypeId.Value);
-                return type?.Name ?? "Документ";
-            }
-            catch
-            {
-                return "Документ";
-            }
+            var type = _personalDocumentTypes.FirstOrDefault(dt => dt.Id == documentTypeId.Value);
+            return type?.Name ?? "Документ";
         }
 
         private void IdentityDocRadio_Checked(object sender, RoutedEventArgs e)
@@ -372,12 +250,11 @@ namespace Admissions_Reserve.View
 
         private void UploadFileButton_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog
+            var openFileDialog = new OpenFileDialog
             {
                 Title = "Выберите файл документа",
                 Filter = "PDF файлы (*.pdf)|*.pdf|Изображения (*.jpg;*.png;*.jpeg)|*.jpg;*.png;*.jpeg|Документы (*.doc;*.docx)|*.doc;*.docx|Все файлы (*.*)|*.*"
             };
-
             if (openFileDialog.ShowDialog() == true)
             {
                 _selectedAttachmentPath = openFileDialog.FileName;
@@ -388,37 +265,29 @@ namespace Admissions_Reserve.View
 
         private void AddDocumentButton_Click(object sender, RoutedEventArgs e)
         {
+            // Валидация
             if (DocumentTypeCombo.SelectedValue == null)
             {
-                MessageBox.Show("Пожалуйста, выберите тип документа", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Пожалуйста, выберите тип документа", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
                 DocumentTypeCombo.Focus();
                 return;
             }
-
             if (string.IsNullOrWhiteSpace(NumberTextBox.Text))
             {
-                MessageBox.Show("Пожалуйста, укажите номер документа", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Пожалуйста, укажите номер документа", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
                 NumberTextBox.Focus();
                 return;
             }
-
-            // Проверяем, что хотя бы серия или номер содержат цифры
             string documentSeries = SeriesTextBox.Text?.Trim() ?? "";
             string documentNumber = NumberTextBox.Text?.Trim() ?? "";
-            if (!System.Text.RegularExpressions.Regex.IsMatch(documentSeries + documentNumber, @"\d"))
+            if (!Regex.IsMatch(documentSeries + documentNumber, @"\d"))
             {
-                MessageBox.Show("Серия и номер должны содержать хотя бы одну цифру", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Серия и номер должны содержать хотя бы одну цифру", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-
-            // Если дата выдачи указана, проверяем, что она не в будущем
             if (IssueDatePicker.SelectedDate.HasValue && IssueDatePicker.SelectedDate.Value > DateTime.Today)
             {
-                MessageBox.Show("Дата выдачи документа не может быть в будущем", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Дата выдачи документа не может быть в будущем", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
                 IssueDatePicker.Focus();
                 return;
             }
@@ -427,27 +296,17 @@ namespace Admissions_Reserve.View
             {
                 if (SessionManager.CurrentApplicantId == null)
                 {
-                    MessageBox.Show("Сначала необходимо заполнить данные удостоверения личности", "Ошибка",
-                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show("Сначала необходимо заполнить данные удостоверения личности", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
-                // Получаем выбранный тип документа
                 int selectedTypeId = (int)DocumentTypeCombo.SelectedValue;
                 string selectedTypeName = DocumentTypeCombo.Text;
-
-                // Формируем серию и номер
                 string series = documentSeries;
                 string number = documentNumber;
                 string seriesNumber = string.IsNullOrEmpty(series) ? number : $"{series} {number}";
-
-                // Определяем категорию персональных данных
-                string personalDataCategory = (CategoryCombo.SelectedItem as ComboBoxItem)?.Content.ToString() ?? "Абитуриент (прием 2026)";
-
-                // Определяем, является ли документ удостоверением личности
+                string category = (CategoryCombo.SelectedItem as ComboBoxItem)?.Content.ToString() ?? "Абитуриент (прием 2026)";
                 bool isIdentityDocument = IdentityDocRadio.IsChecked == true;
-
-                // Формируем информацию о документе
                 string documentInfo = DocumentInfoTextBox.Text;
                 if (string.IsNullOrWhiteSpace(documentInfo) && isIdentityDocument)
                 {
@@ -460,7 +319,6 @@ namespace Admissions_Reserve.View
 
                 if (isIdentityDocument)
                 {
-                    // Создаем документ, удостоверяющий личность
                     var newDoc = new IdentityDocuments
                     {
                         ApplicantId = SessionManager.CurrentApplicantId.Value,
@@ -473,9 +331,9 @@ namespace Admissions_Reserve.View
                         IsPrimary = _personalDataDocuments.Count == 0,
                         AddedDate = DateTime.Now,
                         AdditionalData = AdditionalDataTextBox.Text,
-                        DocumentInfo = documentInfo
+                        DocumentInfo = documentInfo,
+                        Category = category
                     };
-
                     documentId = DataService.CreateIdentityDocument(newDoc);
                     DataService.LogChange("IdentityDocuments", documentId, "INSERT");
 
@@ -486,26 +344,23 @@ namespace Admissions_Reserve.View
                         DocumentType = selectedTypeName,
                         DocumentTypeId = selectedTypeId,
                         SeriesNumber = seriesNumber,
-                        Category = personalDataCategory,
+                        Category = category,
                         AdditionalData = AdditionalDataTextBox.Text,
                         IssueDate = IssueDatePicker.SelectedDate,
                         DocumentInfo = documentInfo,
                         AddedDate = DateTime.Now,
-                        PersonalDataCategory = personalDataCategory,
+                        PersonalDataCategory = category,
                         IsPersonalDataDocument = true,
                         AttachmentPath = _selectedAttachmentPath,
                         AttachmentName = _selectedAttachmentName,
                         HasAttachment = !string.IsNullOrEmpty(_selectedAttachmentPath)
                     };
-
                     _personalDataDocuments.Add(newDocument);
                     RenumberItems(_personalDataDocuments);
-                    MessageBox.Show("Документ, удостоверяющий личность, успешно добавлен", "Успех",
-                        MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show("Документ, удостоверяющий личность, успешно добавлен", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 else
                 {
-                    // Создаем общий документ (PersonalDocumentTypes)
                     var newDoc = new Documents
                     {
                         ApplicantId = SessionManager.CurrentApplicantId.Value,
@@ -513,9 +368,10 @@ namespace Admissions_Reserve.View
                         Series = series,
                         Number = number,
                         AdditionalData = AdditionalDataTextBox.Text,
-                        DocumentInfo = documentInfo
+                        DocumentInfo = documentInfo,
+                        Category = category,
+                        IssueDate = IssueDatePicker.SelectedDate   // сохраняем дату, если нужна
                     };
-
                     documentId = DataService.CreateGeneralDocument(newDoc);
                     DataService.LogChange("Documents", documentId, "INSERT");
 
@@ -526,37 +382,32 @@ namespace Admissions_Reserve.View
                         DocumentType = selectedTypeName,
                         DocumentTypeId = selectedTypeId,
                         SeriesNumber = seriesNumber,
-                        Category = personalDataCategory,
+                        Category = category,
                         AdditionalData = AdditionalDataTextBox.Text,
                         IssueDate = IssueDatePicker.SelectedDate,
                         DocumentInfo = documentInfo,
                         AddedDate = DateTime.Now,
-                        PersonalDataCategory = personalDataCategory,
+                        PersonalDataCategory = category,
                         IsPersonalDataDocument = false,
                         AttachmentPath = _selectedAttachmentPath,
                         AttachmentName = _selectedAttachmentName,
                         HasAttachment = !string.IsNullOrEmpty(_selectedAttachmentPath)
                     };
-
                     _documents.Add(newDocument);
                     RenumberItems(_documents);
-                    MessageBox.Show("Документ успешно добавлен", "Успех",
-                        MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show("Документ успешно добавлен", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
-
                 ClearForm();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка при сохранении документа: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Ошибка при сохранении документа: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private void ClearForm()
         {
-            if (DocumentTypeCombo.Items.Count > 0)
-                DocumentTypeCombo.SelectedIndex = 0;
+            if (DocumentTypeCombo.Items.Count > 0) DocumentTypeCombo.SelectedIndex = 0;
             SeriesTextBox.Text = "";
             NumberTextBox.Text = "";
             IssueDatePicker.SelectedDate = null;
@@ -566,70 +417,58 @@ namespace Admissions_Reserve.View
             AttachmentFileTextBox.Text = "";
             _selectedAttachmentPath = null;
             _selectedAttachmentName = null;
-
             IdentityDocRadio.IsChecked = true;
             CategoryCombo.SelectedIndex = 0;
         }
 
-        private void CancelAddButton_Click(object sender, RoutedEventArgs e)
-        {
-            ClearForm();
-        }
+        private void CancelAddButton_Click(object sender, RoutedEventArgs e) => ClearForm();
 
         private void DeleteDocument_Click(object sender, RoutedEventArgs e)
         {
             var button = sender as Button;
             var item = button?.Tag as DocumentItem;
+            if (item == null) return;
+            if (MessageBox.Show($"Удалить документ \"{item.DocumentType}\"?", "Подтверждение удаления", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+                return;
 
-            if (item != null)
+            try
             {
-                var result = MessageBox.Show($"Удалить документ \"{item.DocumentType}\"?",
-                    "Подтверждение удаления", MessageBoxButton.YesNo, MessageBoxImage.Question);
-
-                if (result == MessageBoxResult.Yes)
+                if (item.Id > 0 && SessionManager.CurrentApplicantId.HasValue)
                 {
-                    try
+                    if (item.IsPersonalDataDocument)
                     {
-                        if (item.Id > 0 && SessionManager.CurrentApplicantId.HasValue)
+                        using (var connection = DatabaseHelper.GetConnection())
                         {
-                            if (item.IsPersonalDataDocument)
+                            var query = "DELETE FROM IdentityDocuments WHERE Id = @Id AND ApplicantId = @ApplicantId";
+                            using (var cmd = new SQLiteCommand(query, connection))
                             {
-                                using (var connection = DatabaseHelper.GetConnection())
-                                {
-                                    var query = "DELETE FROM IdentityDocuments WHERE Id = @Id AND ApplicantId = @ApplicantId";
-                                    using (var cmd = new SQLiteCommand(query, connection))
-                                    {
-                                        cmd.Parameters.AddWithValue("@Id", item.Id);
-                                        cmd.Parameters.AddWithValue("@ApplicantId", SessionManager.CurrentApplicantId.Value);
-                                        cmd.ExecuteNonQuery();
-                                    }
-                                }
-                                DataService.LogChange("IdentityDocuments", item.Id, "DELETE");
-                            }
-                            else
-                            {
-                                DataService.DeleteGeneralDocument(item.Id, SessionManager.CurrentApplicantId.Value);
-                                DataService.LogChange("Documents", item.Id, "DELETE");
+                                cmd.Parameters.AddWithValue("@Id", item.Id);
+                                cmd.Parameters.AddWithValue("@ApplicantId", SessionManager.CurrentApplicantId.Value);
+                                cmd.ExecuteNonQuery();
                             }
                         }
-
-                        if (item.IsPersonalDataDocument)
-                        {
-                            _personalDataDocuments.Remove(item);
-                            RenumberItems(_personalDataDocuments);
-                        }
-                        else
-                        {
-                            _documents.Remove(item);
-                            RenumberItems(_documents);
-                        }
+                        DataService.LogChange("IdentityDocuments", item.Id, "DELETE");
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        MessageBox.Show($"Ошибка при удалении: {ex.Message}", "Ошибка",
-                            MessageBoxButton.OK, MessageBoxImage.Error);
+                        DataService.DeleteGeneralDocument(item.Id, SessionManager.CurrentApplicantId.Value);
+                        DataService.LogChange("Documents", item.Id, "DELETE");
                     }
                 }
+                if (item.IsPersonalDataDocument)
+                {
+                    _personalDataDocuments.Remove(item);
+                    RenumberItems(_personalDataDocuments);
+                }
+                else
+                {
+                    _documents.Remove(item);
+                    RenumberItems(_documents);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при удалении: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -637,45 +476,26 @@ namespace Admissions_Reserve.View
         {
             var button = sender as Button;
             var item = button?.Tag as DocumentItem;
-
             if (item != null && !string.IsNullOrEmpty(item.AttachmentPath) && File.Exists(item.AttachmentPath))
             {
-                try
-                {
-                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
-                    {
-                        FileName = item.AttachmentPath,
-                        UseShellExecute = true
-                    });
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Не удалось открыть файл: {ex.Message}", "Ошибка",
-                        MessageBoxButton.OK, MessageBoxImage.Error);
-                }
+                try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo { FileName = item.AttachmentPath, UseShellExecute = true }); }
+                catch (Exception ex) { MessageBox.Show($"Не удалось открыть файл: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
             }
             else if (item != null && !string.IsNullOrEmpty(item.AttachmentName))
-            {
-                MessageBox.Show($"Файл \"{item.AttachmentName}\" не найден на диске", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
-            }
+                MessageBox.Show($"Файл \"{item.AttachmentName}\" не найден на диске", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
 
         private void RenumberItems(ObservableCollection<DocumentItem> items)
         {
             int number = 1;
-            foreach (var item in items)
-            {
-                item.Number = number++;
-            }
+            foreach (var item in items) item.Number = number++;
         }
 
         public bool ValidateDocuments()
         {
             if (_personalDataDocuments.Count == 0)
             {
-                MessageBox.Show("Необходимо добавить хотя бы один документ, удостоверяющий личность",
-                    "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Необходимо добавить хотя бы один документ, удостоверяющий личность", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
             }
             return true;
@@ -683,83 +503,105 @@ namespace Admissions_Reserve.View
 
         private bool SaveData()
         {
-            if (!ValidateDocuments())
-                return false;
-
-            // Сохраняем или обновляем доп. данные для каждого документа
+            if (!ValidateDocuments()) return false;
             try
             {
-                // Сохраняем доп. данные для документов, удостоверяющих личность
                 foreach (var doc in _personalDataDocuments)
                 {
                     if (doc.Id > 0)
                     {
-                        // Обновляем существующий документ
                         var identityDoc = new IdentityDocuments
                         {
                             Id = doc.Id,
                             ApplicantId = SessionManager.CurrentApplicantId.Value,
                             DocumentTypeId = doc.DocumentTypeId,
-                            Series = (doc.SeriesNumber ?? "").Split(new[] { ' ' }, System.StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? "",
-                            Number = (doc.SeriesNumber ?? "").Split(new[] { ' ' }, System.StringSplitOptions.RemoveEmptyEntries).LastOrDefault() ?? "",
+                            Series = (doc.SeriesNumber ?? "").Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? "",
+                            Number = (doc.SeriesNumber ?? "").Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).LastOrDefault() ?? "",
                             IssuedBy = "",
                             IssueDate = doc.IssueDate,
                             DepartmentCode = "",
                             IsPrimary = false,
                             AddedDate = doc.AddedDate,
                             AdditionalData = doc.AdditionalData,
-                            DocumentInfo = doc.DocumentInfo
+                            DocumentInfo = doc.DocumentInfo,
+                            Category = doc.Category
                         };
                         DataService.UpdateIdentityDocument(identityDoc);
                         DataService.LogChange("IdentityDocuments", doc.Id, "UPDATE");
                     }
                 }
-
-                // Сохраняем доп. данные для общих документов
                 foreach (var doc in _documents)
                 {
                     if (doc.Id > 0)
                     {
-                        // Используем расширение для обновления документа
                         var generalDoc = new Documents
                         {
                             Id = doc.Id,
                             ApplicantId = SessionManager.CurrentApplicantId.Value,
                             DocumentTypeId = doc.DocumentTypeId,
-                            Series = (doc.SeriesNumber ?? "").Split(new[] { ' ' }, System.StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? "",
-                            Number = (doc.SeriesNumber ?? "").Split(new[] { ' ' }, System.StringSplitOptions.RemoveEmptyEntries).LastOrDefault() ?? "",
+                            Series = (doc.SeriesNumber ?? "").Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? "",
+                            Number = (doc.SeriesNumber ?? "").Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).LastOrDefault() ?? "",
                             AdditionalData = doc.AdditionalData,
                             DocumentInfo = doc.DocumentInfo,
+                            Category = doc.Category,
+                            IssueDate = doc.IssueDate,
                             CreatedAt = doc.AddedDate,
                             UpdatedAt = DateTime.Now
                         };
-                        DataServiceExtensions.UpdateGeneralDocument(generalDoc);
+                        // Если у вас есть метод UpdateGeneralDocument, используйте его. Иначе реализуйте.
+                        // Здесь предполагается, что метод существует, либо можно вызвать UPDATE напрямую.
+                        UpdateGeneralDocument(generalDoc);
                         DataService.LogChange("Documents", doc.Id, "UPDATE");
                     }
                 }
-
                 return true;
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка при сохранении данных документов: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Ошибка при сохранении данных документов: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
+            }
+        }
+
+        // Вспомогательный метод для обновления обычного документа
+        private void UpdateGeneralDocument(Documents doc)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                string sql = @"
+                    UPDATE Documents SET
+                        DocumentTypeId = @docTypeId,
+                        Series = @series,
+                        Number = @number,
+                        AdditionalData = @additionalData,
+                        DocumentInfo = @documentInfo,
+                        Category = @category,
+                        IssueDate = @issueDate,
+                        UpdatedAt = @updatedAt
+                    WHERE Id = @id AND ApplicantId = @appId";
+                using (var cmd = new SQLiteCommand(sql, connection))
+                {
+                    cmd.Parameters.AddWithValue("@id", doc.Id);
+                    cmd.Parameters.AddWithValue("@appId", doc.ApplicantId);
+                    cmd.Parameters.AddWithValue("@docTypeId", doc.DocumentTypeId);
+                    cmd.Parameters.AddWithValue("@series", doc.Series ?? "");
+                    cmd.Parameters.AddWithValue("@number", doc.Number ?? "");
+                    cmd.Parameters.AddWithValue("@additionalData", doc.AdditionalData ?? "");
+                    cmd.Parameters.AddWithValue("@documentInfo", doc.DocumentInfo ?? "");
+                    cmd.Parameters.AddWithValue("@category", doc.Category ?? "");
+                    cmd.Parameters.AddWithValue("@issueDate", doc.IssueDate?.ToString("yyyy-MM-dd"));
+                    cmd.Parameters.AddWithValue("@updatedAt", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                    cmd.ExecuteNonQuery();
+                }
             }
         }
 
         private async void NextButton_Click(object sender, RoutedEventArgs e)
         {
             if (isNavigating) return;
-
             var button = sender as Button;
-            if (button != null)
-            {
-                button.IsEnabled = false;
-            }
-
+            if (button != null) button.IsEnabled = false;
             isNavigating = true;
-
             try
             {
                 if (SaveData())
@@ -770,61 +612,31 @@ namespace Admissions_Reserve.View
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка при переходе: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Ошибка при переходе: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
             {
                 isNavigating = false;
-                if (button != null)
-                {
-                    button.IsEnabled = true;
-                }
+                if (button != null) button.IsEnabled = true;
             }
         }
 
         private void PrevButton_Click(object sender, RoutedEventArgs e)
         {
             if (isNavigating) return;
-
-            if (NavigationService?.CanGoBack == true)
-                NavigationService.GoBack();
-        }
-
-        private void SaveButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (SaveData())
-            {
-                MessageBox.Show("Данные успешно сохранены", "Успех",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
-            }
+            if (NavigationService?.CanGoBack == true) NavigationService.GoBack();
         }
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
-            var result = MessageBox.Show("Вы уверены, что хотите отменить ввод данных?\nВсе несохраненные данные будут потеряны.",
-                "Подтверждение", MessageBoxButton.YesNo, MessageBoxImage.Question);
-
-            if (result == MessageBoxResult.Yes)
+            if (MessageBox.Show("Вы уверены, что хотите отменить ввод данных?\nВсе несохраненные данные будут потеряны.",
+                "Подтверждение", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
             {
                 SessionManager.Clear();
-
                 var mainWindow = Application.Current.MainWindow as MainWindow;
-                if (mainWindow != null)
-                {
-                    mainWindow.MainFrame.Navigate(new WelcomePage());
-                }
-                else if (NavigationService?.CanGoBack == true)
-                {
-                    while (NavigationService.CanGoBack)
-                    {
-                        NavigationService.GoBack();
-                    }
-                }
-                else
-                {
-                    Application.Current.Shutdown();
-                }
+                if (mainWindow != null) mainWindow.MainFrame.Navigate(new WelcomePage());
+                else if (NavigationService?.CanGoBack == true) while (NavigationService.CanGoBack) NavigationService.GoBack();
+                else Application.Current.Shutdown();
             }
         }
     }

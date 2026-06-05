@@ -45,6 +45,8 @@ namespace Admissions_Reserve.Model
                     EnsureIdentityDocumentsColumnsExist(connection);
                     EnsureAttachedDocumentsColumnsExist(connection);
                     SeedAllDataIfEmpty(connection);
+                    EnsureIdentityDocumentsExtraColumns(connection);
+                    EnsureDocumentsExtraColumns(connection);
                 }
             }
         }
@@ -556,6 +558,77 @@ namespace Admissions_Reserve.Model
             using (var cmd = new SQLiteCommand("PRAGMA foreign_keys = ON;", connection))
                 cmd.ExecuteNonQuery();
             return connection;
+        }
+        private static void EnsureIdentityDocumentsExtraColumns(SQLiteConnection connection)
+        {
+            var requiredColumns = new Dictionary<string, string>
+    {
+        { "AdditionalData", "TEXT" },
+        { "DocumentInfo", "TEXT" },
+        { "Category", "TEXT" },          // новая колонка для категории
+        { "IssueDate", "TEXT" }          // уже была, но для полноты
+    };
+
+            var existing = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            try
+            {
+                using (var cmd = new SQLiteCommand("PRAGMA table_info(IdentityDocuments);", connection))
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                        existing.Add(reader[1].ToString());
+                }
+            }
+            catch { return; }
+
+            foreach (var kv in requiredColumns)
+            {
+                if (!existing.Contains(kv.Key))
+                {
+                    try
+                    {
+                        using (var alter = new SQLiteCommand($"ALTER TABLE IdentityDocuments ADD COLUMN {kv.Key} {kv.Value};", connection))
+                            alter.ExecuteNonQuery();
+                    }
+                    catch { }
+                }
+            }
+        }
+
+        private static void EnsureDocumentsExtraColumns(SQLiteConnection connection)
+        {
+            var requiredColumns = new Dictionary<string, string>
+    {
+        { "AdditionalData", "TEXT" },
+        { "DocumentInfo", "TEXT" },
+        { "Category", "TEXT" },
+        { "IssueDate", "TEXT" }   // если нужно хранить дату выдачи для обычных документов
+    };
+
+            var existing = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            try
+            {
+                using (var cmd = new SQLiteCommand("PRAGMA table_info(Documents);", connection))
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                        existing.Add(reader[1].ToString());
+                }
+            }
+            catch { return; }
+
+            foreach (var kv in requiredColumns)
+            {
+                if (!existing.Contains(kv.Key))
+                {
+                    try
+                    {
+                        using (var alter = new SQLiteCommand($"ALTER TABLE Documents ADD COLUMN {kv.Key} {kv.Value};", connection))
+                            alter.ExecuteNonQuery();
+                    }
+                    catch { }
+                }
+            }
         }
     }
 }
