@@ -11,15 +11,15 @@
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <StackPanel Margin="15">
 
-                <!-- ========== ЗАГОЛОВОК ========== -->
+                <!-- ЗАГОЛОВОК -->
                 <TextBlock Text="Документы абитуриента" FontSize="16" FontWeight="Bold" Margin="0,0,0,15"/>
 
-                <!-- ========== ФОРМА ДОБАВЛЕНИЯ ДОКУМЕНТА ========== -->
+                <!-- ФОРМА ДОБАВЛЕНИЯ ДОКУМЕНТА -->
                 <Border BorderBrush="#CCCCCC" BorderThickness="1" Padding="12" Margin="0,0,0,15" Background="#FAFAFA" CornerRadius="5">
                     <StackPanel>
                         <TextBlock Text="Добавление документа" FontSize="13" FontWeight="Bold" Margin="0,0,0,10"/>
 
-                        <!-- Первая строка: Вид документа -->
+                        <!-- Вид документа -->
                         <Grid Margin="0,0,0,10">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="220"/>
@@ -34,7 +34,7 @@
                             </StackPanel>
                         </Grid>
 
-                        <!-- Вторая строка: Данные документа -->
+                        <!-- Данные документа -->
                         <TextBlock Text="Данные документа" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,8"/>
 
                         <Grid Margin="0,0,0,10">
@@ -48,7 +48,6 @@
                                 <TextBlock Text="Тип документа" FontSize="11"/>
                                 <TextBlock Text="*" Foreground="Red" FontSize="11" FontWeight="Bold" Margin="2,0,0,0"/>
                             </StackPanel>
-                            <!-- ComboBox с данными из БД -->
                             <ComboBox x:Name="DocumentTypeCombo" Grid.Column="1" Height="23" FontSize="11" Margin="0,0,10,0" 
                                       DisplayMemberPath="Name" SelectedValuePath="Id" IsEditable="False"/>
                             <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
@@ -105,17 +104,20 @@
                             <TextBox x:Name="DocumentInfoTextBox" Grid.Column="3" Height="23" FontSize="11"/>
                         </Grid>
 
-                        <!-- Загрузка файла -->
+                        <!-- Загрузка файла с кнопкой очистки -->
                         <Grid Margin="0,0,0,10">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="120"/>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" Text="Приложение (файл)" FontSize="11" VerticalAlignment="Center"/>
                             <TextBox x:Name="AttachmentFileTextBox" Grid.Column="1" Height="23" FontSize="11" IsReadOnly="True" Background="#F5F5F5" Margin="0,0,8,0"/>
                             <Button x:Name="UploadFileButton" Grid.Column="2" Content="Выбрать файл" Width="100" Height="23" 
-                                    FontSize="10" Background="#4CAF50" Foreground="White" Click="UploadFileButton_Click"/>
+                                    FontSize="10" Background="#4CAF50" Foreground="White" Margin="0,0,5,0" Click="UploadFileButton_Click"/>
+                            <Button x:Name="ClearFileButton" Grid.Column="3" Content="Очистить" Width="70" Height="23" 
+                                    FontSize="10" Background="#F0F0F0" Click="ClearFileButton_Click"/>
                         </Grid>
 
                         <!-- Кнопки формы -->
@@ -128,7 +130,7 @@
                     </StackPanel>
                 </Border>
 
-                <!-- ========== ТАБЛИЦА ДОКУМЕНТОВ ========== -->
+                <!-- ТАБЛИЦА ДОКУМЕНТОВ (обычные) -->
                 <TextBlock Text="Список документов" FontSize="13" FontWeight="Bold" Background="#E8EFF7" Padding="8" Margin="0,0,0,8"/>
 
                 <Border BorderBrush="#CCCCCC" BorderThickness="1" Margin="0,0,0,15" CornerRadius="5">
@@ -152,7 +154,7 @@
                                         <DataTemplate>
                                             <Button Content="📎" FontSize="12" Width="25" Height="22" 
                                                     ToolTip="Открыть файл" Click="OpenFile_Click" Tag="{Binding}"
-                                                    Visibility="{Binding HasAttachment}"/>
+                                                    Visibility="{Binding FileButtonVisibility}"/>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>
@@ -170,7 +172,7 @@
                     </ScrollViewer>
                 </Border>
 
-                <!-- ========== ДОКУМЕНТЫ ПЕРСОНАЛЬНЫХ ДАННЫХ ========== -->
+                <!-- ДОКУМЕНТЫ ПЕРСОНАЛЬНЫХ ДАННЫХ с кнопкой удаления -->
                 <TextBlock Text="Документы персональных данных" FontSize="13" FontWeight="Bold" Background="#E8EFF7" Padding="8" Margin="0,0,0,8"/>
 
                 <Border BorderBrush="#CCCCCC" BorderThickness="1" Margin="0,0,0,15" CornerRadius="5">
@@ -194,7 +196,16 @@
                                         <DataTemplate>
                                             <Button Content="📎" FontSize="12" Width="25" Height="22" 
                                                     ToolTip="Открыть файл" Click="OpenFile_Click" Tag="{Binding}"
-                                                    Visibility="{Binding HasAttachment}"/>
+                                                   Visibility="{Binding FileButtonVisibility}"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Header="Удалить" Width="50">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Content="✖" FontSize="10" Width="25" Height="20" 
+                                                    Background="#FF5722" Foreground="White"
+                                                    Click="DeleteDocument_Click" Tag="{Binding}"/>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>
@@ -203,7 +214,7 @@
                     </ScrollViewer>
                 </Border>
 
-                <!-- ========== КНОПКИ НАВИГАЦИИ ========== -->
+                <!-- КНОПКИ НАВИГАЦИИ -->
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,10">
                     <Button x:Name="PrevButton" Content="Назад" Width="90" Height="32" Margin="0,0,10,0" FontSize="11" Background="#F0F0F0" Click="PrevButton_Click"/>
                     <Button x:Name="NextButton" Content="Далее" Width="90" Height="32" Margin="0,0,10,0" FontSize="11" Background="#007ACC" Foreground="White" Click="NextButton_Click"/>
@@ -213,4 +224,4 @@
             </StackPanel>
         </ScrollViewer>
     </Grid>
-</Page> 
+</Page>

@@ -1,25 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
-using System.Windows.Shapes;
 using Admissions_Reserve.View;
 using Admissions_Reserve.Model;
 
 namespace Admissions_Reserve
 {
-    /// <summary>
-    /// Логика взаимодействия для MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         private readonly string[] _stepTags = new[]
@@ -42,42 +30,35 @@ namespace Admissions_Reserve
             InitializeComponent();
             MainFrame.Navigate(new WelcomePage());
             MainFrame.Navigated += MainFrame_Navigated;
-            
-            // Инициализируем NavigationManager
             NavigationManager.Initialize(MainFrame);
         }
 
         private void MainFrame_Navigated(object sender, NavigationEventArgs e)
         {
-            // Скрываем меню по умолчанию
             NavigationMenu.Visibility = Visibility.Collapsed;
 
-            // Проверяем тип текущей страницы
             if (e.Content is ApplicantWizardPage)
             {
-                // Показываем меню для мастера
                 NavigationMenu.Visibility = Visibility.Visible;
-                // Регистрируем текущий мастер в NavigationManager
                 if (e.Content is ApplicantWizardPage wizard)
-                {
                     NavigationManager.SetCurrentWizard(wizard);
-                }
             }
             else if (IsDataEntryPage(e.Content))
             {
-                // Показываем меню на страницах заполнения данных
                 NavigationMenu.Visibility = Visibility.Visible;
+            }
+            else if (e.Content is AdminPage)
+            {
+                NavigationMenu.Visibility = Visibility.Collapsed; // для админки меню скрываем
             }
             else
             {
-                // Скрываем меню на других страницах (поиск, приветствие и т.д.)
                 NavigationMenu.Visibility = Visibility.Collapsed;
             }
         }
 
         private bool IsDataEntryPage(object content)
         {
-            // Список типов страниц, на которых должно быть видно меню
             var dataEntryPages = new[]
             {
                 typeof(IdentityPage),
@@ -91,7 +72,6 @@ namespace Admissions_Reserve
                 typeof(PrioritiesPage),
                 typeof(AttachedDocumentsPage)
             };
-
             return dataEntryPages.Contains(content?.GetType());
         }
 
@@ -110,7 +90,6 @@ namespace Admissions_Reserve
 
         private void NavigateToStep(int step)
         {
-            // Проверяем, заполнено ли удостоверение личности для переходов на другие шаги
             var currentApplicant = SessionManager.CurrentApplicant;
             if (step != 0 && (currentApplicant == null || currentApplicant.Id == 0))
             {
@@ -155,8 +134,18 @@ namespace Admissions_Reserve
                     page = new AttachedDocumentsPage();
                     break;
             }
+
             if (page != null)
                 MainFrame.Navigate(page);
+        }
+
+        /// <summary>
+        /// Открыть страницу администратора (вызывается из WelcomePage после успешного входа админа)
+        /// </summary>
+        public void ShowAdminPage()
+        {
+            SessionManager.CurrentApplicant = null;
+            MainFrame.Navigate(new AdminPage());
         }
     }
 }

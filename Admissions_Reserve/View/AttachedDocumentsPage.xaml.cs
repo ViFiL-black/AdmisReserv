@@ -1,6 +1,7 @@
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -10,7 +11,6 @@ namespace Admissions_Reserve.View
 {
     public partial class AttachedDocumentsPage : Page
     {
-        // Модель документа для отображения в таблице
         public class AttachedDocument : INotifyPropertyChanged
         {
             private int _id;
@@ -20,52 +20,19 @@ namespace Admissions_Reserve.View
             private string _category;
             private DateTime? _issueDate;
             private string _documentInfo;
-            private string _sourceTable; // откуда взят документ (для удаления)
+            private string _sourceTable;
 
-            public int Id
-            {
-                get => _id;
-                set { _id = value; OnPropertyChanged(nameof(Id)); }
-            }
-            public int Number
-            {
-                get => _number;
-                set { _number = value; OnPropertyChanged(nameof(Number)); }
-            }
-            public string DocumentType
-            {
-                get => _documentType;
-                set { _documentType = value; OnPropertyChanged(nameof(DocumentType)); }
-            }
-            public string SeriesNumber
-            {
-                get => _seriesNumber;
-                set { _seriesNumber = value; OnPropertyChanged(nameof(SeriesNumber)); }
-            }
-            public string Category
-            {
-                get => _category;
-                set { _category = value; OnPropertyChanged(nameof(Category)); }
-            }
-            public DateTime? IssueDate
-            {
-                get => _issueDate;
-                set { _issueDate = value; OnPropertyChanged(nameof(IssueDate)); }
-            }
-            public string DocumentInfo
-            {
-                get => _documentInfo;
-                set { _documentInfo = value; OnPropertyChanged(nameof(DocumentInfo)); }
-            }
-            public string SourceTable
-            {
-                get => _sourceTable;
-                set { _sourceTable = value; OnPropertyChanged(nameof(SourceTable)); }
-            }
+            public int Id { get => _id; set { _id = value; OnPropertyChanged(nameof(Id)); } }
+            public int Number { get => _number; set { _number = value; OnPropertyChanged(nameof(Number)); } }
+            public string DocumentType { get => _documentType; set { _documentType = value; OnPropertyChanged(nameof(DocumentType)); } }
+            public string SeriesNumber { get => _seriesNumber; set { _seriesNumber = value; OnPropertyChanged(nameof(SeriesNumber)); } }
+            public string Category { get => _category; set { _category = value; OnPropertyChanged(nameof(Category)); } }
+            public DateTime? IssueDate { get => _issueDate; set { _issueDate = value; OnPropertyChanged(nameof(IssueDate)); } }
+            public string DocumentInfo { get => _documentInfo; set { _documentInfo = value; OnPropertyChanged(nameof(DocumentInfo)); } }
+            public string SourceTable { get => _sourceTable; set { _sourceTable = value; OnPropertyChanged(nameof(SourceTable)); } }
 
             public event PropertyChangedEventHandler PropertyChanged;
-            protected void OnPropertyChanged(string name) =>
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+            protected void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
         private ObservableCollection<AttachedDocument> _documents;
@@ -81,10 +48,8 @@ namespace Admissions_Reserve.View
 
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
-            int? applicantId = SessionManager.CurrentApplicantId ??
-                (SessionManager.CurrentApplicant?.Id != 0 ? (int?)SessionManager.CurrentApplicant?.Id : null);
-
-            if (applicantId == null)
+            int? applicantId = SessionManager.CurrentApplicantId;
+            if (applicantId == null || applicantId == 0)
             {
                 MessageBox.Show("Сначала необходимо заполнить данные удостоверения личности",
                     "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -96,9 +61,6 @@ namespace Admissions_Reserve.View
             LoadAllDocuments(applicantId.Value);
         }
 
-        /// <summary>
-        /// Загружает все документы абитуриента из разных таблиц и объединяет в одну таблицу
-        /// </summary>
         private void LoadAllDocuments(int applicantId)
         {
             try
@@ -108,42 +70,42 @@ namespace Admissions_Reserve.View
 
                 // 1. Документ об образовании
                 var eduDocs = DataService.GetApplicantEducationDocuments(applicantId);
-                var eduDoc = eduDocs.FirstOrDefault();
-                if (eduDoc != null)
+                foreach (var eduDoc in eduDocs)
                 {
+                    Debug.WriteLine($"Образование: Id={eduDoc.Id}, Серия={eduDoc.Series}, Номер={eduDoc.Number}");
                     _documents.Add(new AttachedDocument
                     {
                         Id = eduDoc.Id,
                         Number = _nextNumber++,
                         DocumentType = GetEducationDocumentTypeName(eduDoc.DocumentTypeId) ?? "Документ об образовании",
-                        SeriesNumber = $"{eduDoc.Series} {eduDoc.Number}".Trim(),
+                        SeriesNumber = FormatSeriesNumber(eduDoc.Series, eduDoc.Number),
                         Category = "Документ об образовании",
                         IssueDate = eduDoc.IssueDate,
-                        DocumentInfo = $"{eduDoc.EducationalOrg}, {eduDoc.City}",
+                        DocumentInfo = $"{eduDoc.EducationalOrg}, {eduDoc.City}".TrimStart(',').Trim(),
                         SourceTable = "EducationDocuments"
                     });
                 }
 
-                // 2. Удостоверение личности (только основной, если есть, иначе первый)
+                // 2. Удостоверения личности
                 var idDocs = DataService.GetAllIdentityDocuments(applicantId);
-                var idDoc = idDocs.FirstOrDefault(d => d.IsPrimary == true) ?? idDocs.FirstOrDefault();
-                if (idDoc != null)
+                foreach (var idDoc in idDocs)
                 {
+                    Debug.WriteLine($"Удостоверение: Id={idDoc.Id}, Серия={idDoc.Series}, Номер={idDoc.Number}");
                     var docType = GetIdentityDocumentTypeName(idDoc.DocumentTypeId);
                     _documents.Add(new AttachedDocument
                     {
                         Id = idDoc.Id,
                         Number = _nextNumber++,
                         DocumentType = docType ?? "Удостоверение личности",
-                        SeriesNumber = $"{idDoc.Series} {idDoc.Number}".Trim(),
+                        SeriesNumber = FormatSeriesNumber(idDoc.Series, idDoc.Number),
                         Category = "Удостоверение личности",
                         IssueDate = idDoc.IssueDate,
-                        DocumentInfo = idDoc.IssuedBy,
+                        DocumentInfo = idDoc.IssuedBy ?? "",
                         SourceTable = "IdentityDocuments"
                     });
                 }
 
-                // 3. Обычные документы (из таблицы Documents, добавленные на странице DocumentsPage)
+                // 3. Обычные документы (таблица Documents)
                 var generalDocs = DataService.GetAllGeneralDocuments(applicantId);
                 foreach (var doc in generalDocs)
                 {
@@ -153,33 +115,46 @@ namespace Admissions_Reserve.View
                         Id = doc.Id,
                         Number = _nextNumber++,
                         DocumentType = docTypeName ?? "Документ",
-                        SeriesNumber = $"{doc.Series} {doc.Number}".Trim(),
+                        SeriesNumber = FormatSeriesNumber(doc.Series, doc.Number),
                         Category = doc.Category ?? "Абитуриент",
                         IssueDate = doc.IssueDate,
-                        DocumentInfo = doc.DocumentInfo,
+                        DocumentInfo = doc.DocumentInfo ?? "",
                         SourceTable = "Documents"
                     });
                 }
 
-                // 4. Прикреплённые файлы (таблица AttachedDocuments)
-                var attachedDocs = DataService.GetApplicantAttachedDocuments(applicantId);
-                foreach (var doc in attachedDocs)
+                // 4. Прикреплённые файлы (если таблица существует)
+                try
                 {
-                    _documents.Add(new AttachedDocument
+                    var attachedDocs = DataService.GetApplicantAttachedDocuments(applicantId);
+                    foreach (var doc in attachedDocs)
                     {
-                        Id = doc.Id,
-                        Number = _nextNumber++,
-                        DocumentType = doc.DocumentName ?? doc.DocumentType ?? "Приложение",
-                        SeriesNumber = "",  // у файлов обычно нет серии/номера
-                        Category = "Прикреплённый файл",
-                        IssueDate = doc.UploadedAt,
-                        DocumentInfo = doc.FilePath,
-                        SourceTable = "AttachedDocuments"
-                    });
+                        _documents.Add(new AttachedDocument
+                        {
+                            Id = doc.Id,
+                            Number = _nextNumber++,
+                            DocumentType = doc.DocumentName ?? doc.DocumentType ?? "Приложение",
+                            SeriesNumber = "",
+                            Category = "Прикреплённый файл",
+                            IssueDate = doc.UploadedAt,
+                            DocumentInfo = doc.FilePath,
+                            SourceTable = "AttachedDocuments"
+                        });
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Таблица AttachedDocuments отсутствует: {ex.Message}");
                 }
 
-                // Обновляем отображение
+                Debug.WriteLine($"Всего загружено документов: {_documents.Count}");
                 DocumentsGrid.Items.Refresh();
+
+                if (_documents.Count == 0)
+                {
+                    MessageBox.Show("Нет добавленных документов. Пожалуйста, вернитесь и добавьте необходимые документы.",
+                        "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
             }
             catch (Exception ex)
             {
@@ -188,43 +163,40 @@ namespace Admissions_Reserve.View
             }
         }
 
-        // Вспомогательные методы для получения названий типов документов
-        private string GetEducationDocumentTypeName(int? documentTypeId)
+        private string FormatSeriesNumber(string series, string number)
         {
-            if (documentTypeId == null) return null;
-            try
-            {
-                var types = DataService.GetAll<EducationDocumentTypes>();
-                return types.FirstOrDefault(t => t.Id == documentTypeId)?.Name;
-            }
+            series = series?.Trim() ?? "";
+            number = number?.Trim() ?? "";
+            if (!string.IsNullOrEmpty(series) && !string.IsNullOrEmpty(number))
+                return $"{series} {number}";
+            if (!string.IsNullOrEmpty(number))
+                return number;
+            if (!string.IsNullOrEmpty(series))
+                return series;
+            return "";
+        }
+
+        private string GetEducationDocumentTypeName(int? id)
+        {
+            if (id == null) return null;
+            try { return DataService.GetAll<EducationDocumentTypes>().FirstOrDefault(t => t.Id == id)?.Name; }
             catch { return null; }
         }
 
-        private string GetIdentityDocumentTypeName(int? documentTypeId)
+        private string GetIdentityDocumentTypeName(int? id)
         {
-            if (documentTypeId == null) return null;
-            try
-            {
-                var types = DataService.GetAll<IdentityDocumentTypes>();
-                return types.FirstOrDefault(t => t.Id == documentTypeId)?.Name;
-            }
+            if (id == null) return null;
+            try { return DataService.GetAll<IdentityDocumentTypes>().FirstOrDefault(t => t.Id == id)?.Name; }
             catch { return null; }
         }
 
-        private string GetPersonalDocumentTypeName(int? documentTypeId)
+        private string GetPersonalDocumentTypeName(int? id)
         {
-            if (documentTypeId == null) return null;
-            try
-            {
-                var types = DataService.GetAll<PersonalDocumentTypes>();
-                return types.FirstOrDefault(t => t.Id == documentTypeId)?.Name;
-            }
+            if (id == null) return null;
+            try { return DataService.GetAll<PersonalDocumentTypes>().FirstOrDefault(t => t.Id == id)?.Name; }
             catch { return null; }
         }
 
-        /// <summary>
-        /// Удаление документа из соответствующей таблицы
-        /// </summary>
         private void DeleteDocument_Click(object sender, RoutedEventArgs e)
         {
             if ((sender as Button)?.Tag is AttachedDocument item)
@@ -239,22 +211,18 @@ namespace Admissions_Reserve.View
                     {
                         case "EducationDocuments":
                             DataService.DeleteEducationDocument(item.Id);
-                            DataService.LogChange("EducationDocuments", item.Id, "DELETE");
                             break;
                         case "IdentityDocuments":
                             DataService.DeleteIdentityDocument(item.Id);
-                            DataService.LogChange("IdentityDocuments", item.Id, "DELETE");
                             break;
                         case "Documents":
                             DataService.DeleteGeneralDocument(item.Id, SessionManager.CurrentApplicantId.Value);
-                            DataService.LogChange("Documents", item.Id, "DELETE");
                             break;
                         case "AttachedDocuments":
                             DataService.DeleteAttachedDocument(item.Id);
-                            DataService.LogChange("AttachedDocuments", item.Id, "DELETE");
                             break;
                     }
-
+                    DataService.LogChange(item.SourceTable, item.Id, "DELETE");
                     _documents.Remove(item);
                     RenumberDocuments();
                 }
@@ -284,9 +252,8 @@ namespace Admissions_Reserve.View
         {
             try
             {
-                int? applicantId = SessionManager.CurrentApplicantId ??
-                    (SessionManager.CurrentApplicant?.Id != 0 ? (int?)SessionManager.CurrentApplicant?.Id : null);
-                if (applicantId != null)
+                int? applicantId = SessionManager.CurrentApplicantId;
+                if (applicantId != null && applicantId != 0)
                 {
                     var applicant = DataService.GetApplicant(applicantId.Value);
                     if (applicant != null)
@@ -317,47 +284,35 @@ namespace Admissions_Reserve.View
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
-            var result = MessageBox.Show(
+            if (MessageBox.Show(
                 "Вы уверены, что хотите отменить ввод данных?\n\n" +
                 "ВНИМАНИЕ: Все данные абитуриента будут безвозвратно удалены из базы данных!\n\n" +
                 "Это действие нельзя отменить.",
-                "Подтверждение удаления",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Warning);
+                "Подтверждение удаления", MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes)
+                return;
 
-            if (result == MessageBoxResult.Yes)
+            if (MessageBox.Show("Вы действительно хотите удалить все данные этого абитуриента?",
+                "Подтвердите удаление", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+                return;
+
+            try
             {
-                var confirmResult = MessageBox.Show(
-                    "Вы действительно хотите удалить все данные этого абитуриента?",
-                    "Подтвердите удаление",
-                    MessageBoxButton.YesNo,
-                    MessageBoxImage.Question);
-
-                if (confirmResult == MessageBoxResult.Yes)
+                int? applicantId = SessionManager.CurrentApplicantId;
+                if (applicantId != null && applicantId != 0)
                 {
-                    try
-                    {
-                        int? applicantId = SessionManager.CurrentApplicantId ??
-                            (SessionManager.CurrentApplicant?.Id != 0 ? (int?)SessionManager.CurrentApplicant?.Id : null);
-                        if (applicantId != null)
-                        {
-                            DataService.DeleteApplicant(applicantId.Value);
-                            DataService.LogChange("Applicants", applicantId.Value, "DELETE_ALL");
-                        }
-
-                        SessionManager.Clear();
-
-                        MessageBox.Show("Все данные абитуриента удалены.\nВы будете перенаправлены на страницу поиска.",
-                            "Удалено", MessageBoxButton.OK, MessageBoxImage.Information);
-
-                        NavigationService?.Navigate(new ApplicantSearchPage());
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"Ошибка при удалении данных: {ex.Message}", "Ошибка",
-                            MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
+                    DataService.DeleteApplicant(applicantId.Value);
+                    DataService.LogChange("Applicants", applicantId.Value, "DELETE_ALL");
                 }
+
+                SessionManager.Clear();
+                MessageBox.Show("Все данные абитуриента удалены.\nВы будете перенаправлены на страницу поиска.",
+                    "Удалено", MessageBoxButton.OK, MessageBoxImage.Information);
+                NavigationService?.Navigate(new ApplicantSearchPage());
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при удалении данных: {ex.Message}", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }

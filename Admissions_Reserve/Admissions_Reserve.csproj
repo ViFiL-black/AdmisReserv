@@ -104,16 +104,10 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="CHANGES_EDIT_DELETE_APPLICANTS.cs" />
-    <Compile Include="CreateDb.cs" />
     <Compile Include="Model\Applicants.cs" />
     <Compile Include="Model\DatabaseHelper.cs" />
     <Compile Include="Model\DatabasePersistenceHelper.cs" />
     <Compile Include="Model\DataService.cs" />
-    <Compile Include="Model\DataServiceExtensions.cs" />
-    <Compile Include="Model\ExportHelper.cs" />
-    <Compile Include="Model\FormattingHelper.cs" />
-    <Compile Include="Model\InputValidationHelper.cs" />
     <Compile Include="Model\LogHelper.cs" />
     <Compile Include="Model\Models.cs" />
     <Compile Include="Model\NavigationManager.cs" />
@@ -122,6 +116,9 @@
     <Compile Include="Model\ValidationHelper.cs" />
     <Compile Include="View\AdditionalInfoPage.xaml.cs">
       <DependentUpon>AdditionalInfoPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\AdminPage.xaml.cs">
+      <DependentUpon>AdminPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\ApplicantSearchPage.xaml.cs">
       <DependentUpon>ApplicantSearchPage.xaml</DependentUpon>
@@ -141,7 +138,6 @@
     <Compile Include="View\ContactsPage.xaml.cs">
       <DependentUpon>ContactsPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="View\Converters.cs" />
     <Compile Include="View\DocumentsPage.xaml.cs">
       <DependentUpon>DocumentsPage.xaml</DependentUpon>
     </Compile>
@@ -151,7 +147,6 @@
     <Compile Include="View\IndividualAchievementsPage.xaml.cs">
       <DependentUpon>IndividualAchievementsPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="View\InputValidators.cs" />
     <Compile Include="View\LoginWindow.xaml.cs">
       <DependentUpon>LoginWindow.xaml</DependentUpon>
     </Compile>
@@ -166,6 +161,10 @@
       <DependentUpon>WelcomePage.xaml</DependentUpon>
     </Compile>
     <Page Include="View\AdditionalInfoPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\AdminPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -238,7 +237,6 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="IdentityPage_Enhancements.md" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -251,14 +249,10 @@
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Data\" />
-    <Folder Include="Tests\" />
     <Folder Include="ViewModel\" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="IndividualAchievementsMethods.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.119.0\build\net46\Stub.System.Data.SQLite.Core.NetFramework.targets" Condition="Exists('..\packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.119.0\build\net46\Stub.System.Data.SQLite.Core.NetFramework.targets')" />

@@ -1,4 +1,3 @@
-// IdentityPage.xaml.cs
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,21 +13,17 @@ namespace Admissions_Reserve.View
         private IdentityDocuments currentIdentityDocument;
         private bool isNewApplicant = true;
         private bool isLoadingData = false;
-        private bool isInitialized = false;
 
         public IdentityPage()
         {
             InitializeComponent();
-            
-            // Загружаем справочные данные ДО всего остального
             LoadReferenceData();
 
+            // Начальная инициализация
             if (SessionManager.CurrentApplicant != null && SessionManager.CurrentApplicant.Id != 0)
             {
                 currentApplicant = SessionManager.CurrentApplicant;
                 isNewApplicant = false;
-                LoadExistingIdentityDocuments();
-                LoadApplicantData();
             }
             else
             {
@@ -39,91 +34,64 @@ namespace Admissions_Reserve.View
                 };
                 isNewApplicant = true;
             }
-            
-            // Подписываемся на событие загрузки страницы для переинициализации данных
-            this.Loaded += (s, e) =>
+
+            // Основная загрузка данных при появлении страницы
+            this.Loaded += IdentityPage_Loaded;
+        }
+
+        private void IdentityPage_Loaded(object sender, RoutedEventArgs e)
+        {
+            // Если абитуриент уже существует – перезагружаем свежие данные из БД
+            if (!isNewApplicant && currentApplicant.Id != 0)
             {
-                try
+                var fresh = DataService.GetApplicant(currentApplicant.Id);
+                if (fresh != null)
                 {
-                    System.Diagnostics.Debug.WriteLine("IdentityPage Loaded event fired");
-                    
-                    if (!isInitialized)
-                    {
-                        // Загружаем справочные данные при первой загрузке
-                        LoadReferenceData();
-                        isInitialized = true;
-                    }
-                    else
-                    {
-                        // При повторном входе переинициализируем справочные данные
-                        LoadReferenceData();
-                    }
-                    
-                    // Если есть текущий абитуриент, переинициализируем его данные
-                    if (SessionManager.CurrentApplicant != null && SessionManager.CurrentApplicant.Id != 0)
-                    {
-                        // Переинициализируем текущего абитуриента из сессии
-                        currentApplicant = SessionManager.CurrentApplicant;
-                        isNewApplicant = false;
-                        System.Diagnostics.Debug.WriteLine($"Loading applicant {currentApplicant.Id}");
-                        
-                        LoadExistingIdentityDocuments();
-                        LoadApplicantData();
-                    }
+                    currentApplicant = fresh;
+                    SessionManager.CurrentApplicant = currentApplicant;
                 }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine($"Error in Loaded event: {ex}");
-                }
-            };
+            }
+
+            LoadExistingIdentityDocuments();
+            LoadApplicantData();
         }
 
         private void LoadReferenceData()
         {
             try
             {
-                // Загружаем только если еще не загружены
-                if (IdentityTypeCombo.ItemsSource == null || (IdentityTypeCombo.Items.Count == 0))
+                if (IdentityTypeCombo.ItemsSource == null || IdentityTypeCombo.Items.Count == 0)
                 {
-                    var identityTypes = DataService.GetAll<IdentityDocumentTypes>();
-                    IdentityTypeCombo.ItemsSource = identityTypes;
+                    IdentityTypeCombo.ItemsSource = DataService.GetAll<IdentityDocumentTypes>();
                     IdentityTypeCombo.DisplayMemberPath = "Name";
                     IdentityTypeCombo.SelectedValuePath = "Id";
-                    System.Diagnostics.Debug.WriteLine($"Loaded {identityTypes.Count} identity types");
                 }
 
-                if (CitizenshipCombo.ItemsSource == null || (CitizenshipCombo.Items.Count == 0))
+                if (CitizenshipCombo.ItemsSource == null || CitizenshipCombo.Items.Count == 0)
                 {
-                    var citizenships = DataService.GetAll<Citizenships>();
-                    CitizenshipCombo.ItemsSource = citizenships;
+                    CitizenshipCombo.ItemsSource = DataService.GetAll<Citizenships>();
                     CitizenshipCombo.DisplayMemberPath = "Name";
                     CitizenshipCombo.SelectedValuePath = "Id";
-                    System.Diagnostics.Debug.WriteLine($"Loaded {citizenships.Count} citizenships");
                 }
 
-                if (CountryCombo.ItemsSource == null || (CountryCombo.Items.Count == 0))
+                if (CountryCombo.ItemsSource == null || CountryCombo.Items.Count == 0)
                 {
-                    var countries = DataService.GetByCondition<Countries>("IsActive = 1");
-                    CountryCombo.ItemsSource = countries;
+                    CountryCombo.ItemsSource = DataService.GetByCondition<Countries>("IsActive = 1");
                     CountryCombo.DisplayMemberPath = "Name";
                     CountryCombo.SelectedValuePath = "Id";
-                    System.Diagnostics.Debug.WriteLine($"Loaded {countries.Count} countries");
                 }
 
-                if (GenderCombo.ItemsSource == null || (GenderCombo.Items.Count == 0))
+                if (GenderCombo.ItemsSource == null || GenderCombo.Items.Count == 0)
                 {
-                    var genders = DataService.GetAll<Genders>();
-                    GenderCombo.ItemsSource = genders;
+                    GenderCombo.ItemsSource = DataService.GetAll<Genders>();
                     GenderCombo.DisplayMemberPath = "Name";
                     GenderCombo.SelectedValuePath = "Id";
-                    System.Diagnostics.Debug.WriteLine($"Loaded {genders.Count} genders");
                 }
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Ошибка загрузки справочных данных: {ex.Message}", "Ошибка",
                     MessageBoxButton.OK, MessageBoxImage.Error);
-                System.Diagnostics.Debug.WriteLine($"Error loading reference data: {ex}");
             }
         }
 
@@ -157,7 +125,8 @@ namespace Admissions_Reserve.View
                     ExistingIdentityCombo.SelectedValuePath = "Id";
 
                     ExistingIdentityRadio.IsChecked = true;
-                    ExistingIdentityCombo.SelectedIndex = 0;
+                    if (ExistingIdentityCombo.Items.Count > 0)
+                        ExistingIdentityCombo.SelectedIndex = 0;
                     NewIdentityRadio.IsChecked = false;
 
                     LoadSelectedIdentityDocument();
@@ -168,6 +137,7 @@ namespace Admissions_Reserve.View
                     ExistingIdentityCombo.ItemsSource = null;
                     NewIdentityRadio.IsChecked = true;
                     ExistingIdentityRadio.IsChecked = false;
+                    ClearDocumentFields();
                 }
             }
             catch (Exception ex)
@@ -175,6 +145,16 @@ namespace Admissions_Reserve.View
                 MessageBox.Show($"Ошибка загрузки документов: {ex.Message}", "Ошибка",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        private void ClearDocumentFields()
+        {
+            IdentityTypeCombo.SelectedIndex = -1;
+            SeriesTextBox.Text = "";
+            NumberTextBox.Text = "";
+            IssuedByTextBox.Text = "";
+            DepartmentCodeTextBox.Text = "";
+            IssueDatePicker.SelectedDate = null;
         }
 
         private string GetDocumentTypeName(int? documentTypeId)
@@ -191,7 +171,6 @@ namespace Admissions_Reserve.View
         private void LoadApplicantData()
         {
             if (currentApplicant == null) return;
-
             isLoadingData = true;
 
             try
@@ -200,30 +179,19 @@ namespace Admissions_Reserve.View
                 FirstNameTextBox.Text = currentApplicant.FirstName ?? "";
                 PatronymicTextBox.Text = currentApplicant.Patronymic ?? "";
 
-                // Логирование для отладки
-                System.Diagnostics.Debug.WriteLine($"BirthDate value: {currentApplicant.BirthDate}");
-                System.Diagnostics.Debug.WriteLine($"BirthDate HasValue: {currentApplicant.BirthDate.HasValue}");
+                // Диагностика
+                System.Diagnostics.Debug.WriteLine($"LoadApplicantData: BirthDate raw = {currentApplicant.BirthDate}, HasValue = {currentApplicant.BirthDate.HasValue}");
 
-                if (currentApplicant.BirthDate.HasValue && currentApplicant.BirthDate.Value != DateTime.MinValue)
-                {
+                // Установка даты рождения
+                if (currentApplicant.BirthDate.HasValue && currentApplicant.BirthDate.Value > DateTime.MinValue)
                     BirthDatePicker.SelectedDate = currentApplicant.BirthDate.Value;
-                    System.Diagnostics.Debug.WriteLine($"BirthDate set to: {BirthDatePicker.SelectedDate}");
-                }
                 else
-                {
                     BirthDatePicker.SelectedDate = null;
-                }
 
                 BirthPlaceTextBox.Text = currentApplicant.BirthPlace ?? "";
 
-                // Устанавливаем ComboBox'ы с помощью специального метода
-                System.Diagnostics.Debug.WriteLine($"GenderId: {currentApplicant.GenderId}");
                 SetComboBoxValue(GenderCombo, currentApplicant.GenderId);
-
-                System.Diagnostics.Debug.WriteLine($"CitizenshipId: {currentApplicant.CitizenshipId}");
                 SetComboBoxValue(CitizenshipCombo, currentApplicant.CitizenshipId);
-
-                System.Diagnostics.Debug.WriteLine($"RegistrationCountryId: {currentApplicant.RegistrationCountryId}");
                 SetComboBoxValue(CountryCombo, currentApplicant.RegistrationCountryId);
 
                 PostalCodeTextBox.Text = currentApplicant.RegistrationPostalCode ?? "";
@@ -237,9 +205,7 @@ namespace Admissions_Reserve.View
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error in LoadApplicantData: {ex.Message}");
-                MessageBox.Show($"Ошибка при загрузке данных: {ex.Message}", "Ошибка", 
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                System.Diagnostics.Debug.WriteLine($"LoadApplicantData error: {ex.Message}");
             }
             finally
             {
@@ -250,26 +216,20 @@ namespace Admissions_Reserve.View
         private void LoadSelectedIdentityDocument()
         {
             if (ExistingIdentityCombo.SelectedItem == null) return;
-
-            var selectedId = (int)ExistingIdentityCombo.SelectedValue;
-            currentIdentityDocument = DataService.GetDocument(selectedId);
-
-            if (currentIdentityDocument == null) return;
-
             isLoadingData = true;
 
             try
             {
+                var selectedId = (int)ExistingIdentityCombo.SelectedValue;
+                currentIdentityDocument = DataService.GetDocument(selectedId);
+                if (currentIdentityDocument == null) return;
+
                 IdentityTypeCombo.SelectedValue = currentIdentityDocument.DocumentTypeId;
                 SeriesTextBox.Text = currentIdentityDocument.Series ?? "";
                 NumberTextBox.Text = currentIdentityDocument.Number ?? "";
                 IssuedByTextBox.Text = currentIdentityDocument.IssuedBy ?? "";
                 DepartmentCodeTextBox.Text = currentIdentityDocument.DepartmentCode ?? "";
-
-                if (currentIdentityDocument.IssueDate.HasValue)
-                    IssueDatePicker.SelectedDate = currentIdentityDocument.IssueDate.Value;
-                else
-                    IssueDatePicker.SelectedDate = null;
+                IssueDatePicker.SelectedDate = currentIdentityDocument.IssueDate;
             }
             finally
             {
@@ -281,47 +241,23 @@ namespace Admissions_Reserve.View
         {
             try
             {
-                if (!ValidateData())
-                    return false;
+                if (!ValidateData()) return false;
 
-                // Если абитуриент еще не создан, создаем его
                 if (currentApplicant.Id == 0)
                 {
                     currentApplicant.Id = DataService.CreateApplicant(currentApplicant);
                     SessionManager.CurrentApplicant = currentApplicant;
                     isNewApplicant = false;
-                    System.Diagnostics.Debug.WriteLine($"Created new applicant with Id: {currentApplicant.Id}");
                 }
 
-                // Заполняем данные из формы
                 currentApplicant.LastName = LastNameTextBox.Text.Trim();
                 currentApplicant.FirstName = FirstNameTextBox.Text.Trim();
                 currentApplicant.Patronymic = PatronymicTextBox.Text?.Trim();
                 currentApplicant.BirthPlace = BirthPlaceTextBox.Text?.Trim();
-
-                if (BirthDatePicker.SelectedDate.HasValue)
-                    currentApplicant.BirthDate = BirthDatePicker.SelectedDate.Value;
-                else
-                    currentApplicant.BirthDate = null;
-
-                if (GenderCombo.SelectedValue != null && int.TryParse(GenderCombo.SelectedValue.ToString(), out int genderId))
-                {
-                    currentApplicant.GenderId = genderId;
-                    System.Diagnostics.Debug.WriteLine($"Set GenderId: {genderId}");
-                }
-
-                if (CitizenshipCombo.SelectedValue != null && int.TryParse(CitizenshipCombo.SelectedValue.ToString(), out int citizenshipId))
-                {
-                    currentApplicant.CitizenshipId = citizenshipId;
-                    System.Diagnostics.Debug.WriteLine($"Set CitizenshipId: {citizenshipId}");
-                }
-
-                if (CountryCombo.SelectedValue != null && int.TryParse(CountryCombo.SelectedValue.ToString(), out int countryId))
-                {
-                    currentApplicant.RegistrationCountryId = countryId;
-                    System.Diagnostics.Debug.WriteLine($"Set RegistrationCountryId: {countryId}");
-                }
-
+                currentApplicant.BirthDate = BirthDatePicker.SelectedDate;
+                currentApplicant.GenderId = GetComboBoxIntValue(GenderCombo);
+                currentApplicant.CitizenshipId = GetComboBoxIntValue(CitizenshipCombo);
+                currentApplicant.RegistrationCountryId = GetComboBoxIntValue(CountryCombo);
                 currentApplicant.RegistrationPostalCode = PostalCodeTextBox.Text?.Trim();
                 currentApplicant.RegistrationRegion = RegionTextBox.Text?.Trim();
                 currentApplicant.RegistrationDistrict = DistrictTextBox.Text?.Trim();
@@ -330,38 +266,36 @@ namespace Admissions_Reserve.View
                 currentApplicant.RegistrationHouse = HouseTextBox.Text?.Trim();
                 currentApplicant.RegistrationBuilding = BuildingTextBox.Text?.Trim();
                 currentApplicant.RegistrationApartment = ApartmentTextBox.Text?.Trim();
-
                 currentApplicant.UpdatedAt = DateTime.Now;
-                DataService.UpdateApplicant(currentApplicant);
-                System.Diagnostics.Debug.WriteLine($"Updated applicant {currentApplicant.Id}");
 
-                // Сохраняем документ
+                DataService.UpdateApplicant(currentApplicant);
+
                 if (ExistingIdentityRadio.IsChecked == true && currentIdentityDocument != null)
-                {
                     UpdateIdentityDocument(currentIdentityDocument);
-                }
                 else
-                {
                     CreateNewIdentityDocument();
-                }
 
                 SessionManager.CurrentApplicant = currentApplicant;
                 return true;
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error in SaveData: {ex}");
-                MessageBox.Show($"Ошибка при сохранении данных: {ex.Message}", "Ошибка",
+                MessageBox.Show($"Ошибка сохранения: {ex.Message}", "Ошибка",
                     MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
         }
 
+        private int? GetComboBoxIntValue(ComboBox combo)
+        {
+            if (combo.SelectedValue != null && int.TryParse(combo.SelectedValue.ToString(), out int val))
+                return val;
+            return null;
+        }
+
         private void UpdateIdentityDocument(IdentityDocuments doc)
         {
-            if (IdentityTypeCombo.SelectedValue != null)
-                doc.DocumentTypeId = (int)IdentityTypeCombo.SelectedValue;
-
+            doc.DocumentTypeId = GetComboBoxIntValue(IdentityTypeCombo);
             doc.Series = SeriesTextBox.Text?.Trim();
             doc.Number = NumberTextBox.Text?.Trim();
             doc.IssuedBy = IssuedByTextBox.Text?.Trim();
@@ -378,25 +312,21 @@ namespace Admissions_Reserve.View
             {
                 ApplicantId = currentApplicant.Id,
                 IsPrimary = true,
-                AddedDate = DateTime.Now
+                AddedDate = DateTime.Now,
+                DocumentTypeId = GetComboBoxIntValue(IdentityTypeCombo),
+                Series = SeriesTextBox.Text?.Trim(),
+                Number = NumberTextBox.Text?.Trim(),
+                IssuedBy = IssuedByTextBox.Text?.Trim(),
+                DepartmentCode = DepartmentCodeTextBox.Text?.Trim(),
+                IssueDate = IssueDatePicker.SelectedDate
             };
-
-            if (IdentityTypeCombo.SelectedValue != null)
-                newDoc.DocumentTypeId = (int)IdentityTypeCombo.SelectedValue;
-
-            newDoc.Series = SeriesTextBox.Text?.Trim();
-            newDoc.Number = NumberTextBox.Text?.Trim();
-            newDoc.IssuedBy = IssuedByTextBox.Text?.Trim();
-            newDoc.DepartmentCode = DepartmentCodeTextBox.Text?.Trim();
-            newDoc.IssueDate = IssueDatePicker.SelectedDate;
-
             newDoc.Id = DataService.CreateIdentityDocument(newDoc);
             DataService.LogChange("IdentityDocuments", newDoc.Id, "INSERT");
         }
 
         private void ExistingIdentityCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (!isInitialized || isLoadingData) return;
+            if (isLoadingData) return;
             if (ExistingIdentityRadio?.IsChecked == true)
                 LoadSelectedIdentityDocument();
         }
@@ -417,15 +347,11 @@ namespace Admissions_Reserve.View
         {
             var result = MessageBox.Show("Вы уверены, что хотите отменить ввод данных?\nВсе данные будут удалены.",
                 "Подтверждение", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-
             if (result == MessageBoxResult.Yes)
             {
                 if (SessionManager.CurrentApplicantId.HasValue)
-                {
                     DataService.DeleteApplicant(SessionManager.CurrentApplicantId.Value);
-                }
                 SessionManager.Clear();
-
                 if (NavigationService?.CanGoBack == true)
                     NavigationService.GoBack();
                 else
@@ -445,41 +371,53 @@ namespace Admissions_Reserve.View
 
             if (string.IsNullOrWhiteSpace(LastNameTextBox.Text))
                 errors.Add("• Фамилия обязательна для заполнения");
-
             if (string.IsNullOrWhiteSpace(FirstNameTextBox.Text))
                 errors.Add("• Имя обязательно для заполнения");
 
-            if (!BirthDatePicker.SelectedDate.HasValue)
+            if (BirthDatePicker.SelectedDate.HasValue)
+            {
+                var birthDate = BirthDatePicker.SelectedDate.Value;
+                var today = DateTime.Today;
+
+                if (birthDate > today)
+                    errors.Add("• Дата рождения не может быть в будущем");
+                else
+                {
+                    int age = today.Year - birthDate.Year;
+                    if (birthDate > today.AddYears(-age)) age--;
+
+                    if (age < 14)
+                        errors.Add("• Абитуриент должен быть не младше 14 лет");
+                    else if (age > 120)
+                        errors.Add("• Указан некорректный возраст (более 120 лет)");
+                }
+            }
+            else
+            {
                 errors.Add("• Дата рождения обязательна для заполнения");
+            }
 
             if (string.IsNullOrWhiteSpace(NumberTextBox.Text))
                 errors.Add("• Номер документа обязателен для заполнения");
-
             if (!IssueDatePicker.SelectedDate.HasValue)
                 errors.Add("• Дата выдачи документа обязательна для заполнения");
-
             if (string.IsNullOrWhiteSpace(CityTextBox.Text))
                 errors.Add("• Населенный пункт обязателен для заполнения");
-            
             if (StreetTextBox.Text.Contains("*") || StreetTextBox.Text.Contains("?"))
                 errors.Add("• Улица не должна содержать символы подстановки * или ?");
-
             if (IdentityTypeCombo.SelectedValue == null)
                 errors.Add("• Тип удостоверения личности обязателен для выбора");
-
             if (CitizenshipCombo.SelectedValue == null)
                 errors.Add("• Гражданство обязательно для выбора");
-
             if (CountryCombo.SelectedValue == null)
                 errors.Add("• Страна регистрации обязательна для выбора");
 
             if (errors.Any())
             {
-                MessageBox.Show("Пожалуйста, исправьте следующие ошибки:\n\n" + string.Join("\n", errors),
+                MessageBox.Show("Пожалуйста, исправьте ошибки:\n\n" + string.Join("\n", errors),
                     "Ошибки валидации", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
             }
-
             return true;
         }
 
@@ -493,33 +431,23 @@ namespace Admissions_Reserve.View
 
             try
             {
-                // Пытаемся найти элемент в ItemsSource
                 var items = comboBox.ItemsSource as System.Collections.IEnumerable;
                 if (items != null)
                 {
                     foreach (var item in items)
                     {
-                        var property = item.GetType().GetProperty(comboBox.SelectedValuePath);
-                        if (property != null)
+                        var prop = item.GetType().GetProperty(comboBox.SelectedValuePath);
+                        if (prop != null && prop.GetValue(item)?.ToString() == value.ToString())
                         {
-                            var itemValue = property.GetValue(item);
-                            if (itemValue != null && itemValue.ToString() == value.ToString())
-                            {
-                                comboBox.SelectedItem = item;
-                                System.Diagnostics.Debug.WriteLine($"Set {comboBox.Name} to {value}");
-                                return;
-                            }
+                            comboBox.SelectedItem = item;
+                            return;
                         }
                     }
                 }
-                
-                // Если не нашли, устанавливаем по SelectedValue
                 comboBox.SelectedValue = value;
-                System.Diagnostics.Debug.WriteLine($"Set {comboBox.Name} to {value} using SelectedValue");
             }
-            catch (Exception ex)
+            catch
             {
-                System.Diagnostics.Debug.WriteLine($"Error setting {comboBox.Name}: {ex.Message}");
                 comboBox.SelectedIndex = 0;
             }
         }

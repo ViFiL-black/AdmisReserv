@@ -99,37 +99,47 @@
 						</StackPanel>
 					</StackPanel>
 				</Border>
+                <!-- ========== ТАБЛИЦА ИНДИВИДУАЛЬНЫХ ДОСТИЖЕНИЙ ========== -->
+                <TextBlock Text="Список индивидуальных достижений" FontSize="13" FontWeight="Bold" Background="#E8EFF7" Padding="8" Margin="0,0,0,8"/>
 
-				<!-- ========== ТАБЛИЦА ИНДИВИДУАЛЬНЫХ ДОСТИЖЕНИЙ ========== -->
-				<TextBlock Text="Список индивидуальных достижений" FontSize="13" FontWeight="Bold" Background="#E8EFF7" Padding="8" Margin="0,0,0,8"/>
+                <Border BorderBrush="#CCCCCC" BorderThickness="1" Margin="0,0,0,15">
+                    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" MaxHeight="300">
+                        <DataGrid Name="AchievementsGrid" AutoGenerateColumns="False"
+                  CanUserAddRows="False" CanUserDeleteRows="True"
+                  HeadersVisibility="Column" FontSize="11" BorderThickness="0"
+                  RowHeaderWidth="0">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="№" Width="40" Binding="{Binding Number}" />
+                                <DataGridTextColumn Header="Категория достижения" Width="280" Binding="{Binding Category}" />
+                                <DataGridTextColumn Header="Наименование" Width="200" Binding="{Binding AchievementName}" />
+                                <DataGridTextColumn Header="Год" Width="60" Binding="{Binding Year}" />
+                                <DataGridTextColumn Header="Баллы" Width="60" Binding="{Binding Points}" />
+                                <DataGridTextColumn Header="Подтверждающий документ" Width="200" Binding="{Binding DocumentName}" />
 
-				<Border BorderBrush="#CCCCCC" BorderThickness="1" Margin="0,0,0,15">
-					<ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" MaxHeight="300">
-						<DataGrid Name="AchievementsGrid" AutoGenerateColumns="False"
-                                  CanUserAddRows="False" CanUserDeleteRows="True"
-                                  HeadersVisibility="Column" FontSize="11" BorderThickness="0"
-                                  RowHeaderWidth="0">
-							<DataGrid.Columns>
-								<DataGridTextColumn Header="№" Width="40" Binding="{Binding Number}" />
-								<DataGridTextColumn Header="Категория достижения" Width="280" Binding="{Binding Category}" />
-								<DataGridTextColumn Header="Наименование" Width="200" Binding="{Binding AchievementName}" />
-								<DataGridTextColumn Header="Год" Width="60" Binding="{Binding Year}" />
-								<DataGridTextColumn Header="Баллы" Width="60" Binding="{Binding Points}" />
-								<DataGridTextColumn Header="Подтверждающий документ" Width="200" Binding="{Binding DocumentName}" />
-								<DataGridTemplateColumn Header="Удалить" Width="50">
-									<DataGridTemplateColumn.CellTemplate>
-										<DataTemplate>
-											<Button Content="X" FontSize="10" Width="25" Height="20"
-                                                    Click="DeleteAchievement_Click" Tag="{Binding}"/>
-										</DataTemplate>
-									</DataGridTemplateColumn.CellTemplate>
-								</DataGridTemplateColumn>
-							</DataGrid.Columns>
-						</DataGrid>
-					</ScrollViewer>
-				</Border>
+                                <!-- НОВАЯ КОЛОНКА С КНОПКОЙ ОТКРЫТИЯ ФАЙЛА -->
+                                <DataGridTemplateColumn Header="Файл" Width="50">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Content="📎" FontSize="12" Width="25" Height="22" 
+                    ToolTip="Открыть файл" Click="OpenFile_Click" Tag="{Binding}"
+                    Visibility="{Binding HasFile}"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
 
-				<!-- ========== СУММА БАЛЛОВ ========== -->
+                                <DataGridTemplateColumn Header="Удалить" Width="50">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Content="X" FontSize="10" Width="25" Height="20"
+                                    Click="DeleteAchievement_Click" Tag="{Binding}"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </ScrollViewer>
+                </Border>
+                <!-- ========== СУММА БАЛЛОВ ========== -->
 				<Border BorderBrush="#007ACC" BorderThickness="2" CornerRadius="5" Margin="0,0,0,15" Padding="10" Background="#E8F4FD">
 					<Grid>
 						<Grid.ColumnDefinitions>

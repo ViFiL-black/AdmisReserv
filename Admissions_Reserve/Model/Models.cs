@@ -89,6 +89,8 @@ namespace Admissions_Reserve.Model
         public string AdditionalData { get; set; }
         public string DocumentInfo { get; set; }
         public string Category { get; set; }
+        public string AttachmentPath { get; set; }
+
         public virtual Applicants Applicants { get; set; }
         public virtual IdentityDocumentTypes IdentityDocumentTypes { get; set; }
     }
@@ -132,6 +134,12 @@ namespace Admissions_Reserve.Model
         public int Id { get; set; }
         public string Name { get; set; }
     }
+    public class Role
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }         
+        public string Description { get; set; }   
+    }
 
     public partial class LanguageLevels
     {
@@ -164,6 +172,8 @@ namespace Admissions_Reserve.Model
         public DateTime? IssueDate { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+        public string AttachmentPath { get; set; }
+
     }
 
     public partial class DocumentTypes

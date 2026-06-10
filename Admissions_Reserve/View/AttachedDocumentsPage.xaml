@@ -13,72 +13,10 @@
 
                 <TextBlock Text="Основные документы, приложенные к заявлению" FontSize="16" FontWeight="Bold" Margin="0,0,0,15"/>
 
-                <!-- Документ об образовании -->
-                <Border BorderBrush="#E8EFF7" BorderThickness="1" CornerRadius="5" Margin="0,0,0,15" Padding="12" Background="#E8EFF7">
-                    <StackPanel>
-                        <TextBlock Text="📄 Документ об образовании" FontSize="13" FontWeight="Bold" Margin="0,0,0,10"/>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="120"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="120"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="Тип документа:" FontSize="12"/>
-                            <TextBlock Grid.Column="1" x:Name="EduDocType" Text="-" FontSize="12" FontWeight="SemiBold" Margin="0,0,10,0"/>
-                            <TextBlock Grid.Column="2" Text="Дата выдачи:" FontSize="12"/>
-                            <TextBlock Grid.Column="3" x:Name="EduDocDate" Text="-" FontSize="12" FontWeight="SemiBold"/>
-                        </Grid>
-                        <Grid Margin="0,8,0,0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="120"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="120"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="Серия и номер:" FontSize="12"/>
-                            <TextBlock Grid.Column="1" x:Name="EduDocSeriesNumber" Text="-" FontSize="12" Margin="0,0,10,0"/>
-                            <TextBlock Grid.Column="2" Text="Организация:" FontSize="12"/>
-                            <TextBlock Grid.Column="3" x:Name="EduDocOrg" Text="-" FontSize="12"/>
-                        </Grid>
-                    </StackPanel>
-                </Border>
+                <!-- Таблица всех документов -->
+                <TextBlock Text="Список документов" FontSize="13" FontWeight="Bold" Background="#E8EFF7" Padding="8" Margin="0,0,0,8"/>
 
-                <!-- Удостоверение личности -->
-                <Border BorderBrush="#E8F4FD" BorderThickness="1" CornerRadius="5" Margin="0,0,0,15" Padding="12" Background="#E8F4FD">
-                    <StackPanel>
-                        <TextBlock Text="🆔 Удостоверение личности" FontSize="13" FontWeight="Bold" Margin="0,0,0,10"/>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="120"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="120"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="Тип документа:" FontSize="12"/>
-                            <TextBlock Grid.Column="1" x:Name="IdDocType" Text="-" FontSize="12" FontWeight="SemiBold" Margin="0,0,10,0"/>
-                            <TextBlock Grid.Column="2" Text="Дата выдачи:" FontSize="12"/>
-                            <TextBlock Grid.Column="3" x:Name="IdDocDate" Text="-" FontSize="12" FontWeight="SemiBold"/>
-                        </Grid>
-                        <Grid Margin="0,8,0,0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="120"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="120"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="Серия и номер:" FontSize="12"/>
-                            <TextBlock Grid.Column="1" x:Name="IdDocSeriesNumber" Text="-" FontSize="12" Margin="0,0,10,0"/>
-                            <TextBlock Grid.Column="2" Text="Кем выдан:" FontSize="12"/>
-                            <TextBlock Grid.Column="3" x:Name="IdDocIssuedBy" Text="-" FontSize="12"/>
-                        </Grid>
-                    </StackPanel>
-                </Border>
-
-                <!-- Таблица прочих документов -->
-                <TextBlock Text="Прочие документы, приложенные к заявлению" FontSize="13" FontWeight="Bold" Background="#E8EFF7" Padding="8" Margin="0,0,0,8"/>
-
-                <Border BorderBrush="#CCCCCC" BorderThickness="1" Margin="0,0,0,15">
+                <Border BorderBrush="#CCCCCC" BorderThickness="1" Margin="0,0,0,15" CornerRadius="5">
                     <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" MaxHeight="400">
                         <DataGrid x:Name="DocumentsGrid" AutoGenerateColumns="False"
                                   CanUserAddRows="False" HeadersVisibility="Column" FontSize="11" BorderThickness="0"
@@ -104,9 +42,7 @@
                     </ScrollViewer>
                 </Border>
 
-
-                <!-- Кнопки -->
-                <!-- Кнопки навигации - замените на это -->
+                <!-- Кнопки навигации -->
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,10">
                     <Button x:Name="PrevButton" Content="Назад" Click="PrevButton_Click" Width="90" Height="32" Margin="0,0,10,0" FontSize="11" Background="#F0F0F0"/>
                     <Button x:Name="CompleteButton" Content="Завершить" Click="CompleteButton_Click" Width="120" Height="32" Margin="0,0,10,0" FontSize="11" Background="#4CAF50" Foreground="White"/>

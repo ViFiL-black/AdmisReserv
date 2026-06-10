@@ -1,5 +1,3 @@
-// Полный код DocumentsPage.xaml.cs (исправленный)
-
 using Admissions_Reserve.Model;
 using Microsoft.Win32;
 using System;
@@ -18,7 +16,6 @@ namespace Admissions_Reserve.View
     {
         public class DocumentItem : INotifyPropertyChanged
         {
-            // ... все свойства без изменений (они уже были) ...
             public int Id { get; set; }
             private int _number;
             private string _documentType;
@@ -45,10 +42,11 @@ namespace Admissions_Reserve.View
             public DateTime AddedDate { get => _addedDate; set { _addedDate = value; OnPropertyChanged(nameof(AddedDate)); } }
             public string PersonalDataCategory { get => _personalDataCategory; set { _personalDataCategory = value; OnPropertyChanged(nameof(PersonalDataCategory)); } }
             public bool IsPersonalDataDocument { get => _isPersonalDataDocument; set { _isPersonalDataDocument = value; OnPropertyChanged(nameof(IsPersonalDataDocument)); } }
-            public string AttachmentPath { get => _attachmentPath; set { _attachmentPath = value; OnPropertyChanged(nameof(AttachmentPath)); HasAttachment = !string.IsNullOrEmpty(value); } }
+            public string AttachmentPath { get => _attachmentPath; set { _attachmentPath = value; OnPropertyChanged(nameof(AttachmentPath)); HasAttachment = !string.IsNullOrEmpty(value) && File.Exists(value); } }
             public string AttachmentName { get => _attachmentName; set { _attachmentName = value; OnPropertyChanged(nameof(AttachmentName)); } }
             public bool HasAttachment { get => _hasAttachment; set { _hasAttachment = value; OnPropertyChanged(nameof(HasAttachment)); } }
             public int? DocumentTypeId { get => _documentTypeId; set { _documentTypeId = value; OnPropertyChanged(nameof(DocumentTypeId)); } }
+            public Visibility FileButtonVisibility => HasAttachment ? Visibility.Visible : Visibility.Collapsed;
 
             public event PropertyChangedEventHandler PropertyChanged;
             protected void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
@@ -66,9 +64,14 @@ namespace Admissions_Reserve.View
         private ObservableCollection<IdentityDocumentTypes> _identityDocumentTypes;
         private ObservableCollection<PersonalDocumentTypes> _personalDocumentTypes;
 
+        private readonly string _documentsRootPath;
+
         public DocumentsPage()
         {
             InitializeComponent();
+            _documentsRootPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "App_Data", "ApplicantDocuments");
+            if (!Directory.Exists(_documentsRootPath))
+                Directory.CreateDirectory(_documentsRootPath);
             Loaded += DocumentsPage_Loaded;
         }
 
@@ -185,7 +188,9 @@ namespace Admissions_Reserve.View
                         AddedDate = doc.AddedDate ?? DateTime.Now,
                         PersonalDataCategory = doc.Category ?? "Абитуриент (прием 2026)",
                         IsPersonalDataDocument = true,
-                        HasAttachment = false
+                        AttachmentPath = doc.AttachmentPath,
+                        AttachmentName = Path.GetFileName(doc.AttachmentPath),
+                        HasAttachment = !string.IsNullOrEmpty(doc.AttachmentPath) && File.Exists(doc.AttachmentPath)
                     });
                 }
 
@@ -208,7 +213,9 @@ namespace Admissions_Reserve.View
                         AddedDate = doc.CreatedAt,
                         PersonalDataCategory = doc.Category ?? "Абитуриент (прием 2026)",
                         IsPersonalDataDocument = false,
-                        HasAttachment = false
+                        AttachmentPath = doc.AttachmentPath,
+                        AttachmentName = Path.GetFileName(doc.AttachmentPath),
+                        HasAttachment = !string.IsNullOrEmpty(doc.AttachmentPath) && File.Exists(doc.AttachmentPath)
                     });
                 }
 
@@ -257,9 +264,20 @@ namespace Admissions_Reserve.View
             };
             if (openFileDialog.ShowDialog() == true)
             {
-                _selectedAttachmentPath = openFileDialog.FileName;
-                _selectedAttachmentName = Path.GetFileName(_selectedAttachmentPath);
-                AttachmentFileTextBox.Text = _selectedAttachmentName;
+                try
+                {
+                    string extension = Path.GetExtension(openFileDialog.FileName);
+                    string uniqueName = $"Doc_{SessionManager.CurrentApplicantId}_{Guid.NewGuid():N}{extension}";
+                    string destPath = Path.Combine(_documentsRootPath, uniqueName);
+                    File.Copy(openFileDialog.FileName, destPath, overwrite: false);
+                    _selectedAttachmentPath = destPath;
+                    _selectedAttachmentName = Path.GetFileName(openFileDialog.FileName);
+                    AttachmentFileTextBox.Text = _selectedAttachmentName;
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ошибка копирования файла: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
         }
 
@@ -332,7 +350,8 @@ namespace Admissions_Reserve.View
                         AddedDate = DateTime.Now,
                         AdditionalData = AdditionalDataTextBox.Text,
                         DocumentInfo = documentInfo,
-                        Category = category
+                        Category = category,
+                        AttachmentPath = _selectedAttachmentPath
                     };
                     documentId = DataService.CreateIdentityDocument(newDoc);
                     DataService.LogChange("IdentityDocuments", documentId, "INSERT");
@@ -353,7 +372,7 @@ namespace Admissions_Reserve.View
                         IsPersonalDataDocument = true,
                         AttachmentPath = _selectedAttachmentPath,
                         AttachmentName = _selectedAttachmentName,
-                        HasAttachment = !string.IsNullOrEmpty(_selectedAttachmentPath)
+                        HasAttachment = !string.IsNullOrEmpty(_selectedAttachmentPath) && File.Exists(_selectedAttachmentPath)
                     };
                     _personalDataDocuments.Add(newDocument);
                     RenumberItems(_personalDataDocuments);
@@ -370,7 +389,8 @@ namespace Admissions_Reserve.View
                         AdditionalData = AdditionalDataTextBox.Text,
                         DocumentInfo = documentInfo,
                         Category = category,
-                        IssueDate = IssueDatePicker.SelectedDate   // сохраняем дату, если нужна
+                        IssueDate = IssueDatePicker.SelectedDate,
+                        AttachmentPath = _selectedAttachmentPath
                     };
                     documentId = DataService.CreateGeneralDocument(newDoc);
                     DataService.LogChange("Documents", documentId, "INSERT");
@@ -391,7 +411,7 @@ namespace Admissions_Reserve.View
                         IsPersonalDataDocument = false,
                         AttachmentPath = _selectedAttachmentPath,
                         AttachmentName = _selectedAttachmentName,
-                        HasAttachment = !string.IsNullOrEmpty(_selectedAttachmentPath)
+                        HasAttachment = !string.IsNullOrEmpty(_selectedAttachmentPath) && File.Exists(_selectedAttachmentPath)
                     };
                     _documents.Add(newDocument);
                     RenumberItems(_documents);
@@ -422,7 +442,12 @@ namespace Admissions_Reserve.View
         }
 
         private void CancelAddButton_Click(object sender, RoutedEventArgs e) => ClearForm();
-
+        private void ClearFileButton_Click(object sender, RoutedEventArgs e)
+        {
+            _selectedAttachmentPath = null;
+            _selectedAttachmentName = null;
+            AttachmentFileTextBox.Text = "";
+        }
         private void DeleteDocument_Click(object sender, RoutedEventArgs e)
         {
             var button = sender as Button;
@@ -448,11 +473,20 @@ namespace Admissions_Reserve.View
                             }
                         }
                         DataService.LogChange("IdentityDocuments", item.Id, "DELETE");
+                        // Удаляем файл, если он существует
+                        if (!string.IsNullOrEmpty(item.AttachmentPath) && File.Exists(item.AttachmentPath))
+                        {
+                            try { File.Delete(item.AttachmentPath); } catch { }
+                        }
                     }
                     else
                     {
                         DataService.DeleteGeneralDocument(item.Id, SessionManager.CurrentApplicantId.Value);
                         DataService.LogChange("Documents", item.Id, "DELETE");
+                        if (!string.IsNullOrEmpty(item.AttachmentPath) && File.Exists(item.AttachmentPath))
+                        {
+                            try { File.Delete(item.AttachmentPath); } catch { }
+                        }
                     }
                 }
                 if (item.IsPersonalDataDocument)
@@ -478,11 +512,23 @@ namespace Admissions_Reserve.View
             var item = button?.Tag as DocumentItem;
             if (item != null && !string.IsNullOrEmpty(item.AttachmentPath) && File.Exists(item.AttachmentPath))
             {
-                try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo { FileName = item.AttachmentPath, UseShellExecute = true }); }
-                catch (Exception ex) { MessageBox.Show($"Не удалось открыть файл: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
+                try
+                {
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = item.AttachmentPath,
+                        UseShellExecute = true
+                    });
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Не удалось открыть файл: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
             else if (item != null && !string.IsNullOrEmpty(item.AttachmentName))
-                MessageBox.Show($"Файл \"{item.AttachmentName}\" не найден на диске", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+            {
+                MessageBox.Show($"Файл \"{item.AttachmentName}\" не найден на диске.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
         }
 
         private void RenumberItems(ObservableCollection<DocumentItem> items)
@@ -524,7 +570,8 @@ namespace Admissions_Reserve.View
                             AddedDate = doc.AddedDate,
                             AdditionalData = doc.AdditionalData,
                             DocumentInfo = doc.DocumentInfo,
-                            Category = doc.Category
+                            Category = doc.Category,
+                            AttachmentPath = doc.AttachmentPath
                         };
                         DataService.UpdateIdentityDocument(identityDoc);
                         DataService.LogChange("IdentityDocuments", doc.Id, "UPDATE");
@@ -546,11 +593,10 @@ namespace Admissions_Reserve.View
                             Category = doc.Category,
                             IssueDate = doc.IssueDate,
                             CreatedAt = doc.AddedDate,
-                            UpdatedAt = DateTime.Now
+                            UpdatedAt = DateTime.Now,
+                            AttachmentPath = doc.AttachmentPath
                         };
-                        // Если у вас есть метод UpdateGeneralDocument, используйте его. Иначе реализуйте.
-                        // Здесь предполагается, что метод существует, либо можно вызвать UPDATE напрямую.
-                        UpdateGeneralDocument(generalDoc);
+                        DataService.UpdateGeneralDocument(generalDoc);
                         DataService.LogChange("Documents", doc.Id, "UPDATE");
                     }
                 }
@@ -560,39 +606,6 @@ namespace Admissions_Reserve.View
             {
                 MessageBox.Show($"Ошибка при сохранении данных документов: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
-            }
-        }
-
-        // Вспомогательный метод для обновления обычного документа
-        private void UpdateGeneralDocument(Documents doc)
-        {
-            using (var connection = DatabaseHelper.GetConnection())
-            {
-                string sql = @"
-                    UPDATE Documents SET
-                        DocumentTypeId = @docTypeId,
-                        Series = @series,
-                        Number = @number,
-                        AdditionalData = @additionalData,
-                        DocumentInfo = @documentInfo,
-                        Category = @category,
-                        IssueDate = @issueDate,
-                        UpdatedAt = @updatedAt
-                    WHERE Id = @id AND ApplicantId = @appId";
-                using (var cmd = new SQLiteCommand(sql, connection))
-                {
-                    cmd.Parameters.AddWithValue("@id", doc.Id);
-                    cmd.Parameters.AddWithValue("@appId", doc.ApplicantId);
-                    cmd.Parameters.AddWithValue("@docTypeId", doc.DocumentTypeId);
-                    cmd.Parameters.AddWithValue("@series", doc.Series ?? "");
-                    cmd.Parameters.AddWithValue("@number", doc.Number ?? "");
-                    cmd.Parameters.AddWithValue("@additionalData", doc.AdditionalData ?? "");
-                    cmd.Parameters.AddWithValue("@documentInfo", doc.DocumentInfo ?? "");
-                    cmd.Parameters.AddWithValue("@category", doc.Category ?? "");
-                    cmd.Parameters.AddWithValue("@issueDate", doc.IssueDate?.ToString("yyyy-MM-dd"));
-                    cmd.Parameters.AddWithValue("@updatedAt", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
-                    cmd.ExecuteNonQuery();
-                }
             }
         }
 

@@ -90,7 +90,9 @@
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,10">
                     <Button Name="BackButton" Content="Назад" Width="100" Height="32" FontSize="11" Background="#F0F0F0" Click="BackButton_Click"/>
                     <Button Name="NewApplicantButton" Content="+ Новый абитуриент" Width="150" Height="32" FontSize="11" 
-                            Background="#4CAF50" Foreground="White" Margin="10,0,0,0" Click="NewApplicantButton_Click"/>
+            Background="#4CAF50" Foreground="White" Margin="10,0,0,0" Click="NewApplicantButton_Click"/>
+                    <Button Name="ExitButton" Content="Выход" Width="100" Height="32" FontSize="11" 
+            Background="#E81123" Foreground="White" Margin="10,0,0,0" Click="ExitButton_Click"/>
                 </StackPanel>
             </StackPanel>
         </ScrollViewer>

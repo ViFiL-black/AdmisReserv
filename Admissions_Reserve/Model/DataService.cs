@@ -513,10 +513,10 @@ namespace Admissions_Reserve.Model
             using (var connection = DatabaseHelper.GetConnection())
             {
                 string sql = @"
-                    INSERT INTO IdentityDocuments 
-                    (ApplicantId, DocumentTypeId, Series, Number, IssuedBy, IssueDate, DepartmentCode, IsPrimary, AddedDate, AdditionalData, DocumentInfo, Category)
-                    VALUES (@appId, @docTypeId, @series, @number, @issuedBy, @issueDate, @deptCode, @isPrimary, @addedDate, @additionalData, @documentInfo, @category);
-                    SELECT last_insert_rowid();";
+            INSERT INTO IdentityDocuments 
+            (ApplicantId, DocumentTypeId, Series, Number, IssuedBy, IssueDate, DepartmentCode, IsPrimary, AddedDate, AdditionalData, DocumentInfo, Category, AttachmentPath)
+            VALUES (@appId, @docTypeId, @series, @number, @issuedBy, @issueDate, @deptCode, @isPrimary, @addedDate, @additionalData, @documentInfo, @category, @attachmentPath);
+            SELECT last_insert_rowid();";
                 using (var cmd = new SQLiteCommand(sql, connection))
                 {
                     cmd.Parameters.AddWithValue("@appId", doc.ApplicantId);
@@ -531,6 +531,7 @@ namespace Admissions_Reserve.Model
                     cmd.Parameters.AddWithValue("@additionalData", doc.AdditionalData ?? "");
                     cmd.Parameters.AddWithValue("@documentInfo", doc.DocumentInfo ?? "");
                     cmd.Parameters.AddWithValue("@category", doc.Category ?? "");
+                    cmd.Parameters.AddWithValue("@attachmentPath", doc.AttachmentPath ?? "");
                     return Convert.ToInt32(cmd.ExecuteScalar());
                 }
             }
@@ -579,18 +580,19 @@ namespace Admissions_Reserve.Model
             using (var connection = DatabaseHelper.GetConnection())
             {
                 string sql = @"
-                    UPDATE IdentityDocuments SET
-                        DocumentTypeId = @docTypeId,
-                        Series = @series,
-                        Number = @number,
-                        IssuedBy = @issuedBy,
-                        IssueDate = @issueDate,
-                        DepartmentCode = @deptCode,
-                        IsPrimary = @isPrimary,
-                        AdditionalData = @additionalData,
-                        DocumentInfo = @documentInfo,
-                        Category = @category
-                    WHERE Id = @id AND ApplicantId = @appId";
+            UPDATE IdentityDocuments SET
+                DocumentTypeId = @docTypeId,
+                Series = @series,
+                Number = @number,
+                IssuedBy = @issuedBy,
+                IssueDate = @issueDate,
+                DepartmentCode = @deptCode,
+                IsPrimary = @isPrimary,
+                AdditionalData = @additionalData,
+                DocumentInfo = @documentInfo,
+                Category = @category,
+                AttachmentPath = @attachmentPath
+            WHERE Id = @id AND ApplicantId = @appId";
                 using (var cmd = new SQLiteCommand(sql, connection))
                 {
                     cmd.Parameters.AddWithValue("@id", doc.Id);
@@ -605,6 +607,7 @@ namespace Admissions_Reserve.Model
                     cmd.Parameters.AddWithValue("@additionalData", doc.AdditionalData ?? "");
                     cmd.Parameters.AddWithValue("@documentInfo", doc.DocumentInfo ?? "");
                     cmd.Parameters.AddWithValue("@category", doc.Category ?? "");
+                    cmd.Parameters.AddWithValue("@attachmentPath", doc.AttachmentPath ?? "");
                     cmd.ExecuteNonQuery();
                 }
             }
@@ -616,10 +619,10 @@ namespace Admissions_Reserve.Model
             using (var connection = DatabaseHelper.GetConnection())
             {
                 string sql = @"
-                    INSERT INTO Documents 
-                    (ApplicantId, DocumentTypeId, Series, Number, AdditionalData, DocumentInfo, Category, IssueDate, CreatedAt, UpdatedAt)
-                    VALUES (@appId, @docTypeId, @series, @number, @additionalData, @documentInfo, @category, @issueDate, @createdAt, @updatedAt);
-                    SELECT last_insert_rowid();";
+            INSERT INTO Documents 
+            (ApplicantId, DocumentTypeId, Series, Number, AdditionalData, DocumentInfo, Category, IssueDate, CreatedAt, UpdatedAt, AttachmentPath)
+            VALUES (@appId, @docTypeId, @series, @number, @additionalData, @documentInfo, @category, @issueDate, @createdAt, @updatedAt, @attachmentPath);
+            SELECT last_insert_rowid();";
                 using (var cmd = new SQLiteCommand(sql, connection))
                 {
                     cmd.Parameters.AddWithValue("@appId", doc.ApplicantId);
@@ -632,7 +635,41 @@ namespace Admissions_Reserve.Model
                     cmd.Parameters.AddWithValue("@issueDate", doc.IssueDate?.ToString("yyyy-MM-dd"));
                     cmd.Parameters.AddWithValue("@createdAt", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
                     cmd.Parameters.AddWithValue("@updatedAt", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                    cmd.Parameters.AddWithValue("@attachmentPath", doc.AttachmentPath ?? "");
                     return Convert.ToInt32(cmd.ExecuteScalar());
+                }
+            }
+        }
+        public static void UpdateGeneralDocument(Documents doc)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                string sql = @"
+            UPDATE Documents SET
+                DocumentTypeId = @docTypeId,
+                Series = @series,
+                Number = @number,
+                AdditionalData = @additionalData,
+                DocumentInfo = @documentInfo,
+                Category = @category,
+                IssueDate = @issueDate,
+                AttachmentPath = @attachmentPath,
+                UpdatedAt = @updatedAt
+            WHERE Id = @id AND ApplicantId = @appId";
+                using (var cmd = new SQLiteCommand(sql, connection))
+                {
+                    cmd.Parameters.AddWithValue("@id", doc.Id);
+                    cmd.Parameters.AddWithValue("@appId", doc.ApplicantId);
+                    cmd.Parameters.AddWithValue("@docTypeId", doc.DocumentTypeId);
+                    cmd.Parameters.AddWithValue("@series", doc.Series ?? "");
+                    cmd.Parameters.AddWithValue("@number", doc.Number ?? "");
+                    cmd.Parameters.AddWithValue("@additionalData", doc.AdditionalData ?? "");
+                    cmd.Parameters.AddWithValue("@documentInfo", doc.DocumentInfo ?? "");
+                    cmd.Parameters.AddWithValue("@category", doc.Category ?? "");
+                    cmd.Parameters.AddWithValue("@issueDate", doc.IssueDate?.ToString("yyyy-MM-dd"));
+                    cmd.Parameters.AddWithValue("@attachmentPath", doc.AttachmentPath ?? "");
+                    cmd.Parameters.AddWithValue("@updatedAt", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                    cmd.ExecuteNonQuery();
                 }
             }
         }
@@ -643,8 +680,8 @@ namespace Admissions_Reserve.Model
             using (var connection = DatabaseHelper.GetConnection())
             {
                 string sql = @"
-                    SELECT Id, ApplicantId, DocumentTypeId, Series, Number, AdditionalData, DocumentInfo, Category, IssueDate, CreatedAt, UpdatedAt
-                    FROM Documents WHERE ApplicantId = @id";
+            SELECT Id, ApplicantId, DocumentTypeId, Series, Number, AdditionalData, DocumentInfo, Category, IssueDate, CreatedAt, UpdatedAt, AttachmentPath
+            FROM Documents WHERE ApplicantId = @id";
                 using (var cmd = new SQLiteCommand(sql, connection))
                 {
                     cmd.Parameters.AddWithValue("@id", applicantId);
@@ -664,7 +701,8 @@ namespace Admissions_Reserve.Model
                                 Category = reader["Category"]?.ToString(),
                                 IssueDate = reader["IssueDate"] == DBNull.Value ? (DateTime?)null : DateTime.Parse(reader["IssueDate"].ToString()),
                                 CreatedAt = DateTime.Parse(reader["CreatedAt"].ToString()),
-                                UpdatedAt = DateTime.Parse(reader["UpdatedAt"].ToString())
+                                UpdatedAt = DateTime.Parse(reader["UpdatedAt"].ToString()),
+                                AttachmentPath = reader["AttachmentPath"]?.ToString() 
                             });
                         }
                     }
@@ -2091,7 +2129,60 @@ namespace Admissions_Reserve.Model
             }
         }
         // DataService.cs - добавьте этот метод в класс DataService
+        // Получить пользователя по логину
+        public static User GetUserByLogin(string login)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = "SELECT * FROM Users WHERE Login = @login";
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@login", login);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            return new User
+                            {
+                                Id = Convert.ToInt32(reader["Id"]),
+                                Login = reader["Login"].ToString(),
+                                Password = reader["Password"].ToString(),
+                                FullName = reader["FullName"].ToString(),
+                                CreatedAt = Convert.ToDateTime(reader["CreatedAt"]),
+                                RoleId = reader["RoleId"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["RoleId"])
+                            };
+                        }
+                    }
+                }
+            }
+            return null;
+        }
 
+        // Получить роль пользователя по Id
+        public static Role GetRoleById(int roleId)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                var query = "SELECT * FROM Roles WHERE Id = @id";
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@id", roleId);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            return new Role
+                            {
+                                Id = Convert.ToInt32(reader["Id"]),
+                                Name = reader["Name"].ToString(),
+                                Description = reader["Description"]?.ToString()
+                            };
+                        }
+                    }
+                }
+            }
+            return null;
+        }
         public static int CreateIndividualAchievementFull(int applicantId, string typeName, string name, string year, int points, string docName, string docPath)
         {
             using (var connection = DatabaseHelper.GetConnection())

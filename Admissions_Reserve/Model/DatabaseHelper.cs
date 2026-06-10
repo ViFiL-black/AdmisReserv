@@ -21,12 +21,10 @@ namespace Admissions_Reserve.Model
             lock (lockObject)
             {
                 string dbDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "App_Data");
-
                 if (!Directory.Exists(dbDirectory))
                     Directory.CreateDirectory(dbDirectory);
 
                 string dbPath = Path.Combine(dbDirectory, "AdmissionsReserve.db");
-
                 if (!File.Exists(dbPath))
                     SQLiteConnection.CreateFile(dbPath);
 
@@ -44,6 +42,10 @@ namespace Admissions_Reserve.Model
                     EnsureDocumentsColumnsExist(connection);
                     EnsureIdentityDocumentsColumnsExist(connection);
                     EnsureAttachedDocumentsColumnsExist(connection);
+                    EnsureDocumentsAttachmentColumn(connection);
+                    EnsureIdentityDocumentsAttachmentColumn(connection);
+                    EnsureUsersRoleColumnExist(connection);
+
                     SeedAllDataIfEmpty(connection);
                     EnsureIdentityDocumentsExtraColumns(connection);
                     EnsureDocumentsExtraColumns(connection);
@@ -74,14 +76,9 @@ namespace Admissions_Reserve.Model
                 "CREATE TABLE IF NOT EXISTS AchievementCategories (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL)",
                 "CREATE TABLE IF NOT EXISTS Competitions (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL, EducationBase TEXT, StudyForm TEXT, AdmissionType TEXT, Department TEXT, Branch TEXT, IsActive INTEGER DEFAULT 1)",
                 "CREATE TABLE IF NOT EXISTS Branches (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL)",
-                "CREATE TABLE IF NOT EXISTS RelationDegrees (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL)",
-                "CREATE TABLE IF NOT EXISTS EducationalOrganizations (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL)",
-                "CREATE TABLE IF NOT EXISTS DocumentCategories (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL)",
-                "CREATE TABLE IF NOT EXISTS DocumentReceiptForms (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL)",
                 "CREATE TABLE IF NOT EXISTS PersonalDocumentTypes (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL, SortOrder INTEGER DEFAULT 0, IsActive INTEGER DEFAULT 1)",
                 "CREATE TABLE IF NOT EXISTS Languages (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL)",
                 "CREATE TABLE IF NOT EXISTS LanguageLevels (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL, SortOrder INTEGER DEFAULT 0)",
-                "CREATE TABLE IF NOT EXISTS RelativeTypes (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL)",
                 "CREATE TABLE IF NOT EXISTS IndividualAchievementTypes (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL, DefaultPoints INTEGER DEFAULT 0)",
 
                 "CREATE TABLE IF NOT EXISTS Users (Id INTEGER PRIMARY KEY AUTOINCREMENT, Login TEXT NOT NULL UNIQUE, Password TEXT NOT NULL, FullName TEXT NOT NULL, CreatedAt TEXT NOT NULL)",
@@ -96,11 +93,11 @@ namespace Admissions_Reserve.Model
                 "CREATE TABLE IF NOT EXISTS IndividualAchievements (Id INTEGER PRIMARY KEY AUTOINCREMENT, ApplicantId INTEGER NOT NULL, AchievementTypeId INTEGER, Achievement TEXT, AchievementName TEXT, Category TEXT, Year TEXT, Points INTEGER DEFAULT 0, DocumentName TEXT, DocumentPath TEXT, CreatedAt TEXT NOT NULL, UpdatedAt TEXT NOT NULL)",
                 "CREATE TABLE IF NOT EXISTS ApplicationPriorities (Id INTEGER PRIMARY KEY AUTOINCREMENT, ApplicantId INTEGER NOT NULL, PriorityOrder INTEGER, ProgramCode TEXT, ProgramName TEXT, StudyForm TEXT, EducationBase TEXT, Department TEXT, AdmissionType TEXT, Branch TEXT, IsSelected INTEGER DEFAULT 0, CreatedAt TEXT NOT NULL, UpdatedAt TEXT NOT NULL)",
                 "CREATE TABLE IF NOT EXISTS AttachedDocuments (Id INTEGER PRIMARY KEY AUTOINCREMENT, ApplicantId INTEGER NOT NULL, DocumentName TEXT, DocumentType TEXT, FilePath TEXT, FileSize INTEGER, UploadedAt TEXT NOT NULL, CreatedAt TEXT NOT NULL, UpdatedAt TEXT NOT NULL)",
-                "CREATE TABLE IF NOT EXISTS ContactInformation (Id INTEGER PRIMARY KEY AUTOINCREMENT, ApplicantId INTEGER NOT NULL, ContactType TEXT, ContactValue TEXT, IsPreferred INTEGER DEFAULT 0, CreatedAt TEXT NOT NULL, UpdatedAt TEXT NOT NULL)",
                 "CREATE TABLE IF NOT EXISTS Documents (Id INTEGER PRIMARY KEY AUTOINCREMENT, ApplicantId INTEGER NOT NULL, DocumentTypeId INTEGER, Series TEXT, Number TEXT, CreatedAt TEXT NOT NULL, UpdatedAt TEXT NOT NULL)",
                 "CREATE TABLE IF NOT EXISTS RelativeDocuments (Id INTEGER PRIMARY KEY AUTOINCREMENT, ApplicantId INTEGER NOT NULL, RelativeTypeId INTEGER, LastName TEXT, FirstName TEXT, Patronymic TEXT, BirthDate TEXT, BirthPlace TEXT, GenderId INTEGER, DocumentTypeId INTEGER, Series TEXT, Number TEXT, IssuedBy TEXT, IssueDate TEXT, DepartmentCode TEXT, Snils TEXT, Inn TEXT, Phone TEXT, Email TEXT, RegistrationAddress TEXT, ActualAddress TEXT, Workplace TEXT, Position TEXT, IsGuardian INTEGER DEFAULT 0, CreatedAt TEXT NOT NULL, UpdatedAt TEXT NOT NULL)",
                 "CREATE TABLE IF NOT EXISTS CompetitionPriorities (Id INTEGER PRIMARY KEY AUTOINCREMENT, ApplicantId INTEGER NOT NULL, CompetitionName TEXT, PriorityOrder INTEGER, IsSelected INTEGER DEFAULT 0, CreatedAt TEXT NOT NULL, UpdatedAt TEXT NOT NULL)",
-                "CREATE TABLE IF NOT EXISTS ChangeHistory (Id INTEGER PRIMARY KEY AUTOINCREMENT, TableName TEXT, RecordId INTEGER, Action TEXT, ChangedAt TEXT NOT NULL)"
+                "CREATE TABLE IF NOT EXISTS ChangeHistory (Id INTEGER PRIMARY KEY AUTOINCREMENT, TableName TEXT, RecordId INTEGER, Action TEXT, ChangedAt TEXT NOT NULL)",
+                "CREATE TABLE IF NOT EXISTS Roles (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL UNIQUE, Description TEXT)"
             };
 
             foreach (string sql in tables)
@@ -286,26 +283,98 @@ namespace Admissions_Reserve.Model
                 }
             }
             catch { }
-
-            // Инициализация тестового пользователя
+            // Заполнение таблицы Roles
             try
             {
-                using (var cmd = new SQLiteCommand("SELECT COUNT(*) FROM Users WHERE Login = 'testuser'", connection))
+                // 1. Создаём роли, если их нет
+                using (var cmd = new SQLiteCommand("SELECT COUNT(*) FROM Roles", connection))
                 {
                     if ((long)cmd.ExecuteScalar() == 0)
                     {
-                        string passwordHash = "testpassword"; // Пароль будет "testpassword" в виде хеша
-
-                        using (var insertCmd = new SQLiteCommand("INSERT INTO Users (Login, Password, FullName, CreatedAt) VALUES ('testuser', @password, 'Тестовый Пользователь', @createdAt)", connection))
+                        string[] roles = { "Admin", "User" };
+                        foreach (string role in roles)
                         {
-                            insertCmd.Parameters.AddWithValue("@password", passwordHash);
-                            insertCmd.Parameters.AddWithValue("@createdAt", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
-                            insertCmd.ExecuteNonQuery();
+                            string sql = $"INSERT INTO Roles (Name, Description) VALUES ('{role}', 'Роль {role}')";
+                            using (var c = new SQLiteCommand(sql, connection))
+                                c.ExecuteNonQuery();
+                        }
+                    }
+                }
+
+                // 2. Получаем ID ролей
+                long? adminRoleId = null;
+                long? userRoleId = null;
+                using (var cmd = new SQLiteCommand("SELECT Id, Name FROM Roles", connection))
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        string name = reader["Name"].ToString();
+                        long id = Convert.ToInt64(reader["Id"]);
+                        if (name == "Admin") adminRoleId = id;
+                        else if (name == "User") userRoleId = id;
+                    }
+                }
+
+                // 3. Создаём или обновляем администратора
+                if (adminRoleId.HasValue)
+                {
+                    using (var cmd = new SQLiteCommand("SELECT COUNT(*) FROM Users WHERE Login = 'admin'", connection))
+                    {
+                        if ((long)cmd.ExecuteScalar() == 0)
+                        {
+                            string sql = @"INSERT INTO Users (Login, Password, FullName, CreatedAt, RoleId)
+                               VALUES ('admin', 'admin123', 'Администратор', @dt, @rid)";
+                            using (var insert = new SQLiteCommand(sql, connection))
+                            {
+                                insert.Parameters.AddWithValue("@dt", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                                insert.Parameters.AddWithValue("@rid", adminRoleId.Value);
+                                insert.ExecuteNonQuery();
+                            }
+                        }
+                        else
+                        {
+                            // Обновляем роль и пароль (на случай, если они неверные)
+                            using (var update = new SQLiteCommand("UPDATE Users SET RoleId = @rid, Password = 'admin123' WHERE Login = 'admin'", connection))
+                            {
+                                update.Parameters.AddWithValue("@rid", adminRoleId.Value);
+                                update.ExecuteNonQuery();
+                            }
+                        }
+                    }
+                }
+
+                // 4. Создаём или обновляем тестового пользователя
+                if (userRoleId.HasValue)
+                {
+                    using (var cmd = new SQLiteCommand("SELECT COUNT(*) FROM Users WHERE Login = 'testuser'", connection))
+                    {
+                        if ((long)cmd.ExecuteScalar() == 0)
+                        {
+                            string sql = @"INSERT INTO Users (Login, Password, FullName, CreatedAt, RoleId)
+                               VALUES ('testuser', 'testpassword', 'Тестовый Пользователь', @dt, @rid)";
+                            using (var insert = new SQLiteCommand(sql, connection))
+                            {
+                                insert.Parameters.AddWithValue("@dt", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                                insert.Parameters.AddWithValue("@rid", userRoleId.Value);
+                                insert.ExecuteNonQuery();
+                            }
+                        }
+                        else
+                        {
+                            using (var update = new SQLiteCommand("UPDATE Users SET RoleId = @rid, Password = 'testpassword' WHERE Login = 'testuser'", connection))
+                            {
+                                update.Parameters.AddWithValue("@rid", userRoleId.Value);
+                                update.ExecuteNonQuery();
+                            }
                         }
                     }
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Ошибка инициализации пользователей: " + ex.Message);
+            }
         }
 
         private static void EnsureApplicantColumnsExist(SQLiteConnection connection)
@@ -386,7 +455,37 @@ namespace Admissions_Reserve.Model
                 }
             }
         }
+        private static void EnsureUsersRoleColumnExist(SQLiteConnection connection)
+        {
+            // Проверяем наличие колонки RoleId в таблице Users
+            bool columnExists = false;
+            try
+            {
+                using (var cmd = new SQLiteCommand("PRAGMA table_info(Users);", connection))
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        if (reader[1].ToString().Equals("RoleId", StringComparison.OrdinalIgnoreCase))
+                        {
+                            columnExists = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            catch { return; }
 
+            if (!columnExists)
+            {
+                try
+                {
+                    using (var alter = new SQLiteCommand("ALTER TABLE Users ADD COLUMN RoleId INTEGER REFERENCES Roles(Id);", connection))
+                        alter.ExecuteNonQuery();
+                }
+                catch { }
+            }
+        }
         private static void EnsureRelativesColumnsExist(SQLiteConnection connection)
         {
             var requiredColumns = new Dictionary<string, string>
@@ -595,6 +694,63 @@ namespace Admissions_Reserve.Model
             }
         }
 
+        private static void EnsureDocumentsAttachmentColumn(SQLiteConnection connection)
+        {
+            bool columnExists = false;
+            try
+            {
+                using (var cmd = new SQLiteCommand("PRAGMA table_info(Documents);", connection))
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                        if (reader[1].ToString().Equals("AttachmentPath", StringComparison.OrdinalIgnoreCase))
+                        {
+                            columnExists = true;
+                            break;
+                        }
+                }
+            }
+            catch { return; }
+
+            if (!columnExists)
+            {
+                try
+                {
+                    using (var alter = new SQLiteCommand("ALTER TABLE Documents ADD COLUMN AttachmentPath TEXT;", connection))
+                        alter.ExecuteNonQuery();
+                }
+                catch { }
+            }
+        }
+
+        private static void EnsureIdentityDocumentsAttachmentColumn(SQLiteConnection connection)
+        {
+            bool columnExists = false;
+            try
+            {
+                using (var cmd = new SQLiteCommand("PRAGMA table_info(IdentityDocuments);", connection))
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                        if (reader[1].ToString().Equals("AttachmentPath", StringComparison.OrdinalIgnoreCase))
+                        {
+                            columnExists = true;
+                            break;
+                        }
+                }
+            }
+            catch { return; }
+
+            if (!columnExists)
+            {
+                try
+                {
+                    using (var alter = new SQLiteCommand("ALTER TABLE IdentityDocuments ADD COLUMN AttachmentPath TEXT;", connection))
+                        alter.ExecuteNonQuery();
+                }
+                catch { }
+            }
+        }
         private static void EnsureDocumentsExtraColumns(SQLiteConnection connection)
         {
             var requiredColumns = new Dictionary<string, string>
