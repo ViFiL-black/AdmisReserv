@@ -64,7 +64,7 @@
                                 <DataGridTextColumn Header="Отчество" Width="100" Binding="{Binding Patronymic}" IsReadOnly="True"/>
                                 <DataGridTextColumn Header="Email" Width="150" Binding="{Binding Email}" IsReadOnly="True"/>
                                 <DataGridTextColumn Header="Телефон" Width="120" Binding="{Binding Phone}" IsReadOnly="True"/>
-                                <DataGridTemplateColumn Header="Действия" Width="120">
+                                <DataGridTemplateColumn Header="Действия" Width="350">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
                                             <StackPanel Orientation="Horizontal">
@@ -74,6 +74,15 @@
                                                 <Button Content="Удал." FontSize="10" Width="45" Height="22" Margin="2"
                                                         Background="#F44336" Foreground="White" ToolTip="Удалить"
                                                         Click="DeleteButton_Click" Tag="{Binding}"/>
+                                                <Button Content="Заявление" Width="60" Height="25" Margin="2"
+                        Background="#2196F3" Foreground="White"
+                        Click="GenerateApplication_Click" Tag="{Binding}"/>
+                                                <Button Content="Согласие" Width="60" Height="25" Margin="2"
+                        Background="#4CAF50" Foreground="White"
+                        Click="GenerateConsent_Click" Tag="{Binding}"/>
+                                                <Button Content="Согл. предст." Width="70" Height="25" Margin="2"
+                        Background="#FF9800" Foreground="White"
+                        Click="GenerateGuardianConsent_Click" Tag="{Binding}"/>
                                             </StackPanel>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>

@@ -1,10 +1,13 @@
+using Admissions_Reserve.Model;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.IO;
+using Microsoft.Win32;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using Admissions_Reserve.Model;
 
 namespace Admissions_Reserve.View
 {
@@ -238,6 +241,80 @@ namespace Admissions_Reserve.View
                 NavigationService.GoBack();
         }
 
+        private void GenerateApplication_Click(object sender, RoutedEventArgs e)
+        {
+            var applicant = (sender as Button)?.Tag as Applicants;
+            if (applicant == null) return;
+
+            var saveDialog = new SaveFileDialog
+            {
+                Title = "Сохранить заявление",
+                Filter = "Документ Word (*.docx)|*.docx",
+                FileName = $"Заявление_{applicant.LastName}_{applicant.FirstName}_{DateTime.Now:yyyyMMdd}.docx"
+            };
+            if (saveDialog.ShowDialog() == true)
+            {
+                try
+                {
+                    WordDocumentGenerator.GenerateApplication(applicant.Id, saveDialog.FileName);
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(saveDialog.FileName) { UseShellExecute = true });
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ошибка при формировании заявления: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private void GenerateConsent_Click(object sender, RoutedEventArgs e)
+        {
+            var applicant = (sender as Button)?.Tag as Applicants;
+            if (applicant == null) return;
+
+            var saveDialog = new SaveFileDialog
+            {
+                Title = "Сохранить согласие на обработку ПД",
+                Filter = "Документ Word (*.docx)|*.docx",
+                FileName = $"Согласие_{applicant.LastName}_{applicant.FirstName}_{DateTime.Now:yyyyMMdd}.docx"
+            };
+            if (saveDialog.ShowDialog() == true)
+            {
+                try
+                {
+                    WordDocumentGenerator.GenerateConsent(applicant.Id, saveDialog.FileName);
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(saveDialog.FileName) { UseShellExecute = true });
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ошибка при формировании согласия: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private void GenerateGuardianConsent_Click(object sender, RoutedEventArgs e)
+        {
+            var applicant = (sender as Button)?.Tag as Applicants;
+            if (applicant == null) return;
+
+            var saveDialog = new SaveFileDialog
+            {
+                Title = "Сохранить согласие законного представителя",
+                Filter = "Документ Word (*.docx)|*.docx",
+                FileName = $"Согласие_представителя_{applicant.LastName}_{applicant.FirstName}_{DateTime.Now:yyyyMMdd}.docx"
+            };
+            if (saveDialog.ShowDialog() == true)
+            {
+                try
+                {
+                    WordDocumentGenerator.GenerateGuardianConsent(applicant.Id, saveDialog.FileName);
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(saveDialog.FileName) { UseShellExecute = true });
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ошибка при формировании согласия представителя: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
         private void NewApplicantButton_Click(object sender, RoutedEventArgs e)
         {
             try

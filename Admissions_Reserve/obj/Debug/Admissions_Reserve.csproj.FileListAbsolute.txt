@@ -65,3 +65,10 @@ C:\Users\ViFiL\source\repos\Admissions_Reserve\Admissions_Reserve\obj\Debug\View
 C:\Users\ViFiL\source\repos\Admissions_Reserve\Admissions_Reserve\obj\Debug\View\ApplicantSearchPage.baml
 C:\Users\ViFiL\source\repos\Admissions_Reserve\Admissions_Reserve\obj\Debug\View\AdminPage.baml
 C:\Users\ViFiL\source\repos\Admissions_Reserve\Admissions_Reserve\obj\Debug\View\AdminPage.g.cs
+C:\Users\ViFiL\source\repos\Admissions_Reserve\Admissions_Reserve\bin\Debug\DocumentFormat.OpenXml.dll
+C:\Users\ViFiL\source\repos\Admissions_Reserve\Admissions_Reserve\bin\Debug\DocumentFormat.OpenXml.Framework.dll
+C:\Users\ViFiL\source\repos\Admissions_Reserve\Admissions_Reserve\bin\Debug\DocumentFormat.OpenXml.xml
+C:\Users\ViFiL\source\repos\Admissions_Reserve\Admissions_Reserve\bin\Debug\DocumentFormat.OpenXml.Framework.xml
+C:\Users\ViFiL\source\repos\Admissions_Reserve\Admissions_Reserve\bin\Debug\ru\EntityFramework.resources.dll
+C:\Users\ViFiL\source\repos\Admissions_Reserve\Admissions_Reserve\bin\Debug\ru\EntityFramework.SqlServer.resources.dll
+C:\Users\ViFiL\source\repos\Admissions_Reserve\Admissions_Reserve\obj\Debug\Admissions_Reserve.csproj.ResolveComReference.cache
