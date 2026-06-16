@@ -2306,7 +2306,6 @@ namespace Admissions_Reserve.Model
                         "DELETE FROM Relatives WHERE ApplicantId = @Id",
                         "DELETE FROM ApplicationPriorities WHERE ApplicantId = @Id",
                         "DELETE FROM Documents WHERE ApplicantId = @Id",
-                        "DELETE FROM ContactInformation WHERE ApplicantId = @Id",
                         "DELETE FROM Applicants WHERE Id = @Id"
                     };
 
