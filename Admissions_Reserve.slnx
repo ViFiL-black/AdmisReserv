@@ -1,3 +1,14 @@
 <Solution>
-  <Project Path="Admissions_Reserve/Admissions_Reserve.csproj" Id="0d8992c2-2f8c-4598-a145-5cb497cd9f6e" />
+  <Configurations>
+    <BuildType Name="Debug" />
+    <BuildType Name="DefaultBuild" />
+    <BuildType Name="Release" />
+  </Configurations>
+  <Project Path="Admissions_Reserve/Admissions_Reserve.csproj" Id="0d8992c2-2f8c-4598-a145-5cb497cd9f6e">
+    <BuildType Solution="DefaultBuild|*" Project="Release" />
+  </Project>
+  <Project Path="setup/setup.aiproj" Type="840c416c-b8f3-42bc-b0dd-f6bb14c9f8cb" Id="21e44374-1196-4bcb-94dd-8d7eab1fb054">
+    <BuildType Project="DefaultBuild" />
+    <Platform Project="?" />
+  </Project>
 </Solution>

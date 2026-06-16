@@ -441,9 +441,9 @@ namespace Admissions_Reserve.View
 
         private void CheckFrdoButton_Click(object sender, RoutedEventArgs e)
         {
-            if (!string.IsNullOrWhiteSpace(SeriesTextBox.Text) && !string.IsNullOrWhiteSpace(NumberTextBox.Text))
+            if (!string.IsNullOrWhiteSpace(NumberTextBox.Text)) // проверяем только номер
             {
-                var result = MessageBox.Show($"Проверить документ {SeriesTextBox.Text} {NumberTextBox.Text} в ФРДО?",
+                var result = MessageBox.Show($"Проверить документ {NumberTextBox.Text} в ФРДО?",
                     "Проверка в ФРДО", MessageBoxButton.YesNo, MessageBoxImage.Question);
 
                 if (result == MessageBoxResult.Yes)
@@ -455,7 +455,7 @@ namespace Admissions_Reserve.View
             }
             else
             {
-                MessageBox.Show("Пожалуйста, заполните серию и номер документа", "Ошибка",
+                MessageBox.Show("Пожалуйста, заполните номер документа", "Ошибка",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }

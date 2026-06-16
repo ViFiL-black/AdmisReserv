@@ -1,0 +1,8 @@
+[2026-06-13 23:56:18] ERROR: Ошибка при аутентификации пользователя
+Инициализатор типа "Microsoft.Data.Sqlite.SqliteConnection" выдал исключение.
+   в Microsoft.Data.Sqlite.SqliteConnection..ctor(String connectionString)
+   в Admissions_Reserve.Model.DatabaseHelper.InitializeDatabase() в C:\Users\ViFiL\source\repos\Admissions_Reserve\Admissions_Reserve\Model\DatabaseHelper.cs:строка 37
+   в Admissions_Reserve.Model.DatabaseHelper.EnsureDatabaseCreated() в C:\Users\ViFiL\source\repos\Admissions_Reserve\Admissions_Reserve\Model\DatabaseHelper.cs:строка 21
+   в Admissions_Reserve.Model.DatabaseHelper.GetConnection() в C:\Users\ViFiL\source\repos\Admissions_Reserve\Admissions_Reserve\Model\DatabaseHelper.cs:строка 785
+   в Admissions_Reserve.Model.UserAuthentication.Authenticate(String login, String password) в C:\Users\ViFiL\source\repos\Admissions_Reserve\Admissions_Reserve\Model\UserAuthentication.cs:строка 26
+

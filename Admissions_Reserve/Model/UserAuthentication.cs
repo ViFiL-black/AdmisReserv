@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Data.SQLite;
 
 namespace Admissions_Reserve.Model
@@ -9,18 +10,41 @@ namespace Admissions_Reserve.Model
         private static string _currentUserFullName;
         private static string _currentUserRole;
 
+        // Встроенный пользователь (администратор) – не требует БД
+        private static readonly (string Login, string Password, string FullName, string Role) _embeddedAdmin =
+            ("admin", "admin123", "Встроенный администратор", "Admin");
+
         public static int? CurrentUserId => _currentUserId;
         public static string CurrentUserFullName => _currentUserFullName;
         public static string CurrentUserRole => _currentUserRole;
 
         /// <summary>
-        /// Аутентификация пользователя по логину и паролю (прямое сравнение строк).
+        /// Аутентификация: сначала проверяет встроенного админа, затем – базу данных.
         /// </summary>
         public static bool Authenticate(string login, string password)
         {
             if (string.IsNullOrWhiteSpace(login) || string.IsNullOrWhiteSpace(password))
                 return false;
 
+            // 1. Проверка встроенного администратора (без БД)
+            if (login.Equals(_embeddedAdmin.Login, StringComparison.OrdinalIgnoreCase) &&
+                VerifyPassword(password, _embeddedAdmin.Password))
+            {
+                _currentUserId = -1; // специальный ID для встроенного пользователя
+                _currentUserFullName = _embeddedAdmin.FullName;
+                _currentUserRole = _embeddedAdmin.Role;
+                return true;
+            }
+
+            // 2. Проверка в базе данных
+            return AuthenticateFromDatabase(login, password);
+        }
+
+        /// <summary>
+        /// Аутентификация через базу данных (оригинальная логика).
+        /// </summary>
+        private static bool AuthenticateFromDatabase(string login, string password)
+        {
             try
             {
                 using (var connection = DatabaseHelper.GetConnection())
@@ -59,7 +83,6 @@ namespace Admissions_Reserve.Model
             {
                 LogHelper.LogError("Ошибка при аутентификации пользователя", ex);
             }
-
             return false;
         }
 
@@ -70,9 +93,6 @@ namespace Admissions_Reserve.Model
             _currentUserRole = null;
         }
 
-        /// <summary>
-        /// Прямое сравнение пароля (без хэширования).
-        /// </summary>
         private static bool VerifyPassword(string inputPassword, string storedPassword)
         {
             if (string.IsNullOrEmpty(inputPassword) || string.IsNullOrEmpty(storedPassword))
@@ -81,7 +101,7 @@ namespace Admissions_Reserve.Model
         }
 
         /// <summary>
-        /// Хэширование пароля (оставлено для возможного использования в будущем, но в аутентификации не применяется).
+        /// Хэширование пароля (для будущего использования).
         /// </summary>
         public static string HashPassword(string password)
         {
@@ -93,7 +113,7 @@ namespace Admissions_Reserve.Model
         }
 
         /// <summary>
-        /// Создание нового пользователя с указанием роли (пароль сохраняется в открытом виде).
+        /// Создание нового пользователя в БД.
         /// </summary>
         public static bool CreateUser(string login, string password, string fullName, string roleName = "User")
         {
@@ -147,6 +167,20 @@ namespace Admissions_Reserve.Model
             if (!_currentUserId.HasValue)
                 return null;
 
+            // Встроенный администратор
+            if (_currentUserId.Value == -1)
+            {
+                return new User
+                {
+                    Id = -1,
+                    Login = _embeddedAdmin.Login,
+                    FullName = _embeddedAdmin.FullName,
+                    CreatedAt = DateTime.Now,
+                    RoleId = null,
+                    RoleName = _embeddedAdmin.Role
+                };
+            }
+
             try
             {
                 using (var connection = DatabaseHelper.GetConnection())
@@ -182,7 +216,6 @@ namespace Admissions_Reserve.Model
             {
                 LogHelper.LogError("Ошибка при получении текущего пользователя", ex);
             }
-
             return null;
         }
 
@@ -191,6 +224,9 @@ namespace Admissions_Reserve.Model
         /// </summary>
         public static string GetUserNameById(int userId)
         {
+            if (userId == -1)
+                return _embeddedAdmin.FullName;
+
             try
             {
                 using (var connection = DatabaseHelper.GetConnection())
@@ -221,13 +257,13 @@ namespace Admissions_Reserve.Model
     }
 
     /// <summary>
-    /// Модель пользователя (расширенная).
+    /// Модель пользователя.
     /// </summary>
     public class User
     {
         public int Id { get; set; }
         public string Login { get; set; }
-        public string Password { get; set; }   // поле может использоваться при создании
+        public string Password { get; set; }
         public string FullName { get; set; }
         public DateTime CreatedAt { get; set; }
         public int? RoleId { get; set; }

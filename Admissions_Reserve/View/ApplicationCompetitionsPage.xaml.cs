@@ -369,7 +369,32 @@ namespace Admissions_Reserve.View
             _nextPriority = priority;
             SelectedCompetitionsGrid.Items.Refresh();
         }
+        private void AddSingleCompetition_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            var item = button?.Tag as CompetitionItem;
+            if (item == null) return;
 
+            if (!_selectedCompetitions.Any(s => s.ProgramName == item.ProgramName))
+            {
+                _selectedCompetitions.Add(new CompetitionItem
+                {
+                    Priority = _nextPriority++,
+                    ProgramName = item.ProgramName,
+                    EducationBase = item.EducationBase,
+                    StudyForm = item.StudyForm,
+                    AdmissionType = item.AdmissionType,
+                    Branch = item.Branch,
+                    Department = item.Department,
+                    IsSelected = true
+                });
+                SelectedCompetitionsGrid.Items.Refresh();
+            }
+            else
+            {
+                MessageBox.Show("Этот конкурс уже добавлен.", "Предупреждение", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
         private bool SaveData()
         {
             if (isSaving) return false;

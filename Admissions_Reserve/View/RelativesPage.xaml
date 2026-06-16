@@ -77,7 +77,7 @@
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="120"/>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="120"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
@@ -92,7 +92,7 @@
                                 <ComboBoxItem Content="Водительское удостоверение"/>
                             </ComboBox>
                             <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock Text="Номер" FontSize="11"/>
+                                <TextBlock Text="Серия и/или номер" FontSize="11"/>
                                 <TextBlock Text="*" Foreground="Red" FontSize="11" FontWeight="Bold" Margin="2,0,0,0"/>
                             </StackPanel>
                             <TextBox Grid.Column="3" Name="IdNumberTextBox" Height="23" FontSize="11"/>
@@ -103,7 +103,7 @@
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="120"/>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="120"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" Text="Дата выдачи" FontSize="11" VerticalAlignment="Center"/>
@@ -130,7 +130,7 @@
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="120"/>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="120"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
@@ -150,7 +150,7 @@
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="120"/>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="120"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" Text="Телефон" FontSize="11" VerticalAlignment="Center"/>
@@ -179,7 +179,7 @@
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="120"/>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="120"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" Text="Место работы" FontSize="11" VerticalAlignment="Center"/>
@@ -197,9 +197,9 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" Text="ОКПО" FontSize="11" VerticalAlignment="Center"/>
-                            <TextBox Grid.Column="1" Name="OkpoTextBox" Height="23" FontSize="11"/>
-                            <TextBlock Grid.Column="2" Text="Лицевой счет" FontSize="11" VerticalAlignment="Center" Margin="10,0,0,0"/>
-                            <TextBox Grid.Column="2" Name="PersonalAccountTextBox" Height="23" FontSize="11" Grid.ColumnSpan="2" Margin="110,0,0,0"/>
+                            <TextBox Grid.Column="1" Name="OkpoTextBox" Height="23" FontSize="11" Margin="0,0,10,0"/>
+                            <TextBlock Grid.Column="2" Text="Лицевой счет" FontSize="11" VerticalAlignment="Center"/>
+                            <TextBox Grid.Column="3" Name="PersonalAccountTextBox" Height="23" FontSize="11" Grid.ColumnSpan="2"/>
                         </Grid>
 
                         <!-- Строка 11: Наименование банка -->
@@ -239,7 +239,7 @@
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="120"/>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="120"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" Text="Адрес ФИАС" FontSize="11" VerticalAlignment="Center"/>
@@ -303,7 +303,6 @@
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,10">
                     <Button x:Name="PrevButton" Content="Назад" Width="90" Height="32" Margin="0,0,10,0" FontSize="11" Background="#F0F0F0" Click="PrevButton_Click"/>
                     <Button x:Name="NextButton" Content="Далее" Width="90" Height="32" Margin="0,0,10,0" FontSize="11" Background="#007ACC" Foreground="White" Click="NextButton_Click"/>
-                    <Button x:Name="SaveButton" Content="Сохранить" Width="90" Height="32" Margin="0,0,10,0" FontSize="11" Background="#4CAF50" Foreground="White" Click="SaveButton_Click"/>
                     <Button x:Name="CancelButton" Content="Отменить" Width="90" Height="32" FontSize="11" Background="#F0F0F0" Click="CancelButton_Click"/>
                 </StackPanel>
 

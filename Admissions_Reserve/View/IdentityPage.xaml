@@ -220,7 +220,7 @@
                     </StackPanel>
                     <StackPanel Grid.Column="2" Margin="0,0,0,0">
                         <Button Name="CheckAddressButton" Content="Проверить" Width="100" Height="23" FontSize="11" 
-                                Background="#007ACC" Foreground="White" Margin="8,20,0,0" Click="CheckAddressButton_Click"/>
+                                Background="#007ACC" Foreground="White" Margin="8,15,0,0" Click="CheckAddressButton_Click"/>
                     </StackPanel>
                 </Grid>
 

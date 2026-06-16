@@ -1,5 +1,4 @@
-﻿// DatabaseHelper.cs
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
 using System.IO;
@@ -8,49 +7,94 @@ namespace Admissions_Reserve.Model
 {
     public static class DatabaseHelper
     {
+        private static string currentDatabasePath;
         private static string connectionString;
         private static readonly object lockObject = new object();
 
+        public static bool IsDatabaseConnected => !string.IsNullOrEmpty(currentDatabasePath) && File.Exists(currentDatabasePath);
+        public static string CurrentDatabasePath => currentDatabasePath;
+
+        // Статический конструктор ничего не создаёт – БД не создаётся автоматически
         static DatabaseHelper()
         {
-            InitializeDatabase();
         }
 
-        private static void InitializeDatabase()
+        /// <summary>
+        /// Создаёт новую базу данных по указанному пути (структура + справочные данные).
+        /// После создания автоматически подключается к ней.
+        /// </summary>
+        public static void CreateNewDatabase(string newDbPath)
         {
+            SQLiteConnection.CreateFile(newDbPath);
+            string newConnectionString = $"Data Source={newDbPath};Version=3;Foreign Keys=True;";
+
+            using (var connection = new SQLiteConnection(newConnectionString))
+            {
+                connection.Open();
+                using (var cmd = new SQLiteCommand("PRAGMA foreign_keys = ON;", connection))
+                    cmd.ExecuteNonQuery();
+
+                CreateAllTablesIfNotExist(connection);
+                EnsureApplicantColumnsExist(connection);
+                EnsureRelativesColumnsExist(connection);
+                EnsureDocumentsColumnsExist(connection);
+                EnsureIdentityDocumentsColumnsExist(connection);
+                EnsureAttachedDocumentsColumnsExist(connection);
+                EnsureDocumentsAttachmentColumn(connection);
+                EnsureIdentityDocumentsAttachmentColumn(connection);
+                EnsureUsersRoleColumnExist(connection);
+                EnsureIdentityDocumentsExtraColumns(connection);
+                EnsureDocumentsExtraColumns(connection);
+                SeedAllDataIfEmpty(connection);
+            }
+
+            SwitchDatabase(newDbPath);
+        }
+
+        /// <summary>
+        /// Подключается к существующей базе данных.
+        /// </summary>
+        public static void SwitchDatabase(string dbPath)
+        {
+            if (!File.Exists(dbPath))
+                throw new FileNotFoundException("Файл базы данных не найден.", dbPath);
+
+            using (var testConn = new SQLiteConnection($"Data Source={dbPath};Version=3;"))
+            {
+                testConn.Open();
+                var cmd = new SQLiteCommand("SELECT name FROM sqlite_master WHERE type='table' AND name='Users'", testConn);
+                var result = cmd.ExecuteScalar();
+                if (result == null)
+                    throw new Exception("Выбранный файл не содержит необходимых таблиц (например, Users).");
+            }
+
             lock (lockObject)
             {
-                string dbDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "App_Data");
-                if (!Directory.Exists(dbDirectory))
-                    Directory.CreateDirectory(dbDirectory);
-
-                string dbPath = Path.Combine(dbDirectory, "AdmissionsReserve.db");
-                if (!File.Exists(dbPath))
-                    SQLiteConnection.CreateFile(dbPath);
-
+                currentDatabasePath = dbPath;
                 connectionString = $"Data Source={dbPath};Version=3;Foreign Keys=True;";
-
-                using (var connection = new SQLiteConnection(connectionString))
-                {
-                    connection.Open();
-                    using (var cmd = new SQLiteCommand("PRAGMA foreign_keys = ON;", connection))
-                        cmd.ExecuteNonQuery();
-
-                    CreateAllTablesIfNotExist(connection);
-                    EnsureApplicantColumnsExist(connection);
-                    EnsureRelativesColumnsExist(connection);
-                    EnsureDocumentsColumnsExist(connection);
-                    EnsureIdentityDocumentsColumnsExist(connection);
-                    EnsureAttachedDocumentsColumnsExist(connection);
-                    EnsureDocumentsAttachmentColumn(connection);
-                    EnsureIdentityDocumentsAttachmentColumn(connection);
-                    EnsureUsersRoleColumnExist(connection);
-
-                    SeedAllDataIfEmpty(connection);
-                    EnsureIdentityDocumentsExtraColumns(connection);
-                    EnsureDocumentsExtraColumns(connection);
-                }
+                SessionManager.Clear();
             }
+        }
+
+        public static string GetConnectionString()
+        {
+            if (!IsDatabaseConnected)
+                throw new InvalidOperationException("База данных не подключена. Сначала создайте или подключите БД.");
+            return connectionString;
+        }
+
+        public static string GetDatabasePath() => currentDatabasePath;
+
+        public static SQLiteConnection GetConnection()
+        {
+            if (!IsDatabaseConnected)
+                throw new InvalidOperationException("База данных не подключена. Сначала создайте или подключите БД.");
+
+            var connection = new SQLiteConnection(connectionString);
+            connection.Open();
+            using (var cmd = new SQLiteCommand("PRAGMA foreign_keys = ON;", connection))
+                cmd.ExecuteNonQuery();
+            return connection;
         }
 
         private static void CreateAllTablesIfNotExist(SQLiteConnection connection)
@@ -185,11 +229,11 @@ namespace Admissions_Reserve.Model
                     if ((long)cmd.ExecuteScalar() == 0)
                     {
                         var competitions = new[] {
-                            "INSERT INTO Competitions (Name, EducationBase, StudyForm, AdmissionType, Department, Branch, IsActive) VALUES ('08.02.09 Монтаж, наладка и эксплуатация электрооборудования', 'Осн. общ.', 'Очная', 'Общий', 'Отделение автоматики', 'Головная орг.', 1)",
-                            "INSERT INTO Competitions (Name, EducationBase, StudyForm, AdmissionType, Department, Branch, IsActive) VALUES ('15.02.17 Монтаж и ремонт промышленного оборудования', 'Осн. общ.', 'Очная', 'Общий', 'Отделение автоматики и электромеханики', 'Головная орг.', 1)",
-                            "INSERT INTO Competitions (Name, EducationBase, StudyForm, AdmissionType, Department, Branch, IsActive) VALUES ('27.02.04 Автоматические системы управления', 'Осн. общ.', 'Очная', 'Общий', 'Отделение автоматики и электромеханики', 'Головная орг.', 1)",
-                            "INSERT INTO Competitions (Name, EducationBase, StudyForm, AdmissionType, Department, Branch, IsActive) VALUES ('09.02.11 Разработка и управление программным обеспечением', 'Осн. общ.', 'Очная', 'Общий', 'Отделение информационных технологий', 'Головная орг.', 1)",
-                            "INSERT INTO Competitions (Name, EducationBase, StudyForm, AdmissionType, Department, Branch, IsActive) VALUES ('08.02.09 Монтаж электрооборудования (заочная)', 'Сред. общ.', 'Заочная', 'Общий', 'Отделение автоматики', 'Головная орг.', 1)"
+                            "INSERT INTO Competitions (Name, EducationBase, StudyForm, AdmissionType, Department, Branch, IsActive) VALUES ('08.02.09 Монтаж, наладка и эксплуатация электрооборудования', 'Основной общий', 'Очная', 'Общий', 'Отделение автоматики', 'Головная организация', 1)",
+                            "INSERT INTO Competitions (Name, EducationBase, StudyForm, AdmissionType, Department, Branch, IsActive) VALUES ('15.02.17 Монтаж и ремонт промышленного оборудования', 'Основной общий', 'Очная', 'Общий', 'Отделение автоматики и электромеханики', 'Головная организация', 1)",
+                            "INSERT INTO Competitions (Name, EducationBase, StudyForm, AdmissionType, Department, Branch, IsActive) VALUES ('27.02.04 Автоматические системы управления', 'Основной общий', 'Очная', 'Общий', 'Отделение автоматики и электромеханики', 'Головная организация', 1)",
+                            "INSERT INTO Competitions (Name, EducationBase, StudyForm, AdmissionType, Department, Branch, IsActive) VALUES ('09.02.11 Разработка и управление программным обеспечением', 'Основной общий', 'Очная', 'Общий', 'Отделение информационных технологий', 'Головная организация', 1)",
+                            "INSERT INTO Competitions (Name, EducationBase, StudyForm, AdmissionType, Department, Branch, IsActive) VALUES ('08.02.09 Монтаж электрооборудования (заочная)', 'Средний общий', 'Заочная', 'Общий', 'Отделение автоматики', 'Головная организация', 1)"
                         };
                         foreach (string sql in competitions)
                             try { using (var c = new SQLiteCommand(sql, connection)) { c.ExecuteNonQuery(); } } catch { }
@@ -345,31 +389,7 @@ namespace Admissions_Reserve.Model
                 }
 
                 // 4. Создаём или обновляем тестового пользователя
-                if (userRoleId.HasValue)
-                {
-                    using (var cmd = new SQLiteCommand("SELECT COUNT(*) FROM Users WHERE Login = 'testuser'", connection))
-                    {
-                        if ((long)cmd.ExecuteScalar() == 0)
-                        {
-                            string sql = @"INSERT INTO Users (Login, Password, FullName, CreatedAt, RoleId)
-                               VALUES ('testuser', 'testpassword', 'Тестовый Пользователь', @dt, @rid)";
-                            using (var insert = new SQLiteCommand(sql, connection))
-                            {
-                                insert.Parameters.AddWithValue("@dt", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
-                                insert.Parameters.AddWithValue("@rid", userRoleId.Value);
-                                insert.ExecuteNonQuery();
-                            }
-                        }
-                        else
-                        {
-                            using (var update = new SQLiteCommand("UPDATE Users SET RoleId = @rid, Password = 'testpassword' WHERE Login = 'testuser'", connection))
-                            {
-                                update.Parameters.AddWithValue("@rid", userRoleId.Value);
-                                update.ExecuteNonQuery();
-                            }
-                        }
-                    }
-                }
+               
             }
             catch (Exception ex)
             {
@@ -638,26 +658,6 @@ namespace Admissions_Reserve.Model
             }
         }
 
-        public static string GetConnectionString()
-        {
-            string dbDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "App_Data");
-            if (!Directory.Exists(dbDirectory)) Directory.CreateDirectory(dbDirectory);
-            return $"Data Source={Path.Combine(dbDirectory, "AdmissionsReserve.db")};Version=3;Foreign Keys=True;";
-        }
-
-        public static string GetDatabasePath()
-        {
-            return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "App_Data", "AdmissionsReserve.db");
-        }
-
-        public static SQLiteConnection GetConnection()
-        {
-            var connection = new SQLiteConnection(connectionString);
-            connection.Open();
-            using (var cmd = new SQLiteCommand("PRAGMA foreign_keys = ON;", connection))
-                cmd.ExecuteNonQuery();
-            return connection;
-        }
         private static void EnsureIdentityDocumentsExtraColumns(SQLiteConnection connection)
         {
             var requiredColumns = new Dictionary<string, string>

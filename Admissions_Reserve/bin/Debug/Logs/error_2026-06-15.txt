@@ -1,0 +1,71 @@
+[2026-06-15 08:13:53] ERROR: Ошибка при аутентификации пользователя
+SQL logic error
+no such table: Users
+   в System.Data.SQLite.SQLite3.Prepare(SQLiteConnection cnn, SQLiteCommand command, String strSql, SQLiteStatement previous, UInt32 timeoutMS, String& strRemain)
+   в System.Data.SQLite.SQLiteCommand.BuildNextCommand()
+   в System.Data.SQLite.SQLiteCommand.GetStatement(Int32 index)
+   в System.Data.SQLite.SQLiteDataReader.NextResult()
+   в System.Data.SQLite.SQLiteDataReader..ctor(SQLiteCommand cmd, CommandBehavior behave)
+   в System.Data.SQLite.SQLiteCommand.ExecuteReader(CommandBehavior behavior)
+   в System.Data.SQLite.SQLiteCommand.ExecuteReader()
+   в Admissions_Reserve.Model.UserAuthentication.AuthenticateFromDatabase(String login, String password) в C:\Users\ViFiL\source\repos\Admissions_Reserve\Admissions_Reserve\Model\UserAuthentication.cs:строка 61
+
+[2026-06-15 08:14:14] ERROR: Ошибка при аутентификации пользователя
+SQL logic error
+no such table: Users
+   в System.Data.SQLite.SQLite3.Prepare(SQLiteConnection cnn, SQLiteCommand command, String strSql, SQLiteStatement previous, UInt32 timeoutMS, String& strRemain)
+   в System.Data.SQLite.SQLiteCommand.BuildNextCommand()
+   в System.Data.SQLite.SQLiteCommand.GetStatement(Int32 index)
+   в System.Data.SQLite.SQLiteDataReader.NextResult()
+   в System.Data.SQLite.SQLiteDataReader..ctor(SQLiteCommand cmd, CommandBehavior behave)
+   в System.Data.SQLite.SQLiteCommand.ExecuteReader(CommandBehavior behavior)
+   в System.Data.SQLite.SQLiteCommand.ExecuteReader()
+   в Admissions_Reserve.Model.UserAuthentication.AuthenticateFromDatabase(String login, String password) в C:\Users\ViFiL\source\repos\Admissions_Reserve\Admissions_Reserve\Model\UserAuthentication.cs:строка 61
+
+[2026-06-15 08:14:20] ERROR: Ошибка при аутентификации пользователя
+SQL logic error
+no such table: Users
+   в System.Data.SQLite.SQLite3.Prepare(SQLiteConnection cnn, SQLiteCommand command, String strSql, SQLiteStatement previous, UInt32 timeoutMS, String& strRemain)
+   в System.Data.SQLite.SQLiteCommand.BuildNextCommand()
+   в System.Data.SQLite.SQLiteCommand.GetStatement(Int32 index)
+   в System.Data.SQLite.SQLiteDataReader.NextResult()
+   в System.Data.SQLite.SQLiteDataReader..ctor(SQLiteCommand cmd, CommandBehavior behave)
+   в System.Data.SQLite.SQLiteCommand.ExecuteReader(CommandBehavior behavior)
+   в System.Data.SQLite.SQLiteCommand.ExecuteReader()
+   в Admissions_Reserve.Model.UserAuthentication.AuthenticateFromDatabase(String login, String password) в C:\Users\ViFiL\source\repos\Admissions_Reserve\Admissions_Reserve\Model\UserAuthentication.cs:строка 61
+
+[2026-06-15 08:25:28] ERROR: Ошибка при аутентификации пользователя
+Инициализатор типа "Admissions_Reserve.Model.DatabaseHelper" выдал исключение.
+   в Admissions_Reserve.Model.DatabaseHelper.GetConnection()
+   в Admissions_Reserve.Model.UserAuthentication.AuthenticateFromDatabase(String login, String password) в C:\Users\ViFiL\source\repos\Admissions_Reserve\Admissions_Reserve\Model\UserAuthentication.cs:строка 50
+
+[2026-06-15 08:25:40] ERROR: Ошибка при аутентификации пользователя
+Инициализатор типа "Admissions_Reserve.Model.DatabaseHelper" выдал исключение.
+   в Admissions_Reserve.Model.DatabaseHelper.GetConnection()
+   в Admissions_Reserve.Model.UserAuthentication.AuthenticateFromDatabase(String login, String password) в C:\Users\ViFiL\source\repos\Admissions_Reserve\Admissions_Reserve\Model\UserAuthentication.cs:строка 50
+
+[2026-06-15 08:25:46] ERROR: Ошибка при аутентификации пользователя
+Инициализатор типа "Admissions_Reserve.Model.DatabaseHelper" выдал исключение.
+   в Admissions_Reserve.Model.DatabaseHelper.GetConnection()
+   в Admissions_Reserve.Model.UserAuthentication.AuthenticateFromDatabase(String login, String password) в C:\Users\ViFiL\source\repos\Admissions_Reserve\Admissions_Reserve\Model\UserAuthentication.cs:строка 50
+
+[2026-06-15 08:39:44] ERROR: Ошибка при аутентификации пользователя
+База данных не подключена. Сначала создайте или подключите БД.
+   в Admissions_Reserve.Model.DatabaseHelper.GetConnection() в C:\Users\ViFiL\source\repos\Admissions_Reserve\Admissions_Reserve\Model\DatabaseHelper.cs:строка 91
+   в Admissions_Reserve.Model.UserAuthentication.AuthenticateFromDatabase(String login, String password) в C:\Users\ViFiL\source\repos\Admissions_Reserve\Admissions_Reserve\Model\UserAuthentication.cs:строка 50
+
+[2026-06-15 08:39:49] ERROR: Ошибка при аутентификации пользователя
+База данных не подключена. Сначала создайте или подключите БД.
+   в Admissions_Reserve.Model.DatabaseHelper.GetConnection() в C:\Users\ViFiL\source\repos\Admissions_Reserve\Admissions_Reserve\Model\DatabaseHelper.cs:строка 91
+   в Admissions_Reserve.Model.UserAuthentication.AuthenticateFromDatabase(String login, String password) в C:\Users\ViFiL\source\repos\Admissions_Reserve\Admissions_Reserve\Model\UserAuthentication.cs:строка 50
+
+[2026-06-15 08:45:19] ERROR: Ошибка при создании пользователя
+База данных не подключена. Сначала создайте или подключите БД.
+   в Admissions_Reserve.Model.DatabaseHelper.GetConnection() в C:\Users\ViFiL\source\repos\Admissions_Reserve\Admissions_Reserve\Model\DatabaseHelper.cs:строка 91
+   в Admissions_Reserve.Model.UserAuthentication.CreateUser(String login, String password, String fullName, String roleName) в C:\Users\ViFiL\source\repos\Admissions_Reserve\Admissions_Reserve\Model\UserAuthentication.cs:строка 125
+
+[2026-06-15 08:45:23] ERROR: Ошибка при создании пользователя
+База данных не подключена. Сначала создайте или подключите БД.
+   в Admissions_Reserve.Model.DatabaseHelper.GetConnection() в C:\Users\ViFiL\source\repos\Admissions_Reserve\Admissions_Reserve\Model\DatabaseHelper.cs:строка 91
+   в Admissions_Reserve.Model.UserAuthentication.CreateUser(String login, String password, String fullName, String roleName) в C:\Users\ViFiL\source\repos\Admissions_Reserve\Admissions_Reserve\Model\UserAuthentication.cs:строка 125
+

@@ -710,7 +710,72 @@ namespace Admissions_Reserve.Model
             }
             return list;
         }
+        // ========== МЕТОДЫ ДЛЯ КОНКУРСОВ ==========
 
+        public static int CreateCompetition(Competitions competition)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                string sql = @"
+            INSERT INTO Competitions 
+            (Name, EducationBase, StudyForm, AdmissionType, Department, Branch, IsActive)
+            VALUES (@Name, @EducationBase, @StudyForm, @AdmissionType, @Department, @Branch, @IsActive);
+            SELECT last_insert_rowid();";
+                using (var cmd = new SQLiteCommand(sql, connection))
+                {
+                    cmd.Parameters.AddWithValue("@Name", competition.Name ?? "");
+                    cmd.Parameters.AddWithValue("@EducationBase", competition.EducationBase ?? "");
+                    cmd.Parameters.AddWithValue("@StudyForm", competition.StudyForm ?? "");
+                    cmd.Parameters.AddWithValue("@AdmissionType", competition.AdmissionType ?? "");
+                    cmd.Parameters.AddWithValue("@Department", competition.Department ?? "");
+                    cmd.Parameters.AddWithValue("@Branch", competition.Branch ?? "");
+                    cmd.Parameters.AddWithValue("@IsActive", competition.IsActive ? 1 : 0);
+                    return Convert.ToInt32(cmd.ExecuteScalar());
+                }
+            }
+        }
+
+        public static void UpdateCompetition(Competitions competition)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                string sql = @"
+            UPDATE Competitions SET
+                Name = @Name,
+                EducationBase = @EducationBase,
+                StudyForm = @StudyForm,
+                AdmissionType = @AdmissionType,
+                Department = @Department,
+                Branch = @Branch,
+                IsActive = @IsActive
+            WHERE Id = @Id";
+                using (var cmd = new SQLiteCommand(sql, connection))
+                {
+                    cmd.Parameters.AddWithValue("@Id", competition.Id);
+                    cmd.Parameters.AddWithValue("@Name", competition.Name ?? "");
+                    cmd.Parameters.AddWithValue("@EducationBase", competition.EducationBase ?? "");
+                    cmd.Parameters.AddWithValue("@StudyForm", competition.StudyForm ?? "");
+                    cmd.Parameters.AddWithValue("@AdmissionType", competition.AdmissionType ?? "");
+                    cmd.Parameters.AddWithValue("@Department", competition.Department ?? "");
+                    cmd.Parameters.AddWithValue("@Branch", competition.Branch ?? "");
+                    cmd.Parameters.AddWithValue("@IsActive", competition.IsActive ? 1 : 0);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public static void DeleteCompetition(int id)
+        {
+            using (var connection = DatabaseHelper.GetConnection())
+            {
+                string sql = "DELETE FROM Competitions WHERE Id = @Id";
+                using (var cmd = new SQLiteCommand(sql, connection))
+                {
+                    cmd.Parameters.AddWithValue("@Id", id);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
         public static void DeleteGeneralDocument(int docId, int applicantId)
         {
             using (var connection = DatabaseHelper.GetConnection())

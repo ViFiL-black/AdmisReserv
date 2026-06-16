@@ -85,29 +85,29 @@
                 <Border BorderBrush="#CCCCCC" BorderThickness="1" Margin="0,0,0,8" CornerRadius="5">
                     <ScrollViewer Height="220" VerticalScrollBarVisibility="Auto">
                         <DataGrid Name="AvailableCompetitionsGrid" AutoGenerateColumns="False" 
-                                  CanUserAddRows="False" HeadersVisibility="Column" FontSize="11" BorderThickness="0"
-                                  RowHeaderWidth="0" SelectionMode="Extended">
+          CanUserAddRows="False" CanUserDeleteRows="False"
+          HeadersVisibility="Column" FontSize="11" BorderThickness="0"
+          RowHeaderWidth="0" IsReadOnly="True">
                             <DataGrid.Columns>
-                                <DataGridCheckBoxColumn Header="Выбрать" Width="55" Binding="{Binding IsSelected}">
-                                    <DataGridCheckBoxColumn.ElementStyle>
-                                        <Style TargetType="CheckBox">
-                                            <Setter Property="HorizontalAlignment" Value="Center"/>
-                                            <Setter Property="VerticalAlignment" Value="Center"/>
-                                        </Style>
-                                    </DataGridCheckBoxColumn.ElementStyle>
-                                </DataGridCheckBoxColumn>
-                                <DataGridTextColumn Header="Набор ОП для приема" Width="300" Binding="{Binding ProgramName}" />
-                                <DataGridTextColumn Header="На базе" Width="100" Binding="{Binding EducationBase}" />
-                                <DataGridTextColumn Header="Форма освоения" Width="100" Binding="{Binding StudyForm}" />
-                                <DataGridTextColumn Header="Вид приема" Width="100" Binding="{Binding AdmissionType}" />
+                                <DataGridTextColumn Header="Набор ОП для приема" Width="300" Binding="{Binding ProgramName}" IsReadOnly="True"/>
+                                <DataGridTextColumn Header="На базе" Width="100" Binding="{Binding EducationBase}" IsReadOnly="True"/>
+                                <DataGridTextColumn Header="Форма освоения" Width="100" Binding="{Binding StudyForm}" IsReadOnly="True"/>
+                                <DataGridTextColumn Header="Вид приема" Width="100" Binding="{Binding AdmissionType}" IsReadOnly="True"/>
+                                <DataGridTemplateColumn Header="Действие" Width="80">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Content="Добавить" FontSize="10" Width="70" Height="25"
+                            Background="#4CAF50" Foreground="White"
+                            Click="AddSingleCompetition_Click" Tag="{Binding}"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
                             </DataGrid.Columns>
                         </DataGrid>
                     </ScrollViewer>
                 </Border>
 
-                <Button Content="➕ Добавить выбранные в список" Width="200" Height="28" Margin="0,5,0,10"
-                        FontSize="11" Background="#4CAF50" Foreground="White" Click="AddSelectedCompetitions_Click"/>
-
+               
                 <!-- ========== ВЫБРАННЫЕ КОНКУРСЫ ========== -->
                 <TextBlock Text="Выбранные конкурсы" FontSize="12" FontWeight="Bold" Margin="0,5,0,5"/>
 

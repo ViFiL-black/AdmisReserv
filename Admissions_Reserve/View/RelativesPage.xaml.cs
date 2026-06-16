@@ -608,11 +608,6 @@ namespace Admissions_Reserve.View
             ClearForm();
         }
 
-        // Обработчик кнопки Сохранить (сохранить и остаться на странице)
-        private void SaveButton_Click(object sender, RoutedEventArgs e)
-        {
-            SaveData();
-        }
 
         private void DeleteRegularRelative_Click(object sender, RoutedEventArgs e)
         {

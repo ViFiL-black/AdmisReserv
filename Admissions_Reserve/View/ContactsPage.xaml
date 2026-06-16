@@ -160,7 +160,7 @@
 								<TextBox x:Name="ApartmentTextBox" Height="23" FontSize="11"/>
 							</StackPanel>
 							<Button Grid.Column="3" x:Name="CheckAddressButton" Content="Проверить" Width="90" Height="23"
-                                    FontSize="10" Background="#007ACC" Foreground="White" Margin="8,20,0,0"/>
+                                    FontSize="10" Background="#007ACC" Foreground="White" Margin="8,15,0,0"/>
 						</Grid>
 
 						<CheckBox x:Name="CopyFromRegistrationCheckBox" Content="Скопировать адрес из данных удостоверения личности"
@@ -187,10 +187,10 @@
 						</StackPanel>
 
 						<StackPanel Grid.Column="1">
-							<TextBlock Text="WhatsApp" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,5"/>
+							<TextBlock Text="Max" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,5"/>
 							<TextBox x:Name="WhatsAppTextBox" Height="23" FontSize="11" ToolTip="+7 (XXX) XXX-XX-XX"/>
 
-							<TextBlock Text="Viber" FontSize="11" FontWeight="SemiBold" Margin="0,15,0,5"/>
+							<TextBlock Text="VK" FontSize="11" FontWeight="SemiBold" Margin="0,15,0,5"/>
 							<TextBox x:Name="ViberTextBox" Height="23" FontSize="11" ToolTip="+7 (XXX) XXX-XX-XX"/>
 						</StackPanel>
 					</Grid>
@@ -206,7 +206,7 @@
                                          Margin="0,0,20,0" FontSize="11" IsChecked="True"/>
 							<RadioButton x:Name="PreferredEmailRadio" GroupName="PreferredContact" Content="E-mail"
                                          Margin="0,0,20,0" FontSize="11"/>
-							<RadioButton x:Name="PreferredMessengerRadio" GroupName="PreferredContact" Content="Мессенджер (Telegram/WhatsApp)"
+							<RadioButton x:Name="PreferredMessengerRadio" GroupName="PreferredContact" Content="Мессенджер"
                                          FontSize="11"/>
 						</StackPanel>
 

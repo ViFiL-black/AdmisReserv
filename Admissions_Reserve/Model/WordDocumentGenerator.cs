@@ -69,10 +69,11 @@ namespace Admissions_Reserve.Model
             var identity = DataService.GetApplicantDocuments(applicantId).FirstOrDefault();
             var eduDoc = DataService.GetApplicantEducationDocuments(applicantId).FirstOrDefault();
             var priorities = DataService.GetApplicantPriorities(applicantId);
-            var selected = priorities.FirstOrDefault(p => p.IsSelected == true);
-            var competition = selected != null
+            // Берём первый приоритет (с наименьшим номером PriorityOrder)
+            var firstPriority = priorities.OrderBy(p => p.PriorityOrder).FirstOrDefault();
+            var competition = firstPriority != null
                 ? DataService.GetByCondition<Competitions>("Name = @Name",
-                    new SQLiteParameter("@Name", selected.ProgramName)).FirstOrDefault()
+                    new SQLiteParameter("@Name", firstPriority.ProgramName)).FirstOrDefault()
                 : null;
 
             var relatives = DataService.GetApplicantRelatives(applicantId);
@@ -88,48 +89,49 @@ namespace Admissions_Reserve.Model
 
             string needsDorm = app.NeedsDormitory == true ? "нуждаюсь" : "не нуждаюсь";
             string workExp = !string.IsNullOrEmpty(app.CurrentWorkPlace) ? app.CurrentWorkPlace : "";
-            string photoCount = "___"; // можно будет позже вынести в БД
+            string photoCount = "___";
 
             return new Dictionary<string, string>
-            {
-                { "FullName", $"{app.LastName} {app.FirstName} {app.Patronymic}".Trim() },
-                { "Citizenship", GetCitizenshipName(app.CitizenshipId) },
-                { "PassportSeries", identity?.Series ?? "" },
-                { "PassportNumber", identity?.Number ?? "" },
-                { "PassportIssuedBy", identity?.IssuedBy ?? "" },
-                { "PassportIssueDate", identity?.IssueDate?.ToString("dd.MM.yyyy") ?? "" },
-                { "BirthDate", app.BirthDate?.ToString("dd.MM.yyyy") ?? "" },
-                { "Age", app.BirthDate.HasValue ? (DateTime.Now.Year - app.BirthDate.Value.Year).ToString() : "" },
-                { "Gender", app.GenderId == 1 ? "Мужской" : "Женский" },
-                { "BirthPlace", app.BirthPlace ?? "" },
-                { "Snils", app.Snils ?? "" },
-                { "RegistrationAddress", FormatAddress(
-                    app.RegistrationPostalCode, app.RegistrationRegion, app.RegistrationDistrict,
-                    app.RegistrationCity, app.RegistrationStreet, app.RegistrationHouse,
-                    app.RegistrationBuilding, app.RegistrationApartment) },
-                { "ActualAddress", FormatAddress(
-                    app.ActualPostalCode, app.ActualRegion, app.ActualDistrict,
-                    app.ActualCity, app.ActualStreet, app.ActualHouse,
-                    app.ActualBuilding, app.ActualApartment) },
-                { "Phone", app.MobilePhone ?? app.Phone ?? "" },
-                { "Email", app.Email ?? "" },
-                { "Specialty", competition?.Name ?? selected?.ProgramName ?? "" },
-                { "StudyForm", competition?.StudyForm ?? selected?.StudyForm ?? "" },
-                { "EducationBase", competition?.EducationBase ?? selected?.EducationBase ?? "" },
-                { "Education", eduDoc?.EducationalOrg ?? "" },
-                { "GraduationYear", eduDoc?.GraduationYear?.Year.ToString() ?? "" },
-                { "DocumentSeries", eduDoc?.Series ?? "" },
-                { "DocumentNumber", eduDoc?.Number ?? "" },
-                { "AverageScore", eduDoc?.AverageScore.ToString("F2") ?? "" },
-                { "MotherInfo", mother != null ? $"{mother.LastName} {mother.FirstName} {mother.Patronymic}, {mother.Phone}" : "" },
-                { "FatherInfo", father != null ? $"{father.LastName} {father.FirstName} {father.Patronymic}, {father.Phone}" : "" },
-                { "WorkExperience", workExp },
-                { "PhotoCount", photoCount },
-                { "NeedsDormitory", needsDorm },
-                { "ForeignLanguages", foreignLanguages },
-                { "IndividualAchievements", achievementsList },
-                { "ApplicationDate", DateTime.Now.ToString("dd.MM.yyyy") }
-            };
+    {
+        { "FullName", $"{app.LastName} {app.FirstName} {app.Patronymic}".Trim() },
+        { "Citizenship", GetCitizenshipName(app.CitizenshipId) },
+        { "PassportSeries", identity?.Series ?? "" },
+        { "PassportNumber", identity?.Number ?? "" },
+        { "PassportIssuedBy", identity?.IssuedBy ?? "" },
+        { "PassportIssueDate", identity?.IssueDate?.ToString("dd.MM.yyyy") ?? "" },
+        { "BirthDate", app.BirthDate?.ToString("dd.MM.yyyy") ?? "" },
+        { "Age", app.BirthDate.HasValue ? (DateTime.Now.Year - app.BirthDate.Value.Year).ToString() : "" },
+        { "Gender", app.GenderId == 1 ? "Мужской" : "Женский" },
+        { "BirthPlace", app.BirthPlace ?? "" },
+        { "Snils", app.Snils ?? "" },
+        { "RegistrationAddress", FormatAddress(
+            app.RegistrationPostalCode, app.RegistrationRegion, app.RegistrationDistrict,
+            app.RegistrationCity, app.RegistrationStreet, app.RegistrationHouse,
+            app.RegistrationBuilding, app.RegistrationApartment) },
+        { "ActualAddress", FormatAddress(
+            app.ActualPostalCode, app.ActualRegion, app.ActualDistrict,
+            app.ActualCity, app.ActualStreet, app.ActualHouse,
+            app.ActualBuilding, app.ActualApartment) },
+        { "Phone", app.MobilePhone ?? app.Phone ?? "" },
+        { "Email", app.Email ?? "" },
+        // Специальность, форма обучения и база – из первого приоритета
+        { "Specialty", competition?.Name ?? firstPriority?.ProgramName ?? "" },
+        { "StudyForm", competition?.StudyForm ?? firstPriority?.StudyForm ?? "" },
+        { "EducationBase", competition?.EducationBase ?? firstPriority?.EducationBase ?? "" },
+        { "Education", eduDoc?.EducationalOrg ?? "" },
+        { "GraduationYear", eduDoc?.GraduationYear?.Year.ToString() ?? "" },
+        { "DocumentSeries", eduDoc?.Series ?? "" },
+        { "DocumentNumber", eduDoc?.Number ?? "" },
+        { "AverageScore", eduDoc?.AverageScore.ToString("F2") ?? "" },
+        { "MotherInfo", mother != null ? $"{mother.LastName} {mother.FirstName} {mother.Patronymic}, {mother.Phone}" : "" },
+        { "FatherInfo", father != null ? $"{father.LastName} {father.FirstName} {father.Patronymic}, {father.Phone}" : "" },
+        { "WorkExperience", workExp },
+        { "PhotoCount", photoCount },
+        { "NeedsDormitory", needsDorm },
+        { "ForeignLanguages", foreignLanguages },
+        { "IndividualAchievements", achievementsList },
+        { "ApplicationDate", DateTime.Now.ToString("dd.MM.yyyy") }
+    };
         }
 
         // ------------------- Согласие абитуриента -------------------
